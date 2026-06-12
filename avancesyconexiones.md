@@ -1,7 +1,7 @@
-# Avances y Conexiones — Sanmaaunclick
+# Avances y Conexiones — Aunclick
 
 Registro de los cambios realizados y de cómo se conectan las piezas del proyecto.
-Última actualización: 2026-06-10
+Última actualización: 2026-06-12
 
 ---
 
@@ -279,6 +279,119 @@ para que el modal quepa con margen.
 **`.tabs-scroll`** (barra horizontal de 4px, morada, suave). Aparece sola cuando las pestañas
 no caben (móvil), indicando que hay más opciones. Clase reutilizable para otras tiras con
 scroll horizontal.
+
+---
+
+---
+
+## 18. Rebrand — Sanmaaunclick → Aunclick
+
+**Archivos:** `index.html`, `src/components/Footer.jsx`, `PrivacyModal.jsx`, `TermsModal.jsx`, `CookiesModal.jsx`, `AdminSidebar.jsx`
+
+**Qué se hizo:** se renombraron todas las referencias visibles al usuario. El título del sitio, los emails de contacto (`contacto@aunclick.cl`), el nombre legal ("Aunclick SpA") y los dominios en los modales legales.
+
+---
+
+## 19. Email transaccional — Nodemailer + Gmail SMTP
+
+**Archivo:** `backend/lib/email.js`
+
+**Qué se hizo:** se implementó un sistema de envío de emails usando Nodemailer conectado a Gmail con App Password. No requiere servicio externo de pago. Dos funciones:
+
+- `sendWelcomeEmail(email, nombre)` — se llama en background al registrarse
+- `sendPasswordResetEmail(email, nombre, token)` — envía link con token de 1 hora de vigencia
+
+Configuración vía `backend/.env` (no subido al repo): `EMAIL_USER`, `EMAIL_PASS`, `APP_URL`.
+
+Ambas funciones usan `.catch()` para que un fallo de email nunca interrumpa el flujo principal.
+
+---
+
+## 20. Recuperación de contraseña por token
+
+**Archivos:** `backend/routes/password-reset.js`, `backend/create-password-reset-table.js`, `src/components/LoginModal.jsx`
+
+**Tabla nueva:** `tb_password_reset_tokens`
+```
+id, usuario_id (FK → CASCADE), token VARCHAR(64) UNIQUE, expires_at, created_at
+```
+
+**Flujo:**
+1. Usuario pide reset → `POST /api/v1/password-reset/request` genera token aleatorio (64 bytes hex), lo guarda con expiración de 1 hora y envía email
+2. Respuesta siempre igual aunque el email no exista (evita enumerar usuarios)
+3. Usuario abre link `/?reset=TOKEN` → `LoginModal.jsx` detecta el parámetro y muestra formulario de nueva contraseña
+4. `POST /api/v1/password-reset/reset` valida token + fecha, actualiza hash con bcrypt, invalida todas las sesiones, borra el token
+
+**Frontend:** `ForgotPasswordView` con 3 pasos internos: `email → reset → done`. Limpia la URL con `window.history.replaceState` al montar.
+
+---
+
+## 21. Cambio de contraseña autenticado
+
+**Archivo:** `backend/routes/auth.js` → `PUT /api/v1/auth/password`
+
+**Qué se hizo:** endpoint que requiere sesión activa + contraseña actual correcta para cambiar la contraseña. Lógica:
+1. Verifica `session_token` cookie
+2. Requiere `password_actual` y `password_nueva` (mínimo 6 caracteres)
+3. `bcrypt.compare` contra el hash guardado
+4. Genera nuevo hash con SALT_ROUNDS=12 y actualiza `password_hash`
+5. Registra `cambio_password` en `tb_historial_seguridad`
+
+La contraseña antigua queda completamente reemplazada — no hay historial de contraseñas anteriores.
+
+---
+
+## 22. Historial de seguridad — `tb_historial_seguridad`
+
+**Archivos:** `backend/lib/securityLog.js`, `backend/create-security-log-table.js`, `backend/add-account-deletion.js`
+
+**Tabla:**
+```
+id, usuario_id (FK → SET NULL al eliminar), accion ENUM(10 valores), detalle, ip, created_at
+```
+
+**Para qué sirve:** registra todos los eventos críticos de autenticación con IP y timestamp. El `ON DELETE SET NULL` preserva los registros aunque el usuario sea eliminado, como respaldo de auditoría.
+
+**Helper `logSeguridad(pool, { usuario_id, accion, detalle, ip })`** — fire-and-forget, nunca lanza excepciones.
+
+| Acción registrada | Cuándo |
+|-------------------|--------|
+| `login_exitoso` | Login correcto |
+| `login_fallido` | Contraseña incorrecta / cuenta desactivada / email no registrado |
+| `logout` | Cierre de sesión |
+| `reset_solicitado` | Pedido de recuperación por email |
+| `reset_password` | Reset completado |
+| `cambio_password` | Cambio desde el panel |
+| `cuenta_eliminacion_solicitada` | Usuario solicita eliminar cuenta |
+| `cuenta_recuperada` | Usuario cancela la eliminación |
+| `cuenta_eliminada` | Eliminación permanente ejecutada |
+
+---
+
+## 23. Eliminación de cuenta con período de gracia de 10 días
+
+**Archivos:** `backend/routes/auth.js`, `backend/add-account-deletion.js`, `src/admin/components/AdminHeader.jsx`, `src/components/LoginModal.jsx`
+
+**Columna nueva en `usuarios`:** `eliminacion_programada_at DATETIME NULL`
+
+**Flujo completo:**
+
+**→ Solicitar eliminación:**
+- 4to tab "Cuenta" en el modal del panel → zona de peligro → popup de confirmación
+- `DELETE /api/v1/auth/account` → `activo=0`, `eliminacion_programada_at=NOW()+10 días`, cierra todas las sesiones, registra en historial
+- Frontend redirige a `/`
+
+**→ Dentro de los 10 días (arrepentimiento):**
+- Si el usuario intenta login → backend detecta `activo=0` + fecha futura → responde `{ cuenta_en_eliminacion: true, dias_restantes: X }`
+- `LoginModal.jsx` muestra `DeletionPendingView` con días restantes y botón "Recuperar cuenta"
+- `POST /api/v1/auth/account/recover` re-autentica con email+password, pone `activo=1`, `eliminacion_programada_at=NULL`, crea nueva sesión
+
+**→ Al vencer el plazo (eliminación permanente):**
+- Próximo login → backend ejecuta `eliminarCuentaPermanente()`:
+  1. Recopila URLs de imágenes de `tb_listings`, `tb_tours`, `portadas`, `paginas`, `negocios`
+  2. Registra `cuenta_eliminada` en historial
+  3. `DELETE FROM usuarios` → CASCADE borra todas las tablas relacionadas
+  4. Borra archivos físicos del disco (`backend/uploads/`)
 
 ---
 
