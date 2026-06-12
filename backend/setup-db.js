@@ -80,6 +80,23 @@ CREATE TABLE IF NOT EXISTS sesiones (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ─────────────────────────────────────────────
+--  HISTORIAL DE SEGURIDAD
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS tb_historial_seguridad (
+  id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  usuario_id  INT UNSIGNED NULL,
+  accion      ENUM('reset_solicitado','reset_password','cambio_password','login_fallido','login_exitoso','logout','sesion_expirada') NOT NULL,
+  detalle     VARCHAR(255) NULL,
+  ip          VARCHAR(45)  NULL,
+  created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_seg_usuario (usuario_id),
+  KEY idx_seg_accion  (accion),
+  KEY idx_seg_created (created_at),
+  CONSTRAINT fk_seg_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios (id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ─────────────────────────────────────────────
 --  TOKENS DE RECUPERACIÓN DE CONTRASEÑA
 -- ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS tb_password_reset_tokens (

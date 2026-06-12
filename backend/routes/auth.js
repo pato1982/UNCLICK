@@ -2,6 +2,7 @@ import { Router }   from 'express'
 import bcrypt        from 'bcrypt'
 import { randomBytes } from 'crypto'
 import { sendWelcomeEmail } from '../lib/email.js'
+import { logSeguridad }    from '../lib/securityLog.js'
 
 const router      = Router()
 const SALT_ROUNDS = 12
@@ -124,14 +125,22 @@ router.post('/login', async (req, res) => {
       [email.trim().toLowerCase()]
     )
 
-    if (!usuario)
+    const ip = (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '').slice(0, 45)
+
+    if (!usuario) {
+      logSeguridad(req.pool, { accion: 'login_fallido', detalle: `email no registrado: ${email.trim().toLowerCase()}`, ip })
       return res.status(401).json({ error: 'Email o contraseña incorrectos' })
-    if (!usuario.activo)
+    }
+    if (!usuario.activo) {
+      logSeguridad(req.pool, { usuario_id: usuario.id, accion: 'login_fallido', detalle: 'cuenta desactivada', ip })
       return res.status(403).json({ error: 'Cuenta desactivada' })
+    }
 
     const valido = await bcrypt.compare(password, usuario.password_hash)
-    if (!valido)
+    if (!valido) {
+      logSeguridad(req.pool, { usuario_id: usuario.id, accion: 'login_fallido', detalle: 'contraseña incorrecta', ip })
       return res.status(401).json({ error: 'Email o contraseña incorrectos' })
+    }
 
     // Crear sesión
     const token     = randomBytes(32).toString('hex')
@@ -144,6 +153,7 @@ router.post('/login', async (req, res) => {
     )
 
     registrarActividad(req.pool, usuario.id, 'login', 'sesion', null, req.ip)
+    logSeguridad(req.pool, { usuario_id: usuario.id, accion: 'login_exitoso', ip })
 
     const { password_hash, ...usuarioPublico } = usuario
 
@@ -367,7 +377,9 @@ router.put('/password', async (req, res) => {
     const hash = await bcrypt.hash(password_nueva, SALT_ROUNDS)
     await req.pool.query('UPDATE usuarios SET password_hash = ? WHERE id = ?', [hash, usuario.id])
 
+    const ipPass = (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '').slice(0, 45)
     registrarActividad(req.pool, usuario.id, 'cambio_password', 'usuario', usuario.id, req.ip)
+    logSeguridad(req.pool, { usuario_id: usuario.id, accion: 'cambio_password', detalle: 'cambio desde panel de perfil', ip: ipPass })
     res.json({ ok: true })
   } catch (err) {
     console.error(err)
@@ -380,12 +392,15 @@ router.post('/logout', async (req, res) => {
   const token = req.cookies?.session_token
   if (token) {
     try {
-      // Obtener usuario_id antes de borrar para registrar actividad
       const [[sesion]] = await req.pool.query(
         'SELECT usuario_id FROM sesiones WHERE token = ?', [token]
       )
       await req.pool.query('DELETE FROM sesiones WHERE token = ?', [token])
-      if (sesion) registrarActividad(req.pool, sesion.usuario_id, 'logout', 'sesion')
+      if (sesion) {
+        const ip = (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '').slice(0, 45)
+        registrarActividad(req.pool, sesion.usuario_id, 'logout', 'sesion')
+        logSeguridad(req.pool, { usuario_id: sesion.usuario_id, accion: 'logout', ip })
+      }
     } catch {}
   }
   res.clearCookie('session_token')

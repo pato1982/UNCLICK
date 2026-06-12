@@ -2,6 +2,7 @@ import { Router }    from 'express'
 import { randomBytes } from 'crypto'
 import bcrypt          from 'bcrypt'
 import { sendPasswordResetEmail } from '../lib/email.js'
+import { logSeguridad }           from '../lib/securityLog.js'
 
 const router     = Router()
 const SALT_ROUNDS = 12
@@ -20,6 +21,8 @@ router.post('/request', async (req, res) => {
       [email.trim().toLowerCase()]
     )
 
+    const ip = (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '').slice(0, 45)
+
     if (usuario) {
       // Borrar tokens anteriores del mismo usuario
       await req.pool.query(
@@ -35,6 +38,9 @@ router.post('/request', async (req, res) => {
         'INSERT INTO tb_password_reset_tokens (usuario_id, token, expires_at) VALUES (?, ?, ?)',
         [usuario.id, token, expiresAt]
       )
+
+      // Registrar solicitud de reset
+      logSeguridad(req.pool, { usuario_id: usuario.id, accion: 'reset_solicitado', detalle: `email: ${usuario.email}`, ip })
 
       // Enviar email en background — no bloquea la respuesta
       sendPasswordResetEmail(usuario.email, usuario.nombre, token).catch(err => {
@@ -81,6 +87,10 @@ router.post('/reset', async (req, res) => {
 
     // Borrar el token usado
     await req.pool.query('DELETE FROM tb_password_reset_tokens WHERE id = ?', [row.id])
+
+    // Registrar en historial de seguridad
+    const ip = (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '').slice(0, 45)
+    logSeguridad(req.pool, { usuario_id: row.usuario_id, accion: 'reset_password', detalle: 'contraseña restablecida via email', ip })
 
     res.json({ ok: true, message: 'Contraseña actualizada correctamente' })
   } catch (err) {
