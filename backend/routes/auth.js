@@ -1,6 +1,7 @@
 import { Router }   from 'express'
 import bcrypt        from 'bcrypt'
 import { randomBytes } from 'crypto'
+import { sendWelcomeEmail } from '../lib/email.js'
 
 const router      = Router()
 const SALT_ROUNDS = 12
@@ -85,6 +86,11 @@ router.post('/register', async (req, res) => {
     )
 
     registrarActividad(req.pool, usuario_id, 'registro', 'sesion', null, req.ip)
+
+    // Email de bienvenida en background — no bloquea el registro
+    sendWelcomeEmail(email.trim().toLowerCase(), nombre.trim()).catch(err => {
+      console.error('[email] Error al enviar bienvenida:', err.message)
+    })
 
     const [[usuario]] = await req.pool.query(
       `SELECT id, nombre, email, rol, tipo_cuenta, plan_id,
@@ -329,6 +335,43 @@ router.put('/profile', async (req, res) => {
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Error al actualizar perfil' })
+  }
+})
+
+// ── PUT /api/v1/auth/password ─────────────────────────────────────────────
+// Cambia la contraseña de un usuario autenticado (requiere contraseña actual).
+router.put('/password', async (req, res) => {
+  const token = req.cookies?.session_token
+  if (!token) return res.status(401).json({ error: 'No autenticado' })
+
+  const { password_actual, password_nueva } = req.body
+  if (!password_actual)           return res.status(400).json({ error: 'La contraseña actual es requerida' })
+  if (!password_nueva || password_nueva.length < 6)
+    return res.status(400).json({ error: 'La nueva contraseña debe tener al menos 6 caracteres' })
+
+  try {
+    const [[sesion]] = await req.pool.query(
+      'SELECT usuario_id FROM sesiones WHERE token = ? AND expires_at > NOW()',
+      [token]
+    )
+    if (!sesion) return res.status(401).json({ error: 'Sesión inválida' })
+
+    const [[usuario]] = await req.pool.query(
+      'SELECT id, password_hash FROM usuarios WHERE id = ?',
+      [sesion.usuario_id]
+    )
+
+    const valido = await bcrypt.compare(password_actual, usuario.password_hash)
+    if (!valido) return res.status(401).json({ error: 'La contraseña actual es incorrecta' })
+
+    const hash = await bcrypt.hash(password_nueva, SALT_ROUNDS)
+    await req.pool.query('UPDATE usuarios SET password_hash = ? WHERE id = ?', [hash, usuario.id])
+
+    registrarActividad(req.pool, usuario.id, 'cambio_password', 'usuario', usuario.id, req.ip)
+    res.json({ ok: true })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Error al cambiar contraseña' })
   }
 })
 

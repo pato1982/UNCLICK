@@ -8,7 +8,8 @@ import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import { CARPETAS_VALIDAS, multerMemoria, guardarImagen, handleUploadError } from './middleware/upload.js'
 import { requireAuth } from './middleware/requireAuth.js'
-import authRouter       from './routes/auth.js'
+import authRouter          from './routes/auth.js'
+import passwordResetRouter from './routes/password-reset.js'
 import categoriasRouter from './routes/categorias.js'
 import eventosRouter    from './routes/eventos.js'
 import localesRouter    from './routes/locales.js'
@@ -103,6 +104,9 @@ app.get('/api/v1/health', (_req, res) => res.json({ ok: true }))
 
 // ── Autenticación (rutas públicas) ─────────────────────────────────────────
 app.use('/api/v1/auth', authRouter)
+
+// ── Recuperación de contraseña (pública, rate-limited por limiterAuth) ──────
+app.use('/api/v1/password-reset', limiterAuth, passwordResetRouter)
 
 // ── Upload de imágenes (requiere sesión) ───────────────────────────────────
 app.post('/api/v1/upload', requireAuth, multerMemoria.single('imagen'), async (req, res) => {
