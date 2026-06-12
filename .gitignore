@@ -1,0 +1,12 @@
+node_modules
+dist
+.env
+.env.local
+.DS_Store
+CREDENCIALES.md
+backend/uploads
+backend/logs/*.log
+backend/server.log
+backend/.env
+backend/node_modules
+.claude

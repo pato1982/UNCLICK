@@ -1,0 +1,118 @@
+import { Router } from 'express'
+import { uploadImagen } from '../middleware/upload.js'
+import { unlink } from 'fs/promises'
+import { join, dirname } from 'path'
+import { fileURLToPath } from 'url'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const router    = Router()
+
+async function borrarImagen(rutaRelativa) {
+  if (!rutaRelativa) return
+  try { await unlink(join(__dirname, '..', rutaRelativa)) } catch {}
+}
+
+// ── GET /api/v1/locales/admin ──────────────────────────────────────────────
+router.get('/admin', async (req, res) => {
+  try {
+    const [locales] = await req.pool.query(
+      `SELECT l.*, c.nombre AS categoria_nombre, c.icono AS categoria_icono
+       FROM tb_locales l
+       LEFT JOIN tb_categorias c ON c.id = l.categoria_barrio_id
+       ORDER BY l.created_at DESC`
+    )
+    res.json({ locales })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Error al obtener locales' })
+  }
+})
+
+// ── POST /api/v1/locales ───────────────────────────────────────────────────
+router.post('/', ...uploadImagen('locales'), async (req, res) => {
+  const { nombre, direccion, categoria_barrio_id } = req.body
+  if (!nombre?.trim()) return res.status(400).json({ error: 'El nombre es requerido' })
+
+  try {
+    const [result] = await req.pool.query(
+      `INSERT INTO tb_locales (nombre, direccion, categoria_barrio_id, imagen)
+       VALUES (?, ?, ?, ?)`,
+      [nombre.trim(), direccion || null, categoria_barrio_id || null, req.file?.url || null]
+    )
+    const [rows] = await req.pool.query('SELECT * FROM tb_locales WHERE id = ?', [result.insertId])
+    res.status(201).json({ local: rows[0] })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Error al crear el local' })
+  }
+})
+
+// ── PUT /api/v1/locales/:id ────────────────────────────────────────────────
+router.put('/:id', ...uploadImagen('locales'), async (req, res) => {
+  const { nombre, direccion, categoria_barrio_id } = req.body
+  if (!nombre?.trim()) return res.status(400).json({ error: 'El nombre es requerido' })
+
+  try {
+    const [[local]] = await req.pool.query('SELECT * FROM tb_locales WHERE id = ?', [req.params.id])
+    if (!local) return res.status(404).json({ error: 'Local no encontrado' })
+
+    if (req.file && local.imagen) await borrarImagen(local.imagen)
+    const imagen = req.file?.url ?? local.imagen
+
+    await req.pool.query(
+      `UPDATE tb_locales SET nombre = ?, direccion = ?, categoria_barrio_id = ?, imagen = ? WHERE id = ?`,
+      [nombre.trim(), direccion || null, categoria_barrio_id || null, imagen, req.params.id]
+    )
+    const [rows] = await req.pool.query('SELECT * FROM tb_locales WHERE id = ?', [req.params.id])
+    res.json({ local: rows[0] })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Error al actualizar el local' })
+  }
+})
+
+// ── DELETE /api/v1/locales/:id ─────────────────────────────────────────────
+router.delete('/:id', async (req, res) => {
+  try {
+    const [[local]] = await req.pool.query('SELECT imagen FROM tb_locales WHERE id = ?', [req.params.id])
+    if (!local) return res.status(404).json({ error: 'Local no encontrado' })
+
+    await req.pool.query('DELETE FROM tb_locales WHERE id = ?', [req.params.id])
+    await borrarImagen(local.imagen)
+    res.json({ ok: true })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Error al eliminar el local' })
+  }
+})
+
+// ── PATCH /api/v1/locales/:id/toggle ──────────────────────────────────────
+router.patch('/:id/toggle', async (req, res) => {
+  try {
+    const [[local]] = await req.pool.query('SELECT activo FROM tb_locales WHERE id = ?', [req.params.id])
+    if (!local) return res.status(404).json({ error: 'Local no encontrado' })
+
+    const nuevoEstado = local.activo ? 0 : 1
+    await req.pool.query('UPDATE tb_locales SET activo = ? WHERE id = ?', [nuevoEstado, req.params.id])
+    res.json({ message: nuevoEstado ? 'Local activado' : 'Local desactivado', activo: nuevoEstado })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Error al cambiar estado' })
+  }
+})
+
+// ── PATCH /api/v1/locales/:id/crop ────────────────────────────────────────
+router.patch('/:id/crop', async (req, res) => {
+  try {
+    await req.pool.query(
+      'UPDATE tb_locales SET imagen_crop = ? WHERE id = ?',
+      [JSON.stringify(req.body.imagen_crop), req.params.id]
+    )
+    res.json({ ok: true })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Error al guardar encuadre' })
+  }
+})
+
+export default router
