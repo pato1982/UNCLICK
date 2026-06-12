@@ -84,10 +84,11 @@ CREATE TABLE IF NOT EXISTS sesiones (
 -- ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS negocios (
   id               INT UNSIGNED    NOT NULL AUTO_INCREMENT,
-  user_id          INT UNSIGNED    NOT NULL,
+  usuario_id       INT UNSIGNED    NOT NULL,
   nombre_negocio   VARCHAR(150)    NOT NULL DEFAULT '',
   slogan           VARCHAR(255)    NULL,
   descripcion      TEXT            NULL,
+  ubicacion        VARCHAR(120)    NULL,
   direccion        VARCHAR(200)    NULL,
   whatsapp         VARCHAR(30)     NULL,
   telefono         VARCHAR(30)     NULL,
@@ -95,6 +96,7 @@ CREATE TABLE IF NOT EXISTS negocios (
   facebook         VARCHAR(255)    NULL,
   instagram        VARCHAR(100)    NULL,
   horarios         JSON            NULL COMMENT 'Array de {dia,activo,apertura,cierre}',
+  logo_url         VARCHAR(500)    NULL,
   header_preset    VARCHAR(60)     NULL,
   header_color     VARCHAR(20)     NULL DEFAULT '#3B1969',
   header_height    INT             NULL DEFAULT 22,
@@ -110,8 +112,8 @@ CREATE TABLE IF NOT EXISTS negocios (
   created_at       DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at       DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  UNIQUE KEY uq_negocios_user (user_id),
-  CONSTRAINT fk_negocios_user FOREIGN KEY (user_id) REFERENCES usuarios (id) ON DELETE CASCADE
+  UNIQUE KEY uq_negocios_usuario (usuario_id),
+  CONSTRAINT fk_negocios_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ─────────────────────────────────────────────

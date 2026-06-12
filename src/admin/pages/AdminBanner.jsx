@@ -123,7 +123,12 @@ function BannerPreview({ items }) {
             {slide[0] && (
               <div className={`rounded-xl overflow-hidden flex items-center justify-center ${hasSmall ? '' : 'flex-1'}`} style={{ background: '#1a1220' }}>
                 {slide[0].imagenPreview ? (
-                  <img src={slide[0].imagenPreview} alt={slide[0].nombre} className="w-full h-full object-contain" />
+                  <img src={slide[0].imagenPreview} alt={slide[0].nombre} className="w-full h-full object-cover"
+                    style={{
+                      objectPosition: `${slide[0].posX ?? 50}% ${slide[0].posY ?? 50}%`,
+                      transform: `scale(${slide[0].scale ?? 1})`,
+                      transformOrigin: 'center center',
+                    }} />
                 ) : (
                   <span className="material-symbols-outlined text-3xl text-white/30">image</span>
                 )}
@@ -135,7 +140,12 @@ function BannerPreview({ items }) {
                 {[1, 2, 3, 4].map(idx => (
                   <div key={idx} className="rounded-xl overflow-hidden flex items-center justify-center" style={{ background: '#1a1220' }}>
                     {slide[idx]?.imagenPreview ? (
-                      <img src={slide[idx].imagenPreview} alt={slide[idx].nombre} className="w-full h-full object-contain" />
+                      <img src={slide[idx].imagenPreview} alt={slide[idx].nombre} className="w-full h-full object-cover"
+                        style={{
+                          objectPosition: `${slide[idx].posX ?? 50}% ${slide[idx].posY ?? 50}%`,
+                          transform: `scale(${slide[idx].scale ?? 1})`,
+                          transformOrigin: 'center center',
+                        }} />
                     ) : (
                       <span className="material-symbols-outlined text-xl text-white/20">image</span>
                     )}
@@ -174,6 +184,13 @@ export default function AdminBanner() {
   const [deleteId, setDeleteId] = useState(null)
   const [toast, setToast] = useState(null)
   const fileInputRef = useRef(null)
+  const [cropItemId, setCropItemId] = useState(null)
+  const [cropPos, setCropPos] = useState({ x: 50, y: 50 })
+  const [cropScale, setCropScale] = useState(1)
+  const cropDragging = useRef(false)
+  const cropDragStart = useRef({ cx: 0, cy: 0 })
+  const cropPosOnStart = useRef({ x: 50, y: 50 })
+  const cropContainerRef = useRef(null)
 
   const showToast = (msg, type = 'success') => {
     setToast({ msg, type })
@@ -189,6 +206,7 @@ export default function AdminBanner() {
             id: l.id, orden: l.banner_orden,
             nombre: l.nombre, descripcion: l.descripcion, precio: l.precio, precioOriginal: l.precio_original,
             subcategoria: l.subcategoria, categoria: l.categoria || '', badge: l.badge, tipo: l.tipo, seccion: l.seccion || 'destacados',
+            categoria_id: l.categoria_id || null, subcategoria_id: l.subcategoria_id || null,
             tallas: l.tallas, medidas: l.medidas, genero: l.genero,
             imagenPreview: l.imagen ? `${API}${l.imagen}` : null, imagenUrl: l.imagen,
             posX: l.banner_pos_x ?? 50, posY: l.banner_pos_y ?? 50, scale: parseFloat(l.banner_scale) || 1,
@@ -217,6 +235,33 @@ export default function AdminBanner() {
     }
     fetchItems()
   }, [])
+
+  useEffect(() => {
+    if (!cropItemId) return
+    const move = (cx, cy) => {
+      if (!cropDragging.current || !cropContainerRef.current) return
+      const rect = cropContainerRef.current.getBoundingClientRect()
+      const dx = cx - cropDragStart.current.cx
+      const dy = cy - cropDragStart.current.cy
+      setCropPos({
+        x: Math.max(0, Math.min(100, cropPosOnStart.current.x - (dx / rect.width) * 100)),
+        y: Math.max(0, Math.min(100, cropPosOnStart.current.y - (dy / rect.height) * 100)),
+      })
+    }
+    const onMM = (e) => move(e.clientX, e.clientY)
+    const onTM = (e) => { e.preventDefault(); move(e.touches[0].clientX, e.touches[0].clientY) }
+    const onEnd = () => { cropDragging.current = false }
+    window.addEventListener('mousemove', onMM)
+    window.addEventListener('mouseup', onEnd)
+    window.addEventListener('touchmove', onTM, { passive: false })
+    window.addEventListener('touchend', onEnd)
+    return () => {
+      window.removeEventListener('mousemove', onMM)
+      window.removeEventListener('mouseup', onEnd)
+      window.removeEventListener('touchmove', onTM)
+      window.removeEventListener('touchend', onEnd)
+    }
+  }, [cropItemId])
 
   // Slide 1 = orden 1-5, Slide 2 = orden 6-10
   const slideOffset = (activeSlide - 1) * MAX_PER_SLIDE
@@ -269,6 +314,7 @@ export default function AdminBanner() {
         ? items.find(p => p.id === editingId)?.orden || (slideOffset + slideItems.length + 1)
         : slideOffset + slideItems.length + 1
 
+      const existingItem = editingId ? items.find(p => p.id === editingId) : null
       const body = {
         tipo: formData.tipo || 'producto',
         seccion: formData.tipo === 'servicio' ? 'servicios' : formData.tipo === 'arriendo' ? 'arriendos' : (formData.seccion || 'destacados'),
@@ -280,6 +326,9 @@ export default function AdminBanner() {
         tallas: formData.tallasTipo ? { tipo: formData.tallasTipo, seleccion: formData.tallasSeleccion } : null,
         medidas: formData.attrMedidas ? { alto: formData.medidasAlto, ancho: formData.medidasAncho, profundidad: formData.medidasProfundidad } : null,
         banner_orden: nextOrden,
+        banner_pos_x: existingItem?.posX ?? 50,
+        banner_pos_y: existingItem?.posY ?? 50,
+        banner_scale: existingItem?.scale ?? 1,
       }
 
       const res = editingId
@@ -308,11 +357,44 @@ export default function AdminBanner() {
   }
 
   const buildBodyFromItem = (item) => ({
-    tipo: item.tipo || 'producto', seccion: item.tipo === 'servicio' ? 'servicios' : item.tipo === 'arriendo' ? 'arriendos' : (item.seccion || 'destacados'), nombre: item.nombre, descripcion: item.descripcion,
-    precio: item.precio || 0, precio_original: item.precioOriginal || null, categoria: item.categoria || '', subcategoria: item.subcategoria,
+    tipo: item.tipo || 'producto',
+    seccion: item.tipo === 'servicio' ? 'servicios' : item.tipo === 'arriendo' ? 'arriendos' : (item.seccion || 'destacados'),
+    nombre: item.nombre, descripcion: item.descripcion,
+    precio: item.precio || 0, precio_original: item.precioOriginal || null,
+    categoria: item.categoria || '', categoria_id: item.categoria_id || null,
+    subcategoria: item.subcategoria, subcategoria_id: item.subcategoria_id || null,
     badge: item.badge, genero: item.genero || null, imagen: item.imagenUrl,
     tallas: item.tallas, medidas: item.medidas,
+    banner_pos_x: item.posX ?? 50,
+    banner_pos_y: item.posY ?? 50,
+    banner_scale: item.scale ?? 1,
   })
+
+  const openCrop = (item) => {
+    setCropItemId(item.id)
+    setCropPos({ x: item.posX ?? 50, y: item.posY ?? 50 })
+    setCropScale(item.scale ?? 1)
+  }
+
+  const handleSaveCrop = async () => {
+    setSaving(true)
+    const item = items.find(i => i.id === cropItemId)
+    if (!item) { setSaving(false); return }
+    const updatedItem = { ...item, posX: cropPos.x, posY: cropPos.y, scale: cropScale }
+    setItems(prev => prev.map(i => i.id === cropItemId ? updatedItem : i))
+    setCropItemId(null)
+    try {
+      const res = await fetch(`${API}/api/v1/listings/${cropItemId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ ...buildBodyFromItem(updatedItem), banner_orden: item.orden }),
+      })
+      if (res.ok) showToast('Encuadre guardado')
+      else showToast('Error al guardar encuadre', 'error')
+    } catch { showToast('Error de conexión', 'error') }
+    setSaving(false)
+  }
 
   const handleSetPrincipal = (prod) => {
     const principalOrden = slideOffset + 1
@@ -435,8 +517,50 @@ export default function AdminBanner() {
                       PRINCIPAL
                     </div>
                   )}
+                  {/* Overlay de crop activo */}
+                  {cropItemId === prod.id && prod.imagenPreview && (
+                    <div className="absolute inset-0 z-20 flex flex-col rounded-t-xl overflow-hidden">
+                      <div
+                        ref={cropContainerRef}
+                        className="flex-1 overflow-hidden cursor-grab active:cursor-grabbing select-none"
+                        onMouseDown={(e) => { e.preventDefault(); cropDragging.current = true; cropDragStart.current = { cx: e.clientX, cy: e.clientY }; cropPosOnStart.current = { ...cropPos } }}
+                        onTouchStart={(e) => { cropDragging.current = true; cropDragStart.current = { cx: e.touches[0].clientX, cy: e.touches[0].clientY }; cropPosOnStart.current = { ...cropPos } }}
+                      >
+                        <img src={prod.imagenPreview} draggable={false}
+                          className="w-full h-full object-cover pointer-events-none"
+                          style={{
+                            objectPosition: `${cropPos.x}% ${cropPos.y}%`,
+                            transform: `scale(${cropScale})`,
+                            transformOrigin: 'center center',
+                          }} />
+                      </div>
+                      <div className="flex items-center gap-1 px-1.5 py-1 bg-black/80">
+                        <span className="material-symbols-outlined text-white/50 text-xs">zoom_out</span>
+                        <input type="range" min="1" max="2.5" step="0.05" value={cropScale}
+                          onChange={(e) => setCropScale(Number(e.target.value))}
+                          className="flex-1 h-1 accent-green-400" />
+                        <span className="material-symbols-outlined text-white/50 text-xs">zoom_in</span>
+                      </div>
+                      <div className="flex gap-1 px-1.5 py-1.5 bg-black/80">
+                        <button type="button" onClick={() => setCropItemId(null)}
+                          className="flex-1 py-1 text-[9px] font-bold text-white bg-white/20 hover:bg-white/30 rounded transition-colors">
+                          Cancelar
+                        </button>
+                        <button type="button" onClick={handleSaveCrop} disabled={saving}
+                          className="flex-1 py-1 text-[9px] font-bold text-white bg-green-600 hover:bg-green-500 rounded transition-colors disabled:opacity-50">
+                          {saving ? '...' : 'Guardar'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                   {prod.imagenPreview ? (
-                    <img src={prod.imagenPreview} alt={prod.nombre} className={`w-full aspect-square object-cover ${isPrincipal ? 'pt-4' : ''}`} />
+                    <img src={prod.imagenPreview} alt={prod.nombre}
+                      className={`w-full aspect-square object-cover ${isPrincipal ? 'pt-4' : ''}`}
+                      style={{
+                        objectPosition: `${prod.posX ?? 50}% ${prod.posY ?? 50}%`,
+                        transform: prod.scale && prod.scale !== 1 ? `scale(${prod.scale})` : undefined,
+                        transformOrigin: 'center center',
+                      }} />
                   ) : (
                     <div className={`w-full aspect-square bg-gray-100 flex items-center justify-center ${isPrincipal ? 'pt-4' : ''}`}>
                       <span className="material-symbols-outlined text-3xl text-gray-300">image</span>
@@ -459,6 +583,12 @@ export default function AdminBanner() {
                       <button onClick={() => openEdit(prod)} className="flex-1 flex items-center justify-center gap-0.5 py-1.5 rounded-lg text-[10px] font-semibold text-primary bg-primary/5 hover:bg-primary/10 transition-colors">
                         <span className="material-symbols-outlined text-sm">edit</span>Editar
                       </button>
+                      {prod.imagenPreview && (
+                        <button onClick={() => openCrop(prod)} title="Ajustar encuadre en banner"
+                          className="flex-1 flex items-center justify-center gap-0.5 py-1.5 rounded-lg text-[9px] font-semibold text-teal-600 bg-teal-50 hover:bg-teal-100 transition-colors">
+                          <span className="material-symbols-outlined text-sm">crop_free</span>
+                        </button>
+                      )}
                       <button onClick={() => setDeleteId(prod.id)} className="flex-1 flex items-center justify-center gap-0.5 py-1.5 rounded-lg text-[10px] font-semibold text-red-500 bg-red-50 hover:bg-red-100 transition-colors">
                         <span className="material-symbols-outlined text-sm">delete</span>
                       </button>

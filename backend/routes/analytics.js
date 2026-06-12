@@ -84,7 +84,9 @@ router.get('/stats', requireAuth, async (req, res) => {
         WHERE usuario_id = ? AND YEAR(created_at) = YEAR(NOW()) AND MONTH(created_at) = MONTH(NOW())`, [uid]),
 
       req.pool.query(`
-        SELECT COUNT(*) AS clicks_mes
+        SELECT
+          SUM(event_type = 'product_click') AS clicks_mes,
+          SUM(event_type = 'card_click')    AS card_clicks_mes
         FROM tb_analytics_clicks
         WHERE usuario_id = ? AND YEAR(created_at) = YEAR(NOW()) AND MONTH(created_at) = MONTH(NOW())`, [uid]),
 
@@ -106,6 +108,7 @@ router.get('/stats', requireAuth, async (req, res) => {
         visitas_mes:       Number(resV.visitas_mes)       || 0,
         visitantes_unicos: Number(resV.visitantes_unicos) || 0,
         clicks_mes:        Number(resC.clicks_mes)        || 0,
+        card_clicks_mes:   Number(resC.card_clicks_mes)   || 0,
         por_pagina,
       },
     })

@@ -159,7 +159,7 @@ export default function AdminTour() {
         precio: form.precio ? Math.round(Number(form.precio)) : null,
         precio_antes: form.precioAntes ? Math.round(Number(form.precioAntes)) : null,
         imagen_principal: form.imagenPrincipal,
-        imagenes: finalUrls.filter(Boolean),
+        imagenes: finalUrls,
       }
 
       const url = editingId ? `${API}/api/v1/tours/${editingId}` : `${API}/api/v1/tours`
@@ -444,6 +444,16 @@ export default function AdminTour() {
                   </div>
                 </div>
 
+                <div>
+                  <label className="block text-[11px] font-semibold text-gray-600 mb-0.5">Ubicación</label>
+                  <input
+                    type="text"
+                    value={form.ubicacion}
+                    onChange={(e) => update('ubicacion', e.target.value)}
+                    className="w-full rounded-md border-gray-300 text-xs py-1.5 focus:ring-primary focus:border-primary"
+                    placeholder="Ej: Villarrica, IX Región"
+                  />
+                </div>
                 <div>
                   <label className="block text-[11px] font-semibold text-gray-600 mb-0.5">Detalle del tour</label>
                   <textarea

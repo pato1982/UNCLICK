@@ -18,8 +18,14 @@ function parseJson(val) {
 
 // ── GET /api/v1/public/listings ───────────────────────────────────────────
 // Todos los listings activos del marketplace (sin auth — vista pública)
+// Soporta ?limit=N&offset=N para paginación. Default: limit=500, offset=0.
 router.get('/listings', async (req, res) => {
+  const limit  = Math.min(parseInt(req.query.limit)  || 500, 2000)
+  const offset = Math.max(parseInt(req.query.offset) || 0, 0)
   try {
+    const [[{ total }]] = await req.pool.query(
+      'SELECT COUNT(*) AS total FROM tb_listings l JOIN usuarios u ON u.id = l.usuario_id AND u.activo = 1'
+    )
     const [listings] = await req.pool.query(`
       SELECT l.*,
              l.usuario_id            AS user_id,
@@ -36,14 +42,14 @@ router.get('/listings', async (req, res) => {
       JOIN usuarios u ON u.id = l.usuario_id AND u.activo = 1
       LEFT JOIN negocios n ON n.usuario_id = l.usuario_id
       ORDER BY l.created_at DESC
-      LIMIT 1000`)
+      LIMIT ? OFFSET ?`, [limit, offset])
 
     const parsed = listings.map(l => ({
       ...l,
       tallas:  parseJson(l.tallas),
       medidas: parseJson(l.medidas),
     }))
-    res.json({ listings: parsed })
+    res.json({ listings: parsed, total, limit, offset })
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Error al cargar listings' })

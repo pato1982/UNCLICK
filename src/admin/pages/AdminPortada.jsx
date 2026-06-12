@@ -161,7 +161,8 @@ export default function AdminPortada() {
       const body = {
         nombre: nombreNegocio || 'Mi emprendimiento',
         descripcion: form.descripcion,
-        imagenes: finalUrls.filter(Boolean),
+        imagenes: finalUrls,
+        imagenes_crop: form.imagenesCrop,
         categorias,
       }
 

@@ -44,11 +44,15 @@ router.post('/', async (req, res) => {
     precio, precio_original,
     categoria, categoria_id, subcategoria, subcategoria_id,
     badge, genero, imagen, tallas, medidas,
-    banner_orden,
+    banner_orden, banner_pos_x, banner_pos_y, banner_scale,
   } = req.body
 
   if (!nombre?.trim())          return res.status(400).json({ error: 'El nombre es requerido' })
   if (!TIPOS_VALIDOS.has(tipo)) return res.status(400).json({ error: 'Tipo inválido' })
+  if (descripcion) {
+    const words = descripcion.trim().split(/\s+/).filter(Boolean).length
+    if (words > 40) return res.status(400).json({ error: 'La descripción no puede superar 40 palabras' })
+  }
 
   // Validar plan para banner
   if (banner_orden != null && req.usuario.plan_id < PLAN_BANNER) {
@@ -71,8 +75,9 @@ router.post('/', async (req, res) => {
       `INSERT INTO tb_listings
          (usuario_id, tipo, seccion, nombre, descripcion, precio, precio_original,
           categoria, categoria_id, subcategoria, subcategoria_id,
-          badge, genero, imagen, tallas, medidas, banner_orden)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          badge, genero, imagen, tallas, medidas, banner_orden,
+          banner_pos_x, banner_pos_y, banner_scale)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         req.usuario.id,
         tipo,
@@ -90,7 +95,10 @@ router.post('/', async (req, res) => {
         imagen  || null,
         tallas  ? JSON.stringify(tallas)  : null,
         medidas ? JSON.stringify(medidas) : null,
-        banner_orden    != null ? Number(banner_orden) : null,
+        banner_orden != null ? Number(banner_orden) : null,
+        banner_pos_x != null ? Number(banner_pos_x) : 50,
+        banner_pos_y != null ? Number(banner_pos_y) : 50,
+        banner_scale != null ? Number(banner_scale) : 1,
       ]
     )
     logActividad(req.pool, req.usuario.id, 'crear_listing', result.insertId)
@@ -109,11 +117,15 @@ router.put('/:id', async (req, res) => {
     precio, precio_original,
     categoria, categoria_id, subcategoria, subcategoria_id,
     badge, genero, imagen, tallas, medidas,
-    banner_orden,
+    banner_orden, banner_pos_x, banner_pos_y, banner_scale,
   } = req.body
 
   if (!nombre?.trim())          return res.status(400).json({ error: 'El nombre es requerido' })
   if (!TIPOS_VALIDOS.has(tipo)) return res.status(400).json({ error: 'Tipo inválido' })
+  if (descripcion) {
+    const words = descripcion.trim().split(/\s+/).filter(Boolean).length
+    if (words > 40) return res.status(400).json({ error: 'La descripción no puede superar 40 palabras' })
+  }
 
   // Validar plan para banner
   if (banner_orden != null && req.usuario.plan_id < PLAN_BANNER) {
@@ -133,7 +145,7 @@ router.put('/:id', async (req, res) => {
            precio = ?, precio_original = ?,
            categoria = ?, categoria_id = ?, subcategoria = ?, subcategoria_id = ?,
            badge = ?, genero = ?, imagen = ?, tallas = ?, medidas = ?,
-           banner_orden = ?
+           banner_orden = ?, banner_pos_x = ?, banner_pos_y = ?, banner_scale = ?
        WHERE id = ? AND usuario_id = ?`,
       [
         tipo,
@@ -151,7 +163,10 @@ router.put('/:id', async (req, res) => {
         imagen  || null,
         tallas  ? JSON.stringify(tallas)  : null,
         medidas ? JSON.stringify(medidas) : null,
-        banner_orden    != null ? Number(banner_orden) : null,
+        banner_orden != null ? Number(banner_orden) : null,
+        banner_pos_x != null ? Number(banner_pos_x) : 50,
+        banner_pos_y != null ? Number(banner_pos_y) : 50,
+        banner_scale != null ? Number(banner_scale) : 1,
         req.params.id,
         req.usuario.id,
       ]

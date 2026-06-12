@@ -25,7 +25,7 @@ export function StoreFooter({ store }) {
     <footer className="text-white px-4 sm:px-6 md:px-10 py-3 sm:py-4 md:py-2.5" style={{ backgroundColor: hdr.color }}>
       {/* Fila 1: Nombre + Redes sociales centrados (solo móvil; en escritorio van como 1ª columna) */}
       <div className="text-center mb-2.5 sm:mb-3 md:mb-2 sm:hidden">
-        <h3 className="text-xs sm:text-sm md:text-base font-black italic tracking-tight leading-tight">{store.name}</h3>
+        <h3 className="text-xs sm:text-sm md:text-base font-black italic tracking-tight leading-tight">{store.name || 'Mi Tienda'}</h3>
         {hasRedes && (
           <div className="flex items-center justify-center gap-3 mt-2">
             {store.facebook && (
@@ -100,7 +100,7 @@ export function StoreFooter({ store }) {
         {/* Nombre + Redes sociales */}
         <div className="flex justify-center">
           <div className="text-center">
-            <h3 className="text-sm md:text-base font-black italic tracking-tight leading-tight mb-2">{store.name}</h3>
+            <h3 className="text-sm md:text-base font-black italic tracking-tight leading-tight mb-2">{store.name || 'Mi Tienda'}</h3>
             {hasRedes && (
               <div className="flex items-center justify-center gap-3">
                 {store.facebook && (

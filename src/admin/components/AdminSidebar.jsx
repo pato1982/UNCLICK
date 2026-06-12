@@ -14,9 +14,9 @@ const menuGeneral = [
 const menuTurismo = [
   { label: 'Mi Negocio', icon: 'storefront', path: '/admin/negocio' },
   { label: 'Portada', icon: 'home', path: '/admin/portada' },
-  { label: 'Mi Página', icon: 'web', path: '/admin/pagina', minPlan: 3, countKey: 'pagina' },
-  { label: 'Tour', icon: 'tour', path: '/admin/tour', minPlan: 3, countKey: 'tours' },
-  { label: 'Estadísticas', icon: 'bar_chart', path: '/admin/estadisticas', minPlan: 3 },
+  { label: 'Mi Página', icon: 'web', path: '/admin/pagina', minPlan: 5, countKey: 'pagina' },
+  { label: 'Tour', icon: 'tour', path: '/admin/tour', minPlan: 5, countKey: 'tours' },
+  { label: 'Estadísticas', icon: 'bar_chart', path: '/admin/estadisticas', minPlan: 5 },
 ]
 
 const menuProgramador = [
@@ -24,9 +24,10 @@ const menuProgramador = [
   { label: 'Próximos Eventos', icon: 'event', path: '/admin/programador/eventos' },
   { label: 'Estadísticas', icon: 'bar_chart', path: '/admin/programador/estadisticas' },
   { label: 'Servidor', icon: 'dns', path: '/admin/programador/servidor' },
+  { label: 'Monitor', icon: 'monitor_heart', path: '/admin/programador/monitor' },
 ]
 
-const PLAN_NAMES = { 2: 'Normal', 3: 'Premium' }
+const PLAN_NAMES = { 2: 'Normal', 3: 'Premium', 5: 'Premium' }
 
 export default function AdminSidebar({ open, onClose }) {
   const user = JSON.parse(localStorage.getItem('user') || '{}')

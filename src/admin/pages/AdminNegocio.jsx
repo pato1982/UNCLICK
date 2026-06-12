@@ -295,6 +295,7 @@ export default function AdminNegocio() {
                   />
                 </div>
               </div>
+              {!esTurismo && (
               <div>
                 <label className="block text-xs font-semibold text-gray-500 mb-1">Dirección</label>
                 <div className="relative">
@@ -308,6 +309,7 @@ export default function AdminNegocio() {
                   />
                 </div>
               </div>
+              )}
             </div>
 
             <div>

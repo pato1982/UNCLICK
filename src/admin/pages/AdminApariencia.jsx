@@ -245,6 +245,7 @@ export default function AdminApariencia() {
     menu: ['sidebar_style'],
   }
   const resetTab = (id) => {
+    if (!window.confirm('¿Restaurar esta sección al diseño original? Los cambios no guardados se perderán.')) return
     const fields = TAB_FIELDS[id] || []
     setForm(prev => {
       const next = { ...prev }

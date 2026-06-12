@@ -31,7 +31,7 @@ router.get('/', async (req, res) => {
 
 // ── POST /api/v1/tours ─────────────────────────────────────────────────────
 router.post('/', async (req, res) => {
-  const { nombre, categoria, ubicacion, detalle, precio, precio_antes, imagen_principal, imagenes } = req.body
+  const { nombre, categoria, ubicacion, detalle, precio, precio_antes, imagen_principal, imagenes, imagenes_crop } = req.body
 
   if (!nombre?.trim()) return res.status(400).json({ error: 'El nombre es requerido' })
 
@@ -48,8 +48,8 @@ router.post('/', async (req, res) => {
   try {
     const [result] = await req.pool.query(
       `INSERT INTO tb_tours
-         (usuario_id, nombre, categoria, categoria_id, ubicacion, detalle, precio, precio_antes, imagen_principal, imagenes)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         (usuario_id, nombre, categoria, categoria_id, ubicacion, detalle, precio, precio_antes, imagen_principal, imagenes, imagenes_crop)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         req.usuario.id,
         nombre.trim(),
@@ -61,6 +61,7 @@ router.post('/', async (req, res) => {
         precio_antes   ? Math.round(Number(precio_antes)) : null,
         imagen_principal ?? 0,
         imagenes?.length ? JSON.stringify(imagenes) : null,
+        imagenes_crop  ? JSON.stringify(imagenes_crop) : null,
       ]
     )
     logActividad(req.pool, req.usuario.id, 'crear_tour', result.insertId)
