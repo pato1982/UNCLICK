@@ -110,6 +110,8 @@ function ProfileModal({ onClose }) {
   const [activeTab, setActiveTab] = useState('datos')
   const [showPlansModal, setShowPlansModal] = useState(false)
   const [history, setHistory] = useState(null)
+  const [deleteAccountStep, setDeleteAccountStep] = useState(null)
+  const [deletingAccount, setDeletingAccount] = useState(false)
 
   // Campos editables - Datos personales
   const [editEmail, setEditEmail] = useState('')
@@ -334,10 +336,35 @@ function ProfileModal({ onClose }) {
   const checkboxClass = (checked) =>
     `w-4 h-4 rounded border-2 flex items-center justify-center cursor-pointer transition-all ${checked ? 'bg-primary border-primary' : 'border-slate-300 hover:border-primary/50'}`
 
+  const handleDeleteAccount = async () => {
+    setDeletingAccount(true)
+    try {
+      const res = await fetch(`${API}/api/v1/auth/account`, {
+        method: 'DELETE',
+        credentials: 'include',
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        alert(data.error || 'Error al programar la eliminación')
+        setDeletingAccount(false)
+        return
+      }
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      localStorage.removeItem('auth_mode')
+      localStorage.removeItem('dev_user_id')
+      window.location.href = '/'
+    } catch {
+      alert('Error de conexión')
+      setDeletingAccount(false)
+    }
+  }
+
   const tabs = [
     { id: 'datos', label: 'Datos', icon: 'person' },
     { id: 'plan', label: 'Plan', icon: 'star' },
     { id: 'historial', label: 'Pagos', icon: 'receipt_long' },
+    { id: 'cuenta', label: 'Cuenta', icon: 'manage_accounts' },
   ]
 
   // ===================== TAB: DATOS PERSONALES =====================
@@ -629,6 +656,64 @@ function ProfileModal({ onClose }) {
     </div>
   )
 
+  // ===================== TAB: CUENTA / ELIMINACIÓN =====================
+  const renderCuentaTab = () => (
+    <div className="space-y-4">
+      {/* Descripción */}
+      <div className="bg-slate-50 rounded-xl p-4">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="material-symbols-outlined text-base text-slate-400">manage_accounts</span>
+          <p className="text-[10px] font-bold text-slate-400 uppercase">Gestión de cuenta</p>
+        </div>
+        <p className="text-xs text-slate-600 leading-relaxed">
+          Desde aquí puedes solicitar la eliminación permanente de tu cuenta y todos sus datos en Aunclick.
+        </p>
+      </div>
+
+      {/* Zona de peligro */}
+      <div className="border border-red-200 rounded-xl overflow-hidden">
+        <div className="bg-red-50 px-4 py-3 flex items-center gap-2">
+          <span className="material-symbols-outlined text-red-500 text-base">dangerous</span>
+          <p className="text-xs font-bold text-red-600 uppercase">Zona de peligro</p>
+        </div>
+        <div className="p-4 space-y-3">
+          <div>
+            <p className="text-xs font-bold text-slate-700">Eliminar mi cuenta</p>
+            <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
+              Tu cuenta se programará para eliminarse en <strong>10 días corridos</strong>. Durante ese plazo puedes arrepentirte iniciando sesión nuevamente.
+            </p>
+          </div>
+
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 space-y-1">
+            <p className="text-[10px] font-bold text-amber-600 uppercase">Se eliminará permanentemente:</p>
+            <ul className="space-y-0.5">
+              {[
+                'Tu cuenta y datos personales',
+                'Productos, servicios y arriendos',
+                'Tours y páginas turísticas',
+                'Imágenes y archivos subidos',
+                'Estadísticas y analytics',
+              ].map((item, i) => (
+                <li key={i} className="flex items-center gap-1.5 text-[11px] text-amber-700">
+                  <span className="material-symbols-outlined text-xs text-amber-500">remove_circle</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <button
+            onClick={() => setDeleteAccountStep('confirm')}
+            className="w-full py-2.5 bg-red-500 hover:bg-red-600 text-white text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5"
+          >
+            <span className="material-symbols-outlined text-sm">delete_forever</span>
+            Solicitar eliminación de cuenta
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+
   // ===================== MODAL DE PLANES =====================
   const renderPlansModal = () => {
     if (!showPlansModal) return null
@@ -693,6 +778,7 @@ function ProfileModal({ onClose }) {
               {activeTab === 'datos' && renderDatosTab()}
               {activeTab === 'plan' && renderPlanTab()}
               {activeTab === 'historial' && renderHistorialTab()}
+              {activeTab === 'cuenta' && renderCuentaTab()}
             </div>
           </>
         )}
@@ -741,6 +827,61 @@ function ProfileModal({ onClose }) {
               <button onClick={() => { setPlanChangePopup(false); handleSave() }} className="flex-1 py-2.5 bg-primary hover:bg-primary-light text-white text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5">
                 <span className="material-symbols-outlined text-sm">check_circle</span>
                 Confirmar cambio
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Popup confirmación eliminación de cuenta */}
+      {deleteAccountStep === 'confirm' && (
+        <div className="fixed inset-0 flex items-center justify-center p-4" style={{ zIndex: 10001 }} onClick={() => setDeleteAccountStep(null)}>
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+          <div className="relative bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="bg-red-600 px-6 py-5 text-center">
+              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                <span className="material-symbols-outlined text-4xl text-white">person_remove</span>
+              </div>
+              <h3 className="text-base font-bold text-white">¿Eliminar tu cuenta?</h3>
+              <p className="text-red-200 text-xs mt-1">Tendrás 10 días para arrepentirte</p>
+            </div>
+            <div className="px-6 py-4 space-y-3">
+              <p className="text-sm text-slate-700 text-center leading-relaxed">
+                Tu cuenta se <strong>programará para eliminarse en 10 días corridos</strong>. Si cambias de opinión, inicia sesión antes de que expire el plazo.
+              </p>
+              <div className="bg-slate-50 rounded-lg p-3 space-y-1.5">
+                <div className="flex items-center gap-2 text-xs text-slate-600">
+                  <span className="material-symbols-outlined text-sm text-emerald-500">check_circle</span>
+                  10 días para recuperar tu cuenta
+                </div>
+                <div className="flex items-center gap-2 text-xs text-slate-600">
+                  <span className="material-symbols-outlined text-sm text-emerald-500">check_circle</span>
+                  Recupera iniciando sesión normalmente
+                </div>
+                <div className="flex items-center gap-2 text-xs text-red-600">
+                  <span className="material-symbols-outlined text-sm text-red-500">cancel</span>
+                  Después de 10 días, todo se borra para siempre
+                </div>
+              </div>
+              <p className="text-[10px] text-slate-500 text-center flex items-center justify-center gap-1">
+                <span className="material-symbols-outlined text-sm">logout</span>
+                Se cerrará tu sesión automáticamente.
+              </p>
+            </div>
+            <div className="px-6 pb-5 flex gap-2">
+              <button
+                onClick={() => setDeleteAccountStep(null)}
+                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-lg transition-all"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deletingAccount}
+                className="flex-1 py-2.5 bg-red-500 hover:bg-red-600 text-white text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 disabled:opacity-50"
+              >
+                <span className="material-symbols-outlined text-sm">delete_forever</span>
+                {deletingAccount ? 'Procesando...' : 'Confirmar eliminación'}
               </button>
             </div>
           </div>

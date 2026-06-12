@@ -4,6 +4,89 @@ import { QA_PASSWORD, resolveQaUser, loginAsQaUser } from '../lib/qaUsers'
 
 const API = import.meta.env.VITE_API || ''
 
+function DeletionPendingView({ diasRestantes, email, password, onCancel, onRecovered }) {
+  const [recovering, setRecovering] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleRecover = async () => {
+    setRecovering(true)
+    setError('')
+    try {
+      const res = await fetch(`${API}/api/v1/auth/account/recover`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email, password }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || 'Error al recuperar la cuenta')
+        setRecovering(false)
+        return
+      }
+      onRecovered(data.usuario)
+    } catch {
+      setError('Error de conexión')
+      setRecovering(false)
+    }
+  }
+
+  return (
+    <>
+      <div className="bg-amber-500 px-6 py-5 text-center">
+        <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
+          <span className="material-symbols-outlined text-4xl text-white">person_remove</span>
+        </div>
+        <h2 className="text-white font-bold text-lg">Cuenta en proceso de eliminación</h2>
+        <p className="text-amber-100 text-sm mt-1">Período de recuperación activo</p>
+      </div>
+      <div className="p-6 space-y-4">
+        <div className="text-center">
+          <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 mb-4">
+            <span className="material-symbols-outlined text-amber-500 text-xl">schedule</span>
+            <p className="text-sm font-bold text-amber-700">
+              {diasRestantes} {diasRestantes === 1 ? 'día restante' : 'días restantes'}
+            </p>
+          </div>
+          <p className="text-sm text-slate-700 leading-relaxed">
+            Solicitaste eliminar tu cuenta. Todos tus datos y publicaciones serán eliminados permanentemente cuando expire el período de recuperación.
+          </p>
+          <p className="text-sm text-slate-600 mt-2 font-medium">
+            ¿Deseas recuperar tu cuenta y conservar todos tus datos?
+          </p>
+        </div>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-4 py-2 flex items-center gap-2">
+            <span className="material-symbols-outlined text-base">error</span>
+            {error}
+          </div>
+        )}
+
+        <button
+          onClick={handleRecover}
+          disabled={recovering}
+          className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+        >
+          <span className="material-symbols-outlined text-xl">person_add</span>
+          {recovering ? 'Recuperando...' : 'Sí, recuperar mi cuenta'}
+        </button>
+
+        <button
+          onClick={onCancel}
+          className="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-2.5 rounded-xl transition-colors text-sm"
+        >
+          No, continuar con la eliminación
+        </button>
+
+        <p className="text-[11px] text-slate-400 text-center">
+          Si no recuperas tu cuenta antes de {diasRestantes === 1 ? 'mañana' : `${diasRestantes} días`}, todos tus datos serán eliminados permanentemente.
+        </p>
+      </div>
+    </>
+  )
+}
+
 function ForgotPasswordView({ onBack }) {
   const [step, setStep] = useState('email') // email | reset | done
   const [email, setEmail] = useState('')
@@ -288,6 +371,7 @@ export default function LoginModal({ onClose, onSwitchToRegister, onLoginSuccess
   const [showForgot, setShowForgot] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [mfaToken, setMfaToken] = useState(null)
+  const [deletionPending, setDeletionPending] = useState(null)
 
   // Si hay ?reset= en la URL, abrir directamente el formulario de reset
   useEffect(() => {
@@ -328,6 +412,12 @@ export default function LoginModal({ onClose, onSwitchToRegister, onLoginSuccess
       const data = await res.json()
 
       if (!res.ok) {
+        // Cuenta con eliminación programada — mostrar pantalla de recuperación
+        if (data.cuenta_en_eliminacion) {
+          setDeletionPending({ dias_restantes: data.dias_restantes, email: form.email, password: form.password })
+          setLoading(false)
+          return
+        }
         setError(data.error || 'Error al iniciar sesión')
         setLoading(false)
         return
@@ -364,7 +454,22 @@ export default function LoginModal({ onClose, onSwitchToRegister, onLoginSuccess
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden" onClick={(e) => e.stopPropagation()}>
-        {showForgot ? (
+        {deletionPending ? (
+          <DeletionPendingView
+            diasRestantes={deletionPending.dias_restantes}
+            email={deletionPending.email}
+            password={deletionPending.password}
+            onCancel={() => setDeletionPending(null)}
+            onRecovered={(u) => {
+              localStorage.removeItem('token')
+              localStorage.removeItem('dev_user_id')
+              localStorage.setItem('auth_mode', 'real')
+              localStorage.setItem('user', JSON.stringify(u))
+              onLoginSuccess(u)
+              onClose()
+            }}
+          />
+        ) : showForgot ? (
           <ForgotPasswordView onBack={() => setShowForgot(false)} />
         ) : mfaToken ? (
           <MfaVerifyView

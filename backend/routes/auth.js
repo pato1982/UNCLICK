@@ -3,10 +3,50 @@ import bcrypt        from 'bcrypt'
 import { randomBytes } from 'crypto'
 import { sendWelcomeEmail } from '../lib/email.js'
 import { logSeguridad }    from '../lib/securityLog.js'
+import { deleteUpload }    from '../lib/files.js'
 
 const router      = Router()
 const SALT_ROUNDS = 12
 const SESSION_DAYS = 30
+
+// Recopila todas las URLs de imágenes subidas de un usuario y elimina su cuenta permanentemente.
+async function eliminarCuentaPermanente(pool, usuario_id, ip) {
+  const [listRows]    = await pool.query('SELECT imagen FROM tb_listings WHERE usuario_id = ?', [usuario_id])
+  const [tourRows]    = await pool.query('SELECT imagenes FROM tb_tours WHERE usuario_id = ?', [usuario_id])
+  const [portRows]    = await pool.query('SELECT imagenes FROM portadas WHERE usuario_id = ?', [usuario_id])
+  const [pagRows]     = await pool.query('SELECT imagen_superior, imagen_inferior FROM paginas WHERE usuario_id = ?', [usuario_id])
+  const [negRows]     = await pool.query('SELECT logo_url FROM negocios WHERE usuario_id = ?', [usuario_id])
+
+  const urls = []
+  for (const r of listRows) if (r.imagen) urls.push(r.imagen)
+  for (const r of tourRows) {
+    const imgs = r.imagenes ? (typeof r.imagenes === 'string' ? JSON.parse(r.imagenes) : r.imagenes) : []
+    urls.push(...imgs.filter(u => typeof u === 'string'))
+  }
+  for (const r of portRows) {
+    const imgs = r.imagenes ? (typeof r.imagenes === 'string' ? JSON.parse(r.imagenes) : r.imagenes) : []
+    urls.push(...imgs.filter(u => typeof u === 'string'))
+  }
+  for (const r of pagRows) {
+    if (r.imagen_superior) urls.push(r.imagen_superior)
+    if (r.imagen_inferior) urls.push(r.imagen_inferior)
+  }
+  for (const r of negRows) if (r.logo_url) urls.push(r.logo_url)
+
+  // Registrar antes de borrar (FK ON DELETE SET NULL preserva el registro sin usuario_id)
+  await pool.query(
+    `INSERT INTO tb_historial_seguridad (usuario_id, accion, detalle, ip) VALUES (?, ?, ?, ?)`,
+    [usuario_id, 'cuenta_eliminada', 'eliminación permanente tras período de gracia de 10 días', ip]
+  )
+
+  // Borrar usuario — CASCADE elimina sesiones, listings, tours, portadas, paginas, negocios
+  await pool.query('DELETE FROM usuarios WHERE id = ?', [usuario_id])
+
+  // Borrar archivos del disco
+  for (const url of urls) deleteUpload(url)
+
+  console.log(`[account-deletion] Cuenta ${usuario_id} eliminada. ${urls.length} archivo(s) borrado(s).`)
+}
 
 function registrarActividad(pool, usuario_id, accion, entidad = null, entidad_id = null, ip = null) {
   pool.query(
@@ -120,7 +160,7 @@ router.post('/login', async (req, res) => {
     const [[usuario]] = await req.pool.query(
       `SELECT id, nombre, email, password_hash, rol, tipo_cuenta, plan_id,
               vende_productos, ofrece_servicios, ofrece_arriendos,
-              dni, telefono, direccion, comuna, activo, created_at
+              dni, telefono, direccion, comuna, activo, eliminacion_programada_at, created_at
        FROM usuarios WHERE email = ?`,
       [email.trim().toLowerCase()]
     )
@@ -131,7 +171,31 @@ router.post('/login', async (req, res) => {
       logSeguridad(req.pool, { accion: 'login_fallido', detalle: `email no registrado: ${email.trim().toLowerCase()}`, ip })
       return res.status(401).json({ error: 'Email o contraseña incorrectos' })
     }
+
     if (!usuario.activo) {
+      // Cuenta con eliminación programada: verificar si está dentro del período de gracia
+      if (usuario.eliminacion_programada_at) {
+        const deletionDate = new Date(usuario.eliminacion_programada_at)
+        const now = new Date()
+
+        if (deletionDate > now) {
+          // Dentro del período de gracia — permite recuperación
+          const diasRestantes = Math.ceil((deletionDate - now) / (1000 * 60 * 60 * 24))
+          return res.status(403).json({ cuenta_en_eliminacion: true, dias_restantes: diasRestantes })
+        } else {
+          // Período de gracia expirado — eliminar permanentemente
+          try {
+            const valido = await bcrypt.compare(password, usuario.password_hash)
+            if (valido) {
+              await eliminarCuentaPermanente(req.pool, usuario.id, ip)
+            }
+          } catch (err) {
+            console.error('[account-deletion] Error al eliminar cuenta permanentemente:', err)
+          }
+          return res.status(403).json({ error: 'Esta cuenta fue eliminada permanentemente' })
+        }
+      }
+
       logSeguridad(req.pool, { usuario_id: usuario.id, accion: 'login_fallido', detalle: 'cuenta desactivada', ip })
       return res.status(403).json({ error: 'Cuenta desactivada' })
     }
@@ -384,6 +448,101 @@ router.put('/password', async (req, res) => {
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Error al cambiar contraseña' })
+  }
+})
+
+// ── DELETE /api/v1/auth/account ───────────────────────────────────────────
+// Programa la eliminación de la cuenta en 10 días y cierra la sesión.
+router.delete('/account', async (req, res) => {
+  const token = req.cookies?.session_token
+  if (!token) return res.status(401).json({ error: 'No autenticado' })
+
+  try {
+    const [[sesion]] = await req.pool.query(
+      'SELECT usuario_id FROM sesiones WHERE token = ? AND expires_at > NOW()', [token]
+    )
+    if (!sesion) return res.status(401).json({ error: 'Sesión inválida' })
+
+    const uid = sesion.usuario_id
+    const ip  = (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '').slice(0, 45)
+
+    // Programar eliminación: desactivar + marcar fecha límite
+    await req.pool.query(
+      `UPDATE usuarios SET activo = 0, eliminacion_programada_at = DATE_ADD(NOW(), INTERVAL 10 DAY) WHERE id = ?`,
+      [uid]
+    )
+
+    // Cerrar todas las sesiones del usuario
+    await req.pool.query('DELETE FROM sesiones WHERE usuario_id = ?', [uid])
+
+    await req.pool.query(
+      `INSERT INTO tb_historial_seguridad (usuario_id, accion, detalle, ip) VALUES (?, ?, ?, ?)`,
+      [uid, 'cuenta_eliminacion_solicitada', 'período de gracia: 10 días', ip]
+    )
+
+    res.clearCookie('session_token')
+    res.json({ ok: true })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Error al programar la eliminación' })
+  }
+})
+
+// ── POST /api/v1/auth/account/recover ─────────────────────────────────────
+// Cancela una eliminación pendiente. Autentica con email+password (sin sesión activa).
+router.post('/account/recover', async (req, res) => {
+  const { email, password } = req.body
+  if (!email || !password) return res.status(400).json({ error: 'Email y contraseña requeridos' })
+
+  try {
+    const [[usuario]] = await req.pool.query(
+      `SELECT id, nombre, email, password_hash, rol, tipo_cuenta, plan_id,
+              vende_productos, ofrece_servicios, ofrece_arriendos,
+              dni, telefono, direccion, comuna, created_at
+       FROM usuarios
+       WHERE email = ? AND activo = 0
+         AND eliminacion_programada_at IS NOT NULL
+         AND eliminacion_programada_at > NOW()`,
+      [email.trim().toLowerCase()]
+    )
+
+    if (!usuario) {
+      return res.status(404).json({ error: 'No hay ninguna cuenta con eliminación pendiente para ese email, o el plazo ya expiró' })
+    }
+
+    const valido = await bcrypt.compare(password, usuario.password_hash)
+    if (!valido) return res.status(401).json({ error: 'Contraseña incorrecta' })
+
+    const ip = (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '').slice(0, 45)
+
+    // Restaurar cuenta
+    await req.pool.query(
+      'UPDATE usuarios SET activo = 1, eliminacion_programada_at = NULL WHERE id = ?',
+      [usuario.id]
+    )
+
+    // Crear nueva sesión
+    const token     = randomBytes(32).toString('hex')
+    const expiresAt = new Date(Date.now() + SESSION_DAYS * 86400 * 1000)
+      .toISOString().slice(0, 19).replace('T', ' ')
+
+    await req.pool.query(
+      'INSERT INTO sesiones (usuario_id, token, expires_at) VALUES (?, ?, ?)',
+      [usuario.id, token, expiresAt]
+    )
+
+    await req.pool.query(
+      `INSERT INTO tb_historial_seguridad (usuario_id, accion, detalle, ip) VALUES (?, ?, ?, ?)`,
+      [usuario.id, 'cuenta_recuperada', 'cuenta recuperada dentro del período de gracia', ip]
+    )
+
+    const { password_hash, ...usuarioPublico } = usuario
+
+    res.cookie('session_token', token, cookieOpts(req))
+    res.json({ ok: true, usuario: usuarioPublico })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Error al recuperar la cuenta' })
   }
 })
 
