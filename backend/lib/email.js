@@ -14,9 +14,9 @@ export async function sendPasswordResetEmail(toEmail, nombre, token) {
   const resetUrl = `${APP_URL}?reset=${token}`
 
   await transporter.sendMail({
-    from: `"Sanmaaunclick" <${process.env.EMAIL_USER}>`,
+    from: `"Aunclick" <${process.env.EMAIL_USER}>`,
     to:   toEmail,
-    subject: 'Recupera tu contraseña — Sanmaaunclick',
+    subject: 'Recupera tu contraseña — Aunclick',
     html: `
 <!DOCTYPE html>
 <html lang="es">
@@ -26,7 +26,7 @@ export async function sendPasswordResetEmail(toEmail, nombre, token) {
     <tr><td align="center">
       <table width="520" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.08);">
         <tr><td style="background:#3B1969;padding:32px 40px;text-align:center;">
-          <p style="margin:0;font-size:22px;font-weight:900;color:#fff;letter-spacing:-0.5px;">Sanmaaunclick</p>
+          <p style="margin:0;font-size:22px;font-weight:900;color:#fff;letter-spacing:-0.5px;">Aunclick</p>
           <p style="margin:6px 0 0;font-size:12px;color:rgba(255,255,255,.6);">Marketplace local de Villarrica</p>
         </td></tr>
         <tr><td style="padding:40px;">
@@ -47,7 +47,7 @@ export async function sendPasswordResetEmail(toEmail, nombre, token) {
           </p>
         </td></tr>
         <tr><td style="background:#f9f9fb;padding:20px 40px;border-top:1px solid #eee;text-align:center;">
-          <p style="margin:0;font-size:11px;color:#aaa;">Sanmaaunclick · Villarrica, Chile</p>
+          <p style="margin:0;font-size:11px;color:#aaa;">Aunclick · Villarrica, Chile</p>
         </td></tr>
       </table>
     </td></tr>
@@ -60,9 +60,9 @@ export async function sendPasswordResetEmail(toEmail, nombre, token) {
 
 export async function sendWelcomeEmail(toEmail, nombre) {
   await transporter.sendMail({
-    from: `"Sanmaaunclick" <${process.env.EMAIL_USER}>`,
+    from: `"Aunclick" <${process.env.EMAIL_USER}>`,
     to:   toEmail,
-    subject: '¡Bienvenido/a a Sanmaaunclick! 🎉',
+    subject: '¡Bienvenido/a a Aunclick! 🎉',
     html: `
 <!DOCTYPE html>
 <html lang="es">
@@ -72,13 +72,13 @@ export async function sendWelcomeEmail(toEmail, nombre) {
     <tr><td align="center">
       <table width="520" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.08);">
         <tr><td style="background:#3B1969;padding:32px 40px;text-align:center;">
-          <p style="margin:0;font-size:22px;font-weight:900;color:#fff;letter-spacing:-0.5px;">Sanmaaunclick</p>
+          <p style="margin:0;font-size:22px;font-weight:900;color:#fff;letter-spacing:-0.5px;">Aunclick</p>
           <p style="margin:6px 0 0;font-size:12px;color:rgba(255,255,255,.6);">Marketplace local de Villarrica</p>
         </td></tr>
         <tr><td style="padding:40px;">
           <h1 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1a2e;">¡Bienvenido/a, ${nombre}! 🎉</h1>
           <p style="margin:0 0 16px;font-size:14px;color:#555;line-height:1.6;">
-            Tu cuenta en Sanmaaunclick está lista. Accede a tu panel de administración y empieza a publicar tus productos, servicios o experiencias turísticas.
+            Tu cuenta en Aunclick está lista. Accede a tu panel de administración y empieza a publicar tus productos, servicios o experiencias turísticas.
           </p>
           <div style="text-align:center;margin:32px 0;">
             <a href="${APP_URL}" style="background:#3B1969;color:#fff;text-decoration:none;font-weight:700;font-size:14px;padding:14px 32px;border-radius:10px;display:inline-block;">
@@ -90,7 +90,7 @@ export async function sendWelcomeEmail(toEmail, nombre) {
           </p>
         </td></tr>
         <tr><td style="background:#f9f9fb;padding:20px 40px;border-top:1px solid #eee;text-align:center;">
-          <p style="margin:0;font-size:11px;color:#aaa;">Sanmaaunclick · Villarrica, Chile</p>
+          <p style="margin:0;font-size:11px;color:#aaa;">Aunclick · Villarrica, Chile</p>
         </td></tr>
       </table>
     </td></tr>

@@ -26,7 +26,7 @@ export default function CookiesModal({ onClose }) {
 
           <Section title="1. Introducción">
             <p>
-              La presente Política de Cookies describe el uso que <strong>Solo a un Click SpA</strong> (en adelante, "la
+              La presente Política de Cookies describe el uso que <strong>Aunclick SpA</strong> (en adelante, "la
               Empresa", "nosotros") realiza de cookies y tecnologías similares en su plataforma web (en adelante, "la
               Plataforma" o "el Servicio"). Esta Política se enmarca en el cumplimiento de la <strong>Ley N° 19.628</strong>
               sobre Protección de la Vida Privada y la <strong>Ley N° 21.663</strong> de 2024 (nueva Ley de Protección de
@@ -107,7 +107,7 @@ export default function CookiesModal({ onClose }) {
               Según la entidad que las gestione, las cookies pueden ser:
             </p>
             <ul className="list-disc pl-5 space-y-1 mt-2">
-              <li><strong>Propias:</strong> establecidas por <em>Solo a un Click SpA</em> directamente.</li>
+              <li><strong>Propias:</strong> establecidas por <em>Aunclick SpA</em> directamente.</li>
               <li><strong>De terceros:</strong> establecidas por proveedores con los que la Empresa colabora (por ejemplo, pasarelas de pago, servicios de analítica, redes de contenido). Estos proveedores tratan los datos bajo sus propias políticas, sujetas a contratos de tratamiento de datos cuando corresponde.</li>
             </ul>
             <p className="mt-2">
@@ -218,8 +218,8 @@ export default function CookiesModal({ onClose }) {
               dirigirse a:
             </p>
             <ul className="mt-2 space-y-0.5 text-left">
-              <li><strong>Encargado de Datos Personales:</strong> Solo a un Click SpA</li>
-              <li><strong>Correo:</strong> datos@soloaunclick.cl</li>
+              <li><strong>Encargado de Datos Personales:</strong> Aunclick SpA</li>
+              <li><strong>Correo:</strong> datos@aunclick.cl</li>
               <li><strong>Domicilio:</strong> Villarrica, Región de La Araucanía, Chile</li>
             </ul>
             <p className="mt-2">

@@ -159,7 +159,7 @@ export default function ProgramadorServidor() {
           <div className="flex items-center gap-2 mb-5">
             <span className="material-symbols-outlined text-indigo-400">database</span>
             <h2 className="text-sm font-bold text-white">Base de Datos</h2>
-            <span className="text-[10px] text-slate-500 font-bold ml-auto">soloaunclick</span>
+            <span className="text-[10px] text-slate-500 font-bold ml-auto">aunclick</span>
           </div>
 
           <div className="flex items-center gap-6 mb-5">

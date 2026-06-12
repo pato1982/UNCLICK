@@ -243,7 +243,7 @@ export default function TermsModal({ onClose }) {
               tratamiento de datos personales puede dirigirse a:
             </p>
             <ul className="mt-2 space-y-0.5">
-              <li><strong>Correo:</strong> contacto@soloaunclick.cl</li>
+              <li><strong>Correo:</strong> contacto@aunclick.cl</li>
               <li><strong>Domicilio:</strong> Villarrica, Región de La Araucanía, Chile</li>
             </ul>
           </Section>

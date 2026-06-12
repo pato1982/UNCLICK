@@ -160,7 +160,7 @@ export default function AdminSidebar({ open, onClose }) {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-semibold text-gray-700 truncate">Administrador</p>
-              <p className="text-[10px] text-gray-400 truncate">{user.email || 'admin@soloaunclick.cl'}</p>
+              <p className="text-[10px] text-gray-400 truncate">{user.email || 'admin@aunclick.cl'}</p>
             </div>
           </div>
         </div>
