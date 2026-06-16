@@ -1,6 +1,26 @@
 import { Router }                    from 'express'
 import { requireAuth, requireProgramador } from '../middleware/requireAuth.js'
 import { cached }                     from '../lib/cache.js'
+import fs                             from 'fs'
+import path                           from 'path'
+import { fileURLToPath }              from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname  = path.dirname(__filename)
+const backendDir = path.resolve(__dirname, '..')
+
+async function getDirSize(dir) {
+  let total = 0
+  try {
+    const entries = await fs.promises.readdir(dir, { withFileTypes: true })
+    await Promise.all(entries.map(async entry => {
+      const full = path.join(dir, entry.name)
+      if (entry.isDirectory()) total += await getDirSize(full)
+      else if (entry.isFile()) { const s = await fs.promises.stat(full); total += s.size }
+    }))
+  } catch {}
+  return total
+}
 
 const router = Router()
 
@@ -79,6 +99,86 @@ router.get('/estadisticas', requireAuth, requireProgramador, async (req, res) =>
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Error al obtener estadísticas' })
+  }
+})
+
+// ── GET /api/v1/servidor/stats (programador) ──────────────────────────────
+router.get('/stats', requireAuth, requireProgramador, async (req, res) => {
+  try {
+    const data = await cached('servidor:stats', 60_000, async () => {
+      // ── Uploads: tamaño por subcarpeta ──────────────────────────────────
+      const uploadsDir = path.join(backendDir, 'uploads')
+      const uploadsCarpetas = []
+      let uploadsTotal = 0
+      try {
+        const entries = await fs.promises.readdir(uploadsDir, { withFileTypes: true })
+        await Promise.all(entries.map(async entry => {
+          const full = path.join(uploadsDir, entry.name)
+          if (entry.isDirectory()) {
+            const bytes = await getDirSize(full)
+            uploadsCarpetas.push({ nombre: entry.name, bytes })
+            uploadsTotal += bytes
+          } else if (entry.isFile()) {
+            const s = await fs.promises.stat(full)
+            uploadsTotal += s.size
+          }
+        }))
+        uploadsCarpetas.sort((a, b) => b.bytes - a.bytes)
+      } catch {}
+
+      // ── Disco: espacio total/libre del sistema ──────────────────────────
+      let discoTotal = 0, discoUsado = 0, discoDisponible = 0
+      try {
+        const sf = await fs.promises.statfs(uploadsDir)
+        discoTotal     = sf.bsize * sf.blocks
+        discoDisponible = sf.bsize * sf.bavail
+        discoUsado     = discoTotal - sf.bsize * sf.bfree
+      } catch {}
+
+      // ── Base de datos: tamaño por tabla ────────────────────────────────
+      const [tablas] = await req.pool.query(`
+        SELECT
+          TABLE_NAME                         AS tabla,
+          TABLE_ROWS                         AS filas,
+          DATA_LENGTH + INDEX_LENGTH         AS total_bytes,
+          DATA_LENGTH                        AS data_bytes,
+          INDEX_LENGTH                       AS index_bytes
+        FROM information_schema.TABLES
+        WHERE TABLE_SCHEMA = DATABASE()
+        ORDER BY total_bytes DESC
+      `)
+
+      let bdDatos = 0, bdIndices = 0
+      for (const t of tablas) {
+        bdDatos   += Number(t.data_bytes)  || 0
+        bdIndices += Number(t.index_bytes) || 0
+      }
+
+      return {
+        disco: {
+          total:         discoTotal,
+          usado:         discoUsado,
+          disponible:    discoDisponible,
+          uploads:       uploadsTotal,
+          uploadsCarpetas,
+        },
+        bd: {
+          total:   bdDatos + bdIndices,
+          datos:   bdDatos,
+          indices: bdIndices,
+          tablas:  tablas.map(t => ({
+            tabla:       t.tabla,
+            filas:       Number(t.filas) || 0,
+            total_bytes: Number(t.total_bytes) || 0,
+          })),
+        },
+      }
+    })
+
+    res.json(data)
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Error al obtener stats del servidor' })
   }
 })
 

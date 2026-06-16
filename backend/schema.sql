@@ -395,3 +395,16 @@ CREATE TABLE IF NOT EXISTS tb_locales (
   KEY idx_locales_categoria (categoria_barrio_id),
   KEY idx_locales_activo (activo)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ── Tokens de recuperación de contraseña ──────────────────────
+CREATE TABLE IF NOT EXISTS tb_password_reset_tokens (
+  id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  usuario_id  INT UNSIGNED NOT NULL,
+  token       VARCHAR(64)  NOT NULL,
+  expires_at  DATETIME     NOT NULL,
+  created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_reset_token (token),
+  KEY idx_reset_usuario (usuario_id),
+  CONSTRAINT fk_reset_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

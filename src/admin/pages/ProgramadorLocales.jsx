@@ -22,6 +22,13 @@ export default function ProgramadorLocales() {
   const [toast, setToast] = useState(null)
   const fileRef = useRef(null)
 
+  const closeModal = () => {
+    setModal(null)
+    setForm({ nombre: '', direccion: '', categoria_barrio_id: '', descripcion: '', telefono: '', whatsapp: '', horario: '', facebook: '', instagram: '', correo: '' })
+    setImageFile(null)
+    setImagePreview(null)
+  }
+
   const headers = { }
 
   const showToast = (msg, type = 'success') => {
@@ -273,22 +280,25 @@ export default function ProgramadorLocales() {
 
       {/* Modal crear/editar */}
       {modal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setModal(null)}>
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden" onClick={e => e.stopPropagation()}>
-            {/* Header modal */}
-            <div className="bg-slate-800 px-6 py-4 flex items-center justify-between border-b border-slate-700">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={closeModal}>
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-lg mx-4 flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
+
+            {/* Header */}
+            <div className="bg-slate-800 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between border-b border-slate-700 shrink-0 rounded-t-2xl">
               <h3 className="text-sm font-bold text-emerald-400 flex items-center gap-2">
                 <span className="material-symbols-outlined text-lg">{modal === 'new' ? 'add_business' : 'edit'}</span>
                 {modal === 'new' ? 'Nuevo local' : 'Editar local'}
               </h3>
-              <button onClick={() => setModal(null)} className="p-1 hover:bg-slate-700 rounded-lg transition-colors">
+              <button onClick={closeModal} className="p-1 hover:bg-slate-700 rounded-lg transition-colors">
                 <span className="material-symbols-outlined text-slate-400 text-lg">close</span>
               </button>
             </div>
 
-            <div className="p-4 sm:p-6 flex flex-col sm:flex-row gap-4 sm:gap-6 max-h-[70vh] overflow-y-auto">
-              {/* Imagen */}
-              <div className="shrink-0 mx-auto sm:mx-0">
+            {/* Body scrolleable */}
+            <div className="overflow-y-auto flex-1 p-4 sm:p-6 flex flex-col sm:flex-row gap-4 sm:gap-6">
+
+              {/* Imagen — arriba en mobile, izquierda en desktop */}
+              <div className="shrink-0 flex justify-center sm:block">
                 {imagePreview ? (
                   <ImageZoomPan
                     src={imagePreview}
@@ -302,7 +312,7 @@ export default function ProgramadorLocales() {
                   <button
                     type="button"
                     onClick={() => fileRef.current?.click()}
-                    className="w-52 h-52 border-2 border-dashed border-slate-600 rounded-lg flex flex-col items-center justify-center gap-2 hover:border-emerald-500 hover:bg-emerald-500/5 transition-all"
+                    className="w-40 h-40 sm:w-52 sm:h-52 mx-auto sm:mx-0 border-2 border-dashed border-slate-600 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-emerald-500 hover:bg-emerald-500/5 transition-all"
                   >
                     <span className="material-symbols-outlined text-3xl text-slate-500">add_photo_alternate</span>
                     <span className="text-[10px] text-slate-500 font-bold">Subir imagen</span>
@@ -311,99 +321,74 @@ export default function ProgramadorLocales() {
                 <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleFileChange} />
               </div>
 
-              {/* Columna derecha: campos */}
+              {/* Campos — grilla 2 col en mobile */}
               <div className="flex-1 flex flex-col gap-3">
+
+                {/* Nombre — full */}
                 <div>
                   <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Nombre *</label>
-                  <input
-                    type="text"
-                    value={form.nombre}
-                    onChange={e => setForm({ ...form, nombre: e.target.value })}
+                  <input type="text" value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })}
                     placeholder="Ej: Almacén Doña Rosa"
-                    className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
-                  />
+                    className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30" />
                 </div>
 
+                {/* Categoría + Horario — 2 col */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Categoría</label>
+                    <select value={form.categoria_barrio_id} onChange={e => setForm({ ...form, categoria_barrio_id: e.target.value })}
+                      className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30">
+                      <option value="">Categoría</option>
+                      {categorias.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Horario</label>
+                    <input type="text" value={form.horario} onChange={e => setForm({ ...form, horario: e.target.value })}
+                      placeholder="Lun-Vie 09:00-18:00"
+                      className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30" />
+                  </div>
+                </div>
+
+                {/* Dirección — full */}
                 <div>
                   <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Dirección</label>
-                  <input
-                    type="text"
-                    value={form.direccion}
-                    onChange={e => setForm({ ...form, direccion: e.target.value })}
+                  <input type="text" value={form.direccion} onChange={e => setForm({ ...form, direccion: e.target.value })}
                     placeholder="Ej: Av. San Martín 520"
-                    className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
-                  />
+                    className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30" />
                 </div>
 
-                <div>
-                  <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Categoría</label>
-                  <select
-                    value={form.categoria_barrio_id}
-                    onChange={e => setForm({ ...form, categoria_barrio_id: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
-                  >
-                    <option value="">Seleccionar categoría</option>
-                    {categorias.map(c => (
-                      <option key={c.id} value={c.id}>{c.nombre}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Horario</label>
-                  <input
-                    type="text"
-                    value={form.horario}
-                    onChange={e => setForm({ ...form, horario: e.target.value })}
-                    placeholder="Ej: Lun-Vie 09:00-18:00"
-                    className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
-                  />
-                </div>
-
+                {/* Teléfono + WhatsApp — 2 col */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Teléfono</label>
-                    <input
-                      type="text"
-                      value={form.telefono}
-                      onChange={e => setForm({ ...form, telefono: e.target.value })}
+                    <input type="text" value={form.telefono} onChange={e => setForm({ ...form, telefono: e.target.value })}
                       placeholder="+56 9 1234 5678"
-                      className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
-                    />
+                      className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30" />
                   </div>
                   <div>
                     <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">WhatsApp</label>
-                    <input
-                      type="text"
-                      value={form.whatsapp}
-                      onChange={e => setForm({ ...form, whatsapp: e.target.value })}
+                    <input type="text" value={form.whatsapp} onChange={e => setForm({ ...form, whatsapp: e.target.value })}
                       placeholder="+56 9 1234 5678"
-                      className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
-                    />
+                      className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30" />
                   </div>
                 </div>
 
+                {/* Correo — full */}
                 <div>
                   <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Correo</label>
-                  <input
-                    type="email"
-                    value={form.correo}
-                    onChange={e => setForm({ ...form, correo: e.target.value })}
+                  <input type="email" value={form.correo} onChange={e => setForm({ ...form, correo: e.target.value })}
                     placeholder="contacto@local.cl"
-                    className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
-                  />
+                    className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30" />
                 </div>
 
+                {/* Facebook + Instagram — 2 col */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Facebook</label>
-                    <input
-                      type="text"
-                      value={form.facebook}
-                      onChange={e => setForm({ ...form, facebook: e.target.value })}
+                    <input type="text" value={form.facebook} onChange={e => setForm({ ...form, facebook: e.target.value })}
                       placeholder="facebook.com/local"
-                      className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
-                    />
+                      className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30" />
                   </div>
                   <div>
                     <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Instagram</label>
