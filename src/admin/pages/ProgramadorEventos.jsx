@@ -22,6 +22,13 @@ export default function ProgramadorEventos() {
   const [toast, setToast] = useState(null)
   const fileRef = useRef(null)
 
+  const closeModal = () => {
+    setModal(null)
+    setForm({ titulo: '', fecha: '', ubicacion: '', precio: '', categoria_evento_id: '', descripcion: '', organizador: '', telefono: '', whatsapp: '', horario: '' })
+    setImageFile(null)
+    setImagePreview(null)
+  }
+
   const headers = { }
 
   const showToast = (msg, type = 'success') => {
@@ -282,21 +289,25 @@ export default function ProgramadorEventos() {
 
       {/* Modal crear/editar */}
       {modal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setModal(null)}>
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden" onClick={e => e.stopPropagation()}>
-            <div className="bg-slate-800 px-6 py-4 flex items-center justify-between border-b border-slate-700">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={closeModal}>
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-lg mx-4 flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
+
+            {/* Header */}
+            <div className="bg-slate-800 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between border-b border-slate-700 shrink-0 rounded-t-2xl">
               <h3 className="text-sm font-bold text-emerald-400 flex items-center gap-2">
                 <span className="material-symbols-outlined text-lg">{modal === 'new' ? 'add' : 'edit'}</span>
                 {modal === 'new' ? 'Nuevo evento' : 'Editar evento'}
               </h3>
-              <button onClick={() => setModal(null)} className="p-1 hover:bg-slate-700 rounded-lg transition-colors">
+              <button onClick={closeModal} className="p-1 hover:bg-slate-700 rounded-lg transition-colors">
                 <span className="material-symbols-outlined text-slate-400 text-lg">close</span>
               </button>
             </div>
 
-            <div className="p-6 flex gap-6">
-              {/* Columna izquierda: imagen */}
-              <div className="shrink-0">
+            {/* Body scrolleable */}
+            <div className="overflow-y-auto flex-1 p-4 sm:p-6 flex flex-col sm:flex-row gap-4 sm:gap-6">
+
+              {/* Imagen — arriba en mobile, izquierda en desktop */}
+              <div className="shrink-0 flex justify-center sm:block">
                 {imagePreview ? (
                   <ImageZoomPan
                     src={imagePreview}
@@ -310,7 +321,7 @@ export default function ProgramadorEventos() {
                   <button
                     type="button"
                     onClick={() => fileRef.current?.click()}
-                    className="w-52 h-52 border-2 border-dashed border-slate-600 rounded-lg flex flex-col items-center justify-center gap-2 hover:border-emerald-500 hover:bg-emerald-500/5 transition-all"
+                    className="w-40 h-40 sm:w-52 sm:h-52 mx-auto sm:mx-0 border-2 border-dashed border-slate-600 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-emerald-500 hover:bg-emerald-500/5 transition-all"
                   >
                     <span className="material-symbols-outlined text-3xl text-slate-500">add_photo_alternate</span>
                     <span className="text-[10px] text-slate-500 font-bold">Subir imagen</span>
@@ -319,128 +330,94 @@ export default function ProgramadorEventos() {
                 <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleFileChange} />
               </div>
 
-              {/* Columna derecha: campos */}
+              {/* Campos — grilla 2 col en mobile, columna en desktop */}
               <div className="flex-1 flex flex-col gap-3">
+
+                {/* Nombre — full */}
                 <div>
                   <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Nombre del evento *</label>
-                  <input
-                    type="text"
-                    value={form.titulo}
-                    onChange={e => setForm({ ...form, titulo: e.target.value })}
+                  <input type="text" value={form.titulo} onChange={e => setForm({ ...form, titulo: e.target.value })}
                     placeholder="Ej: Feria Costumbrista Villarrica"
-                    className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
-                  />
+                    className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30" />
                 </div>
 
+                {/* Fecha + Precio — 2 col */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Fecha</label>
-                    <input
-                      type="text"
-                      value={form.fecha}
-                      onChange={e => setForm({ ...form, fecha: e.target.value })}
-                      placeholder="Ej: 15 - 17 Mar 2026"
-                      className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
-                    />
+                    <input type="text" value={form.fecha} onChange={e => setForm({ ...form, fecha: e.target.value })}
+                      placeholder="15 - 17 Mar 2026"
+                      className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30" />
                   </div>
                   <div>
                     <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Precio</label>
-                    <input
-                      type="text"
-                      value={form.precio}
-                      onChange={e => setForm({ ...form, precio: e.target.value })}
-                      placeholder="Ej: $5.000 o Gratis"
-                      className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
-                    />
+                    <input type="text" value={form.precio} onChange={e => setForm({ ...form, precio: e.target.value })}
+                      placeholder="$5.000 o Gratis"
+                      className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30" />
                   </div>
                 </div>
 
+                {/* Horario + Categoría — 2 col */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Horario</label>
+                    <input type="text" value={form.horario} onChange={e => setForm({ ...form, horario: e.target.value })}
+                      placeholder="10:00 - 22:00 hs"
+                      className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Categoría</label>
+                    <select value={form.categoria_evento_id} onChange={e => setForm({ ...form, categoria_evento_id: e.target.value })}
+                      className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30">
+                      <option value="">Categoría</option>
+                      {categorias.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Dirección — full */}
                 <div>
                   <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Dirección</label>
-                  <input
-                    type="text"
-                    value={form.ubicacion}
-                    onChange={e => setForm({ ...form, ubicacion: e.target.value })}
+                  <input type="text" value={form.ubicacion} onChange={e => setForm({ ...form, ubicacion: e.target.value })}
                     placeholder="Ej: Plaza de Armas, Villarrica"
-                    className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
-                  />
+                    className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30" />
                 </div>
 
-                <div>
-                  <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Categoría</label>
-                  <select
-                    value={form.categoria_evento_id}
-                    onChange={e => setForm({ ...form, categoria_evento_id: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
-                  >
-                    <option value="">Seleccionar categoría</option>
-                    {categorias.map(c => (
-                      <option key={c.id} value={c.id}>{c.nombre}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Horario</label>
-                  <input
-                    type="text"
-                    value={form.horario}
-                    onChange={e => setForm({ ...form, horario: e.target.value })}
-                    placeholder="Ej: 10:00 - 22:00 hs"
-                    className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
-                  />
-                </div>
-
+                {/* Organizador — full */}
                 <div>
                   <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Organizador</label>
-                  <input
-                    type="text"
-                    value={form.organizador}
-                    onChange={e => setForm({ ...form, organizador: e.target.value })}
+                  <input type="text" value={form.organizador} onChange={e => setForm({ ...form, organizador: e.target.value })}
                     placeholder="Ej: Municipalidad de Villarrica"
-                    className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
-                  />
+                    className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30" />
                 </div>
 
+                {/* Teléfono + WhatsApp — 2 col */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Teléfono</label>
-                    <input
-                      type="text"
-                      value={form.telefono}
-                      onChange={e => setForm({ ...form, telefono: e.target.value })}
-                      placeholder="Ej: +56 9 1234 5678"
-                      className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
-                    />
+                    <input type="text" value={form.telefono} onChange={e => setForm({ ...form, telefono: e.target.value })}
+                      placeholder="+56 9 1234 5678"
+                      className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30" />
                   </div>
                   <div>
                     <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">WhatsApp</label>
-                    <input
-                      type="text"
-                      value={form.whatsapp}
-                      onChange={e => setForm({ ...form, whatsapp: e.target.value })}
-                      placeholder="Ej: +56 9 1234 5678"
-                      className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
-                    />
+                    <input type="text" value={form.whatsapp} onChange={e => setForm({ ...form, whatsapp: e.target.value })}
+                      placeholder="+56 9 1234 5678"
+                      className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30" />
                   </div>
                 </div>
 
+                {/* Descripción — full */}
                 <div>
                   <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Descripción</label>
-                  <textarea
-                    value={form.descripcion}
-                    onChange={e => setForm({ ...form, descripcion: e.target.value })}
-                    placeholder="Descripción del evento..."
-                    rows={3}
-                    className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 resize-none"
-                  />
+                  <textarea value={form.descripcion} onChange={e => setForm({ ...form, descripcion: e.target.value })}
+                    placeholder="Descripción del evento..." rows={3}
+                    className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 resize-none" />
                 </div>
 
-                <button
-                  onClick={handleSave}
-                  disabled={saving || !form.titulo.trim()}
-                  className="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-bold rounded-lg transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-500/25"
-                >
+                {/* Guardar */}
+                <button onClick={handleSave} disabled={saving || !form.titulo.trim()}
+                  className="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-bold rounded-lg transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-500/25">
                   <span className="material-symbols-outlined text-sm">{saving ? 'hourglass_empty' : 'save'}</span>
                   {saving ? 'Guardando...' : modal === 'new' ? 'Crear evento' : 'Guardar cambios'}
                 </button>
