@@ -354,15 +354,20 @@ CREATE TABLE IF NOT EXISTS tb_visitas_sitio (
 CREATE TABLE IF NOT EXISTS tb_eventos (
   id                  INT UNSIGNED NOT NULL AUTO_INCREMENT,
   titulo              VARCHAR(200) NOT NULL,
-  fecha               VARCHAR(80)  DEFAULT NULL,  -- texto libre: "15 - 17 Mar 2026"
+  fecha               VARCHAR(80)  DEFAULT NULL,
   ubicacion           VARCHAR(200) DEFAULT NULL,
-  precio              VARCHAR(60)  DEFAULT NULL,  -- texto libre: "$5.000 o Gratis"
-  categoria_evento_id INT UNSIGNED DEFAULT NULL,  -- FK lógica tb_categorias tipo=evento
+  precio              VARCHAR(60)  DEFAULT NULL,
+  categoria_evento_id INT UNSIGNED DEFAULT NULL,
   imagen              VARCHAR(500) DEFAULT NULL,
   imagen_crop         LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(imagen_crop)),
   activo              TINYINT(1)   NOT NULL DEFAULT 1,
   created_at          DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at          DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  descripcion         TEXT         DEFAULT NULL,
+  organizador         VARCHAR(200) DEFAULT NULL,
+  telefono            VARCHAR(30)  DEFAULT NULL,
+  whatsapp            VARCHAR(30)  DEFAULT NULL,
+  horario             VARCHAR(80)  DEFAULT NULL,
   PRIMARY KEY (id),
   KEY idx_eventos_categoria (categoria_evento_id),
   KEY idx_eventos_activo (activo)
@@ -373,12 +378,19 @@ CREATE TABLE IF NOT EXISTS tb_locales (
   id                  INT UNSIGNED NOT NULL AUTO_INCREMENT,
   nombre              VARCHAR(200) NOT NULL,
   direccion           VARCHAR(200) DEFAULT NULL,
-  categoria_barrio_id INT UNSIGNED DEFAULT NULL,  -- FK lógica tb_categorias tipo=local
+  categoria_barrio_id INT UNSIGNED DEFAULT NULL,
   imagen              VARCHAR(500) DEFAULT NULL,
   imagen_crop         LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(imagen_crop)),
   activo              TINYINT(1)   NOT NULL DEFAULT 1,
   created_at          DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at          DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  descripcion         TEXT         DEFAULT NULL,
+  telefono            VARCHAR(30)  DEFAULT NULL,
+  whatsapp            VARCHAR(30)  DEFAULT NULL,
+  horario             VARCHAR(200) DEFAULT NULL,
+  facebook            VARCHAR(300) DEFAULT NULL,
+  instagram           VARCHAR(200) DEFAULT NULL,
+  correo              VARCHAR(200) DEFAULT NULL,
   PRIMARY KEY (id),
   KEY idx_locales_categoria (categoria_barrio_id),
   KEY idx_locales_activo (activo)

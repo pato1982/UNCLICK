@@ -48,15 +48,56 @@ export default function EventModal({ event, onClose }) {
                 <span className="text-sm text-slate-700 font-medium">{event.date}</span>
               </div>
             )}
+            {event.horario && (
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-slate-400 text-sm shrink-0">schedule</span>
+                <span className="text-sm text-slate-600">{event.horario}</span>
+              </div>
+            )}
             {event.location && (
               <div className="flex items-start gap-2">
                 <span className="material-symbols-outlined text-slate-400 text-sm shrink-0 mt-0.5">location_on</span>
                 <span className="text-sm text-slate-600">{event.location}</span>
               </div>
             )}
-            <div className="flex items-center gap-2 pt-1 border-t border-slate-100 mt-3">
-              <span className="material-symbols-outlined text-primary text-sm shrink-0">confirmation_number</span>
-              <span className="text-sm font-black text-primary">{event.price}</span>
+            {event.organizador && (
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-slate-400 text-sm shrink-0">groups</span>
+                <span className="text-sm text-slate-600">{event.organizador}</span>
+              </div>
+            )}
+            {event.descripcion && (
+              <p className="text-sm text-slate-600 leading-relaxed pt-1 border-t border-slate-100">{event.descripcion}</p>
+            )}
+            <div className="flex items-center justify-between pt-2 border-t border-slate-100 mt-1">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary text-sm shrink-0">confirmation_number</span>
+                <span className="text-sm font-black text-primary">{event.price}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {event.whatsapp && (
+                  <a
+                    href={`https://wa.me/${event.whatsapp.replace(/\D/g, '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={e => e.stopPropagation()}
+                    className="h-8 w-8 rounded-full bg-green-500 text-white flex items-center justify-center hover:bg-green-400 transition-colors"
+                    title="WhatsApp"
+                  >
+                    <span className="material-symbols-outlined text-sm">chat</span>
+                  </a>
+                )}
+                {event.telefono && (
+                  <a
+                    href={`tel:${event.telefono}`}
+                    onClick={e => e.stopPropagation()}
+                    className="h-8 w-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-200 transition-colors"
+                    title="Llamar"
+                  >
+                    <span className="material-symbols-outlined text-sm">call</span>
+                  </a>
+                )}
+              </div>
             </div>
           </div>
         </div>

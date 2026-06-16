@@ -15,7 +15,7 @@ export default function ProgramadorEventos() {
   const [loading, setLoading] = useState(true)
   const [modal, setModal] = useState(null)
   const [saving, setSaving] = useState(false)
-  const [form, setForm] = useState({ titulo: '', fecha: '', ubicacion: '', precio: '', categoria_evento_id: '' })
+  const [form, setForm] = useState({ titulo: '', fecha: '', ubicacion: '', precio: '', categoria_evento_id: '', descripcion: '', organizador: '', telefono: '', whatsapp: '', horario: '' })
   const [imageFile, setImageFile] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
@@ -46,7 +46,7 @@ export default function ProgramadorEventos() {
   useEffect(() => { fetchEventos(); fetchCategorias() }, [])
 
   const openNew = () => {
-    setForm({ titulo: '', fecha: '', ubicacion: '', precio: '', categoria_evento_id: '' })
+    setForm({ titulo: '', fecha: '', ubicacion: '', precio: '', categoria_evento_id: '', descripcion: '', organizador: '', telefono: '', whatsapp: '', horario: '' })
     setImageFile(null)
     setImagePreview(null)
     setModal('new')
@@ -59,6 +59,11 @@ export default function ProgramadorEventos() {
       ubicacion: evento.ubicacion || '',
       precio: evento.precio || '',
       categoria_evento_id: evento.categoria_evento_id || '',
+      descripcion: evento.descripcion || '',
+      organizador: evento.organizador || '',
+      telefono: evento.telefono || '',
+      whatsapp: evento.whatsapp || '',
+      horario: evento.horario || '',
     })
     setImageFile(null)
     setImagePreview(evento.imagen ? `${API}${evento.imagen}` : null)
@@ -81,6 +86,11 @@ export default function ProgramadorEventos() {
     fd.append('ubicacion', form.ubicacion)
     fd.append('precio', form.precio)
     fd.append('categoria_evento_id', form.categoria_evento_id)
+    fd.append('descripcion', form.descripcion)
+    fd.append('organizador', form.organizador)
+    fd.append('telefono', form.telefono)
+    fd.append('whatsapp', form.whatsapp)
+    fd.append('horario', form.horario)
     if (imageFile) fd.append('imagen', imageFile)
 
     const isNew = modal === 'new'
@@ -368,6 +378,62 @@ export default function ProgramadorEventos() {
                       <option key={c.id} value={c.id}>{c.nombre}</option>
                     ))}
                   </select>
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Horario</label>
+                  <input
+                    type="text"
+                    value={form.horario}
+                    onChange={e => setForm({ ...form, horario: e.target.value })}
+                    placeholder="Ej: 10:00 - 22:00 hs"
+                    className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Organizador</label>
+                  <input
+                    type="text"
+                    value={form.organizador}
+                    onChange={e => setForm({ ...form, organizador: e.target.value })}
+                    placeholder="Ej: Municipalidad de Villarrica"
+                    className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Teléfono</label>
+                    <input
+                      type="text"
+                      value={form.telefono}
+                      onChange={e => setForm({ ...form, telefono: e.target.value })}
+                      placeholder="Ej: +56 9 1234 5678"
+                      className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">WhatsApp</label>
+                    <input
+                      type="text"
+                      value={form.whatsapp}
+                      onChange={e => setForm({ ...form, whatsapp: e.target.value })}
+                      placeholder="Ej: +56 9 1234 5678"
+                      className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Descripción</label>
+                  <textarea
+                    value={form.descripcion}
+                    onChange={e => setForm({ ...form, descripcion: e.target.value })}
+                    placeholder="Descripción del evento..."
+                    rows={3}
+                    className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 resize-none"
+                  />
                 </div>
 
                 <button
