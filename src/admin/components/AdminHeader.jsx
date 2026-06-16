@@ -919,7 +919,7 @@ export default function AdminHeader({ onToggleSidebar }) {
       prompt.prompt()
       const { outcome } = await prompt.userChoice
       deferredPrompt.current = null; window.__pwaPrompt = null
-      if (outcome === 'accepted') pwaDismiss()
+      if (outcome === 'accepted') { setPwaVisible(false); setShowHint(false) }
     } else { setShowHint(h => !h) }
   }
 
