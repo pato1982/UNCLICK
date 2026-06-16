@@ -15,6 +15,23 @@ async function borrarImagen(rutaRelativa) {
   } catch {}
 }
 
+// ── GET /api/v1/eventos ───────────────────────────────────────────────────
+router.get('/', async (req, res) => {
+  try {
+    const [eventos] = await req.pool.query(
+      `SELECT e.*, c.nombre AS categoria_nombre, c.icono AS categoria_icono
+       FROM tb_eventos e
+       LEFT JOIN tb_categorias c ON c.id = e.categoria_evento_id
+       WHERE e.activo = 1
+       ORDER BY e.created_at DESC`
+    )
+    res.json({ eventos })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Error al obtener eventos' })
+  }
+})
+
 // ── GET /api/v1/eventos/admin ──────────────────────────────────────────────
 router.get('/admin', async (req, res) => {
   try {
@@ -33,15 +50,15 @@ router.get('/admin', async (req, res) => {
 
 // ── POST /api/v1/eventos ───────────────────────────────────────────────────
 router.post('/', ...uploadImagen('eventos'), async (req, res) => {
-  const { titulo, fecha, ubicacion, precio, categoria_evento_id } = req.body
+  const { titulo, fecha, ubicacion, precio, categoria_evento_id, descripcion, organizador, telefono, whatsapp, horario } = req.body
   if (!titulo?.trim()) return res.status(400).json({ error: 'El título es requerido' })
 
   const imagen = req.file?.url || null
 
   try {
     const [result] = await req.pool.query(
-      `INSERT INTO tb_eventos (titulo, fecha, ubicacion, precio, categoria_evento_id, imagen)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO tb_eventos (titulo, fecha, ubicacion, precio, categoria_evento_id, imagen, descripcion, organizador, telefono, whatsapp, horario)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         titulo.trim(),
         fecha    || null,
@@ -49,6 +66,11 @@ router.post('/', ...uploadImagen('eventos'), async (req, res) => {
         precio   || null,
         categoria_evento_id || null,
         imagen,
+        descripcion || null,
+        organizador || null,
+        telefono || null,
+        whatsapp || null,
+        horario || null,
       ]
     )
     const [rows] = await req.pool.query('SELECT * FROM tb_eventos WHERE id = ?', [result.insertId])
@@ -62,22 +84,23 @@ router.post('/', ...uploadImagen('eventos'), async (req, res) => {
 // ── PUT /api/v1/eventos/:id ────────────────────────────────────────────────
 router.put('/:id', ...uploadImagen('eventos'), async (req, res) => {
   const { id } = req.params
-  const { titulo, fecha, ubicacion, precio, categoria_evento_id } = req.body
+  const { titulo, fecha, ubicacion, precio, categoria_evento_id, descripcion, organizador, telefono, whatsapp, horario } = req.body
   if (!titulo?.trim()) return res.status(400).json({ error: 'El título es requerido' })
 
   try {
     const [[evento]] = await req.pool.query('SELECT * FROM tb_eventos WHERE id = ?', [id])
     if (!evento) return res.status(404).json({ error: 'Evento no encontrado' })
 
-    // Si se sube nueva imagen, elimina la anterior
     if (req.file && evento.imagen) await borrarImagen(evento.imagen)
     const imagen = req.file?.url ?? evento.imagen
 
     await req.pool.query(
       `UPDATE tb_eventos
-       SET titulo = ?, fecha = ?, ubicacion = ?, precio = ?, categoria_evento_id = ?, imagen = ?
+       SET titulo = ?, fecha = ?, ubicacion = ?, precio = ?, categoria_evento_id = ?, imagen = ?,
+           descripcion = ?, organizador = ?, telefono = ?, whatsapp = ?, horario = ?
        WHERE id = ?`,
-      [titulo.trim(), fecha || null, ubicacion || null, precio || null, categoria_evento_id || null, imagen, id]
+      [titulo.trim(), fecha || null, ubicacion || null, precio || null, categoria_evento_id || null, imagen,
+       descripcion || null, organizador || null, telefono || null, whatsapp || null, horario || null, id]
     )
     const [rows] = await req.pool.query('SELECT * FROM tb_eventos WHERE id = ?', [id])
     res.json({ evento: rows[0] })

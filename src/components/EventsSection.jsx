@@ -76,6 +76,11 @@ export default function EventsSection({ onViewAll }) {
           price: e.precio || 'Entrada libre',
           badge: isGratis(e.precio) ? 'Gratis' : (e.categoria_nombre || ''),
           badgeColor: isGratis(e.precio) ? 'bg-green-500 text-white' : getBadgeColor(e.categoria_nombre),
+          descripcion: e.descripcion || '',
+          organizador: e.organizador || '',
+          telefono: e.telefono || '',
+          whatsapp: e.whatsapp || '',
+          horario: e.horario || '',
         }))
         setAllEvents(mapped)
         const source = mapped.length > 0 ? mapped : PLACEHOLDER_EVENTS

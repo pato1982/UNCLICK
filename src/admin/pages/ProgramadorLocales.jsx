@@ -15,7 +15,7 @@ export default function ProgramadorLocales() {
   const [loading, setLoading] = useState(true)
   const [modal, setModal] = useState(null) // null | 'new' | local object
   const [saving, setSaving] = useState(false)
-  const [form, setForm] = useState({ nombre: '', direccion: '', categoria_barrio_id: '' })
+  const [form, setForm] = useState({ nombre: '', direccion: '', categoria_barrio_id: '', descripcion: '', telefono: '', whatsapp: '', horario: '', facebook: '', instagram: '', correo: '' })
   const [imageFile, setImageFile] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
@@ -46,7 +46,7 @@ export default function ProgramadorLocales() {
   useEffect(() => { fetchLocales(); fetchCategorias() }, [])
 
   const openNew = () => {
-    setForm({ nombre: '', direccion: '', categoria_barrio_id: '' })
+    setForm({ nombre: '', direccion: '', categoria_barrio_id: '', descripcion: '', telefono: '', whatsapp: '', horario: '', facebook: '', instagram: '', correo: '' })
     setImageFile(null)
     setImagePreview(null)
     setModal('new')
@@ -57,6 +57,13 @@ export default function ProgramadorLocales() {
       nombre: local.nombre || '',
       direccion: local.direccion || '',
       categoria_barrio_id: local.categoria_barrio_id || '',
+      descripcion: local.descripcion || '',
+      telefono: local.telefono || '',
+      whatsapp: local.whatsapp || '',
+      horario: local.horario || '',
+      facebook: local.facebook || '',
+      instagram: local.instagram || '',
+      correo: local.correo || '',
     })
     setImageFile(null)
     setImagePreview(local.imagen ? `${API}${local.imagen}` : null)
@@ -77,6 +84,13 @@ export default function ProgramadorLocales() {
     fd.append('nombre', form.nombre)
     fd.append('direccion', form.direccion)
     fd.append('categoria_barrio_id', form.categoria_barrio_id)
+    fd.append('descripcion', form.descripcion)
+    fd.append('telefono', form.telefono)
+    fd.append('whatsapp', form.whatsapp)
+    fd.append('horario', form.horario)
+    fd.append('facebook', form.facebook)
+    fd.append('instagram', form.instagram)
+    fd.append('correo', form.correo)
     if (imageFile) fd.append('imagen', imageFile)
 
     const isNew = modal === 'new'
@@ -335,7 +349,84 @@ export default function ProgramadorLocales() {
                   </select>
                 </div>
 
-                <div className="flex-1"></div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Horario</label>
+                  <input
+                    type="text"
+                    value={form.horario}
+                    onChange={e => setForm({ ...form, horario: e.target.value })}
+                    placeholder="Ej: Lun-Vie 09:00-18:00"
+                    className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Teléfono</label>
+                    <input
+                      type="text"
+                      value={form.telefono}
+                      onChange={e => setForm({ ...form, telefono: e.target.value })}
+                      placeholder="+56 9 1234 5678"
+                      className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">WhatsApp</label>
+                    <input
+                      type="text"
+                      value={form.whatsapp}
+                      onChange={e => setForm({ ...form, whatsapp: e.target.value })}
+                      placeholder="+56 9 1234 5678"
+                      className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Correo</label>
+                  <input
+                    type="email"
+                    value={form.correo}
+                    onChange={e => setForm({ ...form, correo: e.target.value })}
+                    placeholder="contacto@local.cl"
+                    className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Facebook</label>
+                    <input
+                      type="text"
+                      value={form.facebook}
+                      onChange={e => setForm({ ...form, facebook: e.target.value })}
+                      placeholder="facebook.com/local"
+                      className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Instagram</label>
+                    <input
+                      type="text"
+                      value={form.instagram}
+                      onChange={e => setForm({ ...form, instagram: e.target.value })}
+                      placeholder="@local"
+                      className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Descripción</label>
+                  <textarea
+                    value={form.descripcion}
+                    onChange={e => setForm({ ...form, descripcion: e.target.value })}
+                    placeholder="Descripción del local..."
+                    rows={3}
+                    className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 resize-none"
+                  />
+                </div>
 
                 <button
                   onClick={handleSave}

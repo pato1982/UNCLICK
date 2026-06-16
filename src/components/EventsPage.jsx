@@ -91,6 +91,11 @@ export default function EventsPage({ sidebarOpen, onBack, activeFilter }) {
           type: e.categoria_nombre || '',
           badge: isGratis(e.precio) ? 'Gratis' : (e.categoria_nombre || ''),
           badgeColor: isGratis(e.precio) ? 'bg-green-500 text-white' : getBadgeColor(e.categoria_nombre),
+          descripcion: e.descripcion || '',
+          organizador: e.organizador || '',
+          telefono: e.telefono || '',
+          whatsapp: e.whatsapp || '',
+          horario: e.horario || '',
         }))
         setAllEvents(mapped)
       })
