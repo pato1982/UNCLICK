@@ -18,6 +18,45 @@ export default function Header({ activeNav, toggleNav, onToggleSidebar, sidebarO
   const [searchIndex, setSearchIndex] = useState([])
   const searchRef = useRef(null)
 
+  // PWA Install
+  const [pwaVisible, setPwaVisible] = useState(false)
+  const [showIOSHint, setShowIOSHint] = useState(false)
+  const [showGenericHint, setShowGenericHint] = useState(false)
+  const deferredPrompt = useRef(null)
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent)
+  const isInStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true
+
+  useEffect(() => {
+    if (isInStandalone || localStorage.getItem('pwa_dismissed')) return
+    if (isIOS) {
+      setPwaVisible(true)
+    } else {
+      const handler = (e) => { e.preventDefault(); deferredPrompt.current = e; window.__pwaPrompt = e }
+      window.addEventListener('beforeinstallprompt', handler)
+      const timer = setTimeout(() => setPwaVisible(true), 1000)
+      return () => { window.removeEventListener('beforeinstallprompt', handler); clearTimeout(timer) }
+    }
+  }, [])
+
+  const pwaDismiss = () => {
+    localStorage.setItem('pwa_dismissed', '1')
+    setPwaVisible(false)
+    setShowIOSHint(false)
+    setShowGenericHint(false)
+  }
+
+  const handlePwaInstall = async () => {
+    if (isIOS) { setShowIOSHint(h => !h); return }
+    if (deferredPrompt.current) {
+      deferredPrompt.current.prompt()
+      const { outcome } = await deferredPrompt.current.userChoice
+      deferredPrompt.current = null
+      if (outcome === 'accepted') pwaDismiss()
+    } else {
+      setShowGenericHint(h => !h)
+    }
+  }
+
   // Cargar índice de búsqueda desde la BD
   useEffect(() => {
     async function loadSearchIndex() {
@@ -261,20 +300,81 @@ export default function Header({ activeNav, toggleNav, onToggleSidebar, sidebarO
         </div>
       </nav>
 
+      {/* === PWA Install Bar — Mobile === */}
+      {pwaVisible && (
+        <div
+          className="sm:hidden w-full border-t-2 border-[#3B1969]/30 px-3 py-2.5 relative"
+          style={{ background: 'linear-gradient(90deg, #7B3FA0 0%, #F5C842 18%, #F5C842 82%, #7B3FA0 100%)' }}
+        >
+          <div className="flex items-center gap-2.5">
+            <span className="material-symbols-outlined shrink-0" style={{ color: '#3B1969', fontSize: '22px' }}>install_mobile</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-[#3B1969] text-[11px] font-black leading-none">LocalClick en tu celular</p>
+              <p className="text-[#3B1969]/60 text-[9px] mt-0.5 leading-none">Acceso directo desde tu pantalla de inicio</p>
+            </div>
+            <button
+              onClick={handlePwaInstall}
+              className="shrink-0 text-[10px] font-black px-3 py-1.5 rounded-full transition-all hover:brightness-110 active:scale-95"
+              style={{ background: '#3B1969', color: '#F5C842' }}
+            >
+              {isIOS ? 'Cómo instalar' : 'Instalar'}
+            </button>
+            <button onClick={pwaDismiss} className="shrink-0 text-[#3B1969]/50 hover:text-[#3B1969] transition-colors">
+              <span className="material-symbols-outlined text-base">close</span>
+            </button>
+          </div>
+          {showIOSHint && (
+            <div className="mt-2 bg-[#3B1969]/10 rounded-lg px-3 py-2 text-[10px] text-[#3B1969]/90 text-center border border-[#3B1969]/20">
+              Toca <span className="font-bold" style={{ color: '#3B1969' }}>⬆ Compartir</span> → <span className="font-bold" style={{ color: '#3B1969' }}>"Añadir a pantalla de inicio"</span>
+            </div>
+          )}
+          {showGenericHint && (
+            <div className="mt-2 bg-[#3B1969]/10 rounded-lg px-3 py-2 text-[10px] text-[#3B1969]/90 text-center border border-[#3B1969]/20">
+              En Chrome toca <span className="font-bold" style={{ color: '#3B1969' }}>⋮</span> → <span className="font-bold" style={{ color: '#3B1969' }}>"Instalar aplicación"</span>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* === NAV BAR - Tablet y Desktop === */}
       <nav className="hidden sm:block bg-[#4A2070] px-3 sm:px-4 md:px-6 border-y-2 border-accent shadow-md min-h-[40px]">
         <div className="max-w-7xl mx-auto flex items-center justify-end gap-3 sm:gap-4 md:gap-8 min-h-[40px]">
-          {/* Botón hamburguesa — abre/cierra el menú lateral de categorías */}
-          {activeNav && (
-            <button
-              onClick={onToggleSidebar}
-              className="mr-auto flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-white/80 hover:text-accent transition-colors"
-              title={sidebarOpen ? 'Cerrar menú' : 'Abrir menú'}
-            >
-              <span className="material-symbols-outlined text-base sm:text-lg">{sidebarOpen ? 'menu_open' : 'menu'}</span>
-              <span className="hidden md:inline">{sidebarOpen ? 'Cerrar' : 'Categorías'}</span>
-            </button>
-          )}
+          {/* Grupo izquierdo: Hamburguesa + PWA Install */}
+          <div className="mr-auto flex items-center gap-2 sm:gap-3">
+            {activeNav && (
+              <button
+                onClick={onToggleSidebar}
+                className="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-white/80 hover:text-accent transition-colors"
+                title={sidebarOpen ? 'Cerrar menú' : 'Abrir menú'}
+              >
+                <span className="material-symbols-outlined text-base sm:text-lg">{sidebarOpen ? 'menu_open' : 'menu'}</span>
+                <span className="hidden md:inline">{sidebarOpen ? 'Cerrar' : 'Categorías'}</span>
+              </button>
+            )}
+            {pwaVisible && (
+              <div className="flex items-center gap-1.5 relative">
+                <button
+                  onClick={handlePwaInstall}
+                  className="flex items-center gap-1.5 text-[10px] font-black px-3 py-1 rounded-full transition-all hover:brightness-110 active:scale-95"
+                  style={{ background: '#F5C842', color: '#3B1969' }}
+                >
+                  <span className="material-symbols-outlined text-sm">install_mobile</span>
+                  {isIOS ? 'Añadir a inicio' : 'Instalar app'}
+                </button>
+                <button onClick={pwaDismiss} className="text-white/40 hover:text-white/70 transition-colors">
+                  <span className="material-symbols-outlined text-sm">close</span>
+                </button>
+                {(showIOSHint || showGenericHint) && (
+                  <div className="absolute top-full left-0 mt-2 bg-white text-slate-800 rounded-xl shadow-2xl px-4 py-2.5 text-xs font-medium whitespace-nowrap border border-slate-200 z-50">
+                    {showIOSHint
+                      ? <span>Toca <span className="font-bold" style={{ color: '#3B1969' }}>⬆ Compartir</span> → <span className="font-bold" style={{ color: '#3B1969' }}>"Añadir a pantalla de inicio"</span></span>
+                      : <span>En Chrome toca <span className="font-bold" style={{ color: '#3B1969' }}>⋮</span> → <span className="font-bold" style={{ color: '#3B1969' }}>"Instalar aplicación"</span></span>
+                    }
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
           {showInicio && (
             <button
               onClick={onGoHome}

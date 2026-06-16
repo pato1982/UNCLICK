@@ -84,6 +84,69 @@ router.get('/listings', async (req, res) => {
   }
 })
 
+// ── GET /api/v1/public/listings/:userId ─────────────────────────────────
+// Listings públicos de un usuario específico para la vista de tienda (sin auth)
+// ?banner=1 filtra solo los que tienen banner asignado (plan 3+)
+router.get('/listings/:userId', async (req, res) => {
+  const banner = req.query.banner === '1'
+  try {
+    const [listings] = await req.pool.query(`
+      SELECT l.*,
+             l.usuario_id            AS user_id,
+             u.plan_id               AS owner_plan_id,
+             n.nombre_negocio,
+             n.logo_url,
+             n.whatsapp              AS negocio_whatsapp,
+             n.telefono              AS negocio_telefono,
+             n.direccion             AS negocio_direccion,
+             n.correo                AS negocio_correo,
+             n.facebook              AS negocio_facebook,
+             n.instagram             AS negocio_instagram
+      FROM tb_listings l
+      JOIN usuarios u ON u.id = l.usuario_id AND u.activo = 1
+      LEFT JOIN negocios n ON n.usuario_id = l.usuario_id
+      WHERE l.usuario_id = ? AND l.activo = 1
+      ${banner ? 'AND l.banner_orden IS NOT NULL ORDER BY l.banner_orden ASC' : 'ORDER BY l.created_at DESC'}`,
+      [req.params.userId]
+    )
+
+    const parsed = listings.map(l => ({
+      ...l,
+      tallas:  parseJson(l.tallas),
+      medidas: parseJson(l.medidas),
+    }))
+
+    if (parsed.length) {
+      const ids = parsed.map(l => l.id)
+      const ph  = ids.map(() => '?').join(',')
+      const [imgs] = await req.pool.query(
+        `SELECT * FROM tb_listing_imagenes WHERE listing_id IN (${ph}) ORDER BY listing_id, orden`, ids
+      )
+      const [vars] = await req.pool.query(
+        `SELECT * FROM tb_listing_variantes WHERE listing_id IN (${ph}) ORDER BY listing_id, orden`, ids
+      )
+      const imgsBy = new Map(), varsBy = new Map()
+      for (const i of imgs) {
+        if (!imgsBy.has(i.listing_id)) imgsBy.set(i.listing_id, [])
+        imgsBy.get(i.listing_id).push(i)
+      }
+      for (const v of vars) {
+        if (!varsBy.has(v.listing_id)) varsBy.set(v.listing_id, [])
+        varsBy.get(v.listing_id).push(v)
+      }
+      for (const l of parsed) {
+        l.imagenes  = imgsBy.get(l.id) || []
+        l.variantes = varsBy.get(l.id) || []
+      }
+    }
+
+    res.json({ listings: parsed })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Error al cargar listings del usuario' })
+  }
+})
+
 // ── GET /api/v1/public/portadas ───────────────────────────────────────────
 // Todas las portadas activas (turismo — sin auth)
 router.get('/portadas', async (req, res) => {

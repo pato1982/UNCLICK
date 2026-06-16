@@ -366,6 +366,7 @@ function MfaVerifyView({ mfaToken, onSuccess, onCancel }) {
 
 export default function LoginModal({ onClose, onSwitchToRegister, onLoginSuccess }) {
   const [form, setForm] = useState({ email: '', password: '' })
+  const [rememberMe, setRememberMe] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [showForgot, setShowForgot] = useState(false)
@@ -407,7 +408,7 @@ export default function LoginModal({ onClose, onSwitchToRegister, onLoginSuccess
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(form)
+        body: JSON.stringify({ ...form, remember_me: rememberMe })
       })
       const data = await res.json()
 
@@ -543,7 +544,19 @@ export default function LoginModal({ onClose, onSwitchToRegister, onLoginSuccess
                 </div>
               </div>
 
-<button
+              {/* Recordar sesión */}
+              <button
+                type="button"
+                onClick={() => setRememberMe(v => !v)}
+                className="flex items-center gap-2.5 w-full text-left group"
+              >
+                <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-all ${rememberMe ? 'bg-primary border-primary' : 'border-gray-300 group-hover:border-primary/50'}`}>
+                  {rememberMe && <span className="material-symbols-outlined text-white text-xs">check</span>}
+                </div>
+                <span className="text-xs text-gray-500 group-hover:text-gray-700 transition-colors">Recordar sesión en este dispositivo</span>
+              </button>
+
+              <button
                 type="submit"
                 disabled={loading}
                 className="w-full bg-primary text-white font-bold py-2.5 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
