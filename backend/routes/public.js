@@ -18,9 +18,11 @@ function parseJson(val) {
 
 // ── GET /api/v1/public/listings ───────────────────────────────────────────
 // Todos los listings activos del marketplace (sin auth — vista pública)
-// Soporta ?limit=N&offset=N para paginación. Default: limit=50, max=100.
+// Soporta ?limit=N&offset=N para paginación. Default amplio porque el frontend
+// (App.jsx) consume el endpoint sin parámetros y aún no implementa UI de paginación:
+// el default debe cubrir el catálogo completo para no truncar el marketplace.
 router.get('/listings', async (req, res) => {
-  const limit  = Math.min(parseInt(req.query.limit)  || 50, 100)
+  const limit  = Math.min(parseInt(req.query.limit)  || 500, 1000)
   const offset = Math.max(parseInt(req.query.offset) || 0, 0)
   try {
     const [[{ total }]] = await req.pool.query(
