@@ -18,9 +18,9 @@ function parseJson(val) {
 
 // ── GET /api/v1/public/listings ───────────────────────────────────────────
 // Todos los listings activos del marketplace (sin auth — vista pública)
-// Soporta ?limit=N&offset=N para paginación. Default: limit=500, offset=0.
+// Soporta ?limit=N&offset=N para paginación. Default: limit=50, max=100.
 router.get('/listings', async (req, res) => {
-  const limit  = Math.min(parseInt(req.query.limit)  || 500, 2000)
+  const limit  = Math.min(parseInt(req.query.limit)  || 50, 100)
   const offset = Math.max(parseInt(req.query.offset) || 0, 0)
   try {
     const [[{ total }]] = await req.pool.query(
@@ -49,6 +49,32 @@ router.get('/listings', async (req, res) => {
       tallas:  parseJson(l.tallas),
       medidas: parseJson(l.medidas),
     }))
+
+    // Adjuntar galería y variantes en batch (sin N+1).
+    if (parsed.length) {
+      const ids = parsed.map(l => l.id)
+      const ph  = ids.map(() => '?').join(',')
+      const [imgs] = await req.pool.query(
+        `SELECT * FROM tb_listing_imagenes WHERE listing_id IN (${ph}) ORDER BY listing_id, orden`, ids
+      )
+      const [vars] = await req.pool.query(
+        `SELECT * FROM tb_listing_variantes WHERE listing_id IN (${ph}) ORDER BY listing_id, orden`, ids
+      )
+      const imgsBy = new Map(), varsBy = new Map()
+      for (const i of imgs) {
+        if (!imgsBy.has(i.listing_id)) imgsBy.set(i.listing_id, [])
+        imgsBy.get(i.listing_id).push(i)
+      }
+      for (const v of vars) {
+        if (!varsBy.has(v.listing_id)) varsBy.set(v.listing_id, [])
+        varsBy.get(v.listing_id).push(v)
+      }
+      for (const l of parsed) {
+        l.imagenes  = imgsBy.get(l.id) || []
+        l.variantes = varsBy.get(l.id) || []
+      }
+    }
+
     res.json({ listings: parsed, total, limit, offset })
   } catch (err) {
     console.error(err)

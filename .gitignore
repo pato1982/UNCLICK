@@ -19,3 +19,6 @@ backup-err.txt
 backend/backup-err.txt
 *.dump.sql
 backend/backups/
+
+# Memoria local de Claude (no versionar)
+memory/
