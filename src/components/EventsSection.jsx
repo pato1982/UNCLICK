@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import EventModal from './EventModal'
 
 const API = import.meta.env.VITE_API || ''
 
@@ -59,6 +60,7 @@ export default function EventsSection({ onViewAll }) {
   const [allEvents, setAllEvents] = useState([])
   const [displayEvents, setDisplayEvents] = useState([])
   const [fading, setFading] = useState(false)
+  const [selectedEvent, setSelectedEvent] = useState(null)
   const rotationRef = useRef(null)
 
   useEffect(() => {
@@ -103,8 +105,9 @@ export default function EventsSection({ onViewAll }) {
   const renderCard = (event) => (
     <div
       key={event.id}
-      className={`rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-white/10 group w-full duration-700 ${fading ? 'opacity-0' : 'opacity-100'}`}
+      className={`rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-white/10 group w-full duration-700 cursor-pointer ${fading ? 'opacity-0' : 'opacity-100'}`}
       style={{ background: 'rgba(255,255,255,0.06)' }}
+      onClick={() => setSelectedEvent(event)}
     >
       <div className="relative w-full overflow-hidden" style={{ aspectRatio: '1/1' }}>
         <img
@@ -154,6 +157,7 @@ export default function EventsSection({ onViewAll }) {
           {displayEvents.map(event => renderCard(event))}
         </div>
       </>
+      {selectedEvent && <EventModal event={selectedEvent} onClose={() => setSelectedEvent(null)} />}
     </div>
   )
 }
