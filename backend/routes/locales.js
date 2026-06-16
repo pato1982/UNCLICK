@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { uploadImagen } from '../middleware/upload.js'
+import { requireAuth, requireProgramador } from '../middleware/requireAuth.js'
 import { unlink } from 'fs/promises'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
@@ -30,7 +31,7 @@ router.get('/', async (req, res) => {
 })
 
 // ── GET /api/v1/locales/admin ──────────────────────────────────────────────
-router.get('/admin', async (req, res) => {
+router.get('/admin', requireAuth, requireProgramador, async (req, res) => {
   try {
     const [locales] = await req.pool.query(
       `SELECT l.*, c.nombre AS categoria_nombre, c.icono AS categoria_icono
@@ -46,7 +47,7 @@ router.get('/admin', async (req, res) => {
 })
 
 // ── POST /api/v1/locales ───────────────────────────────────────────────────
-router.post('/', ...uploadImagen('locales'), async (req, res) => {
+router.post('/', requireAuth, requireProgramador, ...uploadImagen('locales'), async (req, res) => {
   const { nombre, direccion, categoria_barrio_id, descripcion, telefono, whatsapp, horario, facebook, instagram, correo } = req.body
   if (!nombre?.trim()) return res.status(400).json({ error: 'El nombre es requerido' })
 
@@ -67,7 +68,7 @@ router.post('/', ...uploadImagen('locales'), async (req, res) => {
 })
 
 // ── PUT /api/v1/locales/:id ────────────────────────────────────────────────
-router.put('/:id', ...uploadImagen('locales'), async (req, res) => {
+router.put('/:id', requireAuth, requireProgramador, ...uploadImagen('locales'), async (req, res) => {
   const { nombre, direccion, categoria_barrio_id, descripcion, telefono, whatsapp, horario, facebook, instagram, correo } = req.body
   if (!nombre?.trim()) return res.status(400).json({ error: 'El nombre es requerido' })
 
@@ -97,7 +98,7 @@ router.put('/:id', ...uploadImagen('locales'), async (req, res) => {
 })
 
 // ── DELETE /api/v1/locales/:id ─────────────────────────────────────────────
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', requireAuth, requireProgramador, async (req, res) => {
   try {
     const [[local]] = await req.pool.query('SELECT imagen FROM tb_locales WHERE id = ?', [req.params.id])
     if (!local) return res.status(404).json({ error: 'Local no encontrado' })
@@ -112,7 +113,7 @@ router.delete('/:id', async (req, res) => {
 })
 
 // ── PATCH /api/v1/locales/:id/toggle ──────────────────────────────────────
-router.patch('/:id/toggle', async (req, res) => {
+router.patch('/:id/toggle', requireAuth, requireProgramador, async (req, res) => {
   try {
     const [[local]] = await req.pool.query('SELECT activo FROM tb_locales WHERE id = ?', [req.params.id])
     if (!local) return res.status(404).json({ error: 'Local no encontrado' })
@@ -127,7 +128,7 @@ router.patch('/:id/toggle', async (req, res) => {
 })
 
 // ── PATCH /api/v1/locales/:id/crop ────────────────────────────────────────
-router.patch('/:id/crop', async (req, res) => {
+router.patch('/:id/crop', requireAuth, requireProgramador, async (req, res) => {
   try {
     await req.pool.query(
       'UPDATE tb_locales SET imagen_crop = ? WHERE id = ?',
