@@ -28,7 +28,11 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const app  = express()
 const PORT = process.env.PORT || 3001
 
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }))
+// Detrás de nginx (reverse proxy): confiar en el primer proxy para que
+// req.secure y X-Forwarded-* sean correctos (cookies Secure, rate-limit por IP real).
+app.set('trust proxy', 1)
+
+app.use(cors({ origin: process.env.CORS_ORIGIN || 'http://localhost:5173', credentials: true }))
 app.use(express.json())
 app.use(cookieParser())
 

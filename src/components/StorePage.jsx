@@ -387,10 +387,10 @@ export function StoreBanner({ store, products, bannerItems, phone, storeUserId }
   // Fondo del banner configurable desde Apariencia ('transparent' o un color)
   const bannerBg = store?.banner_color || '#1a1220'
 
-  // Solo mostrar banner si el admin configuró items con banner_orden
-  if (!bannerItems || bannerItems.length === 0) return null
-  const slide1 = bannerItems.filter(b => b.banner_orden >= 1 && b.banner_orden <= 5).sort((a, b) => a.banner_orden - b.banner_orden)
-  const slide2 = bannerItems.filter(b => b.banner_orden >= 6 && b.banner_orden <= 10).sort((a, b) => a.banner_orden - b.banner_orden)
+  // Calcular slides ANTES de cualquier early return (sin hooks de por medio).
+  // Con bannerItems vacío/undefined estos filtros dan arrays vacíos, sin error.
+  const slide1 = (bannerItems || []).filter(b => b.banner_orden >= 1 && b.banner_orden <= 5).sort((a, b) => a.banner_orden - b.banner_orden)
+  const slide2 = (bannerItems || []).filter(b => b.banner_orden >= 6 && b.banner_orden <= 10).sort((a, b) => a.banner_orden - b.banner_orden)
   const slides = [slide1, slide2].filter(s => s.length >= 1)
 
   useEffect(() => {
@@ -416,6 +416,10 @@ export function StoreBanner({ store, products, bannerItems, phone, storeUserId }
     }, 3500)
     return () => clearInterval(t)
   }, [bannerItems])
+
+  // Early return DESPUÉS de todos los hooks (cumple las Rules of Hooks de React).
+  // Solo mostrar banner si el admin configuró items con banner_orden.
+  if (!bannerItems || bannerItems.length === 0) return null
 
   return (
     <>
