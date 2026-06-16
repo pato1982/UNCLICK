@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "dev": "node --watch server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "node test-smoke.mjs",
+    "test:completo": "node test-completo.mjs"
   },
   "keywords": [],
   "author": "",
