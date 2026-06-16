@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { uploadImagen } from '../middleware/upload.js'
+import { requireAuth, requireProgramador } from '../middleware/requireAuth.js'
 import { unlink } from 'fs/promises'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
@@ -33,7 +34,7 @@ router.get('/', async (req, res) => {
 })
 
 // ── GET /api/v1/eventos/admin ──────────────────────────────────────────────
-router.get('/admin', async (req, res) => {
+router.get('/admin', requireAuth, requireProgramador, async (req, res) => {
   try {
     const [eventos] = await req.pool.query(
       `SELECT e.*, c.nombre AS categoria_nombre, c.icono AS categoria_icono
@@ -49,7 +50,7 @@ router.get('/admin', async (req, res) => {
 })
 
 // ── POST /api/v1/eventos ───────────────────────────────────────────────────
-router.post('/', ...uploadImagen('eventos'), async (req, res) => {
+router.post('/', requireAuth, requireProgramador, ...uploadImagen('eventos'), async (req, res) => {
   const { titulo, fecha, ubicacion, precio, categoria_evento_id, descripcion, organizador, telefono, whatsapp, horario } = req.body
   if (!titulo?.trim()) return res.status(400).json({ error: 'El título es requerido' })
 
@@ -82,7 +83,7 @@ router.post('/', ...uploadImagen('eventos'), async (req, res) => {
 })
 
 // ── PUT /api/v1/eventos/:id ────────────────────────────────────────────────
-router.put('/:id', ...uploadImagen('eventos'), async (req, res) => {
+router.put('/:id', requireAuth, requireProgramador, ...uploadImagen('eventos'), async (req, res) => {
   const { id } = req.params
   const { titulo, fecha, ubicacion, precio, categoria_evento_id, descripcion, organizador, telefono, whatsapp, horario } = req.body
   if (!titulo?.trim()) return res.status(400).json({ error: 'El título es requerido' })
@@ -111,7 +112,7 @@ router.put('/:id', ...uploadImagen('eventos'), async (req, res) => {
 })
 
 // ── DELETE /api/v1/eventos/:id ─────────────────────────────────────────────
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', requireAuth, requireProgramador, async (req, res) => {
   try {
     const [[evento]] = await req.pool.query('SELECT imagen FROM tb_eventos WHERE id = ?', [req.params.id])
     if (!evento) return res.status(404).json({ error: 'Evento no encontrado' })
@@ -127,7 +128,7 @@ router.delete('/:id', async (req, res) => {
 })
 
 // ── PATCH /api/v1/eventos/:id/toggle ──────────────────────────────────────
-router.patch('/:id/toggle', async (req, res) => {
+router.patch('/:id/toggle', requireAuth, requireProgramador, async (req, res) => {
   try {
     const [[evento]] = await req.pool.query('SELECT activo FROM tb_eventos WHERE id = ?', [req.params.id])
     if (!evento) return res.status(404).json({ error: 'Evento no encontrado' })
@@ -142,7 +143,7 @@ router.patch('/:id/toggle', async (req, res) => {
 })
 
 // ── PATCH /api/v1/eventos/:id/crop ────────────────────────────────────────
-router.patch('/:id/crop', async (req, res) => {
+router.patch('/:id/crop', requireAuth, requireProgramador, async (req, res) => {
   const { imagen_crop } = req.body
   try {
     await req.pool.query(
