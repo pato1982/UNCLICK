@@ -174,8 +174,18 @@ async function main() {
   console.log('🌱 Generando hash de contraseña QA...')
   const hash = await bcrypt.hash(QA_PASSWORD, 10)
 
+  // Eliminar usuarios QA existentes (por email) para re-insertarlos con IDs 9001-9028
+  console.log('🗑  Limpiando usuarios QA existentes...')
+  for (const qa of QA_USERS) {
+    const [[row]] = await pool.query('SELECT id FROM usuarios WHERE email = ?', [qa.email])
+    if (row) {
+      await pool.query('DELETE FROM usuarios WHERE id = ?', [row.id])
+      console.log(`  🗑  Eliminado ID=${row.id} (${qa.email})`)
+    }
+  }
+
   const turUsers = QA_USERS.filter(u => u.tipo === 'turismo')
-  let created = 0, skipped = 0
+  let created = 0
 
   for (let i = 0; i < QA_USERS.length; i++) {
     const qa = QA_USERS[i]
@@ -183,23 +193,17 @@ async function main() {
     const turIdx = isTur ? turUsers.indexOf(qa) : 0
     const negName = isTur ? TURISMO_NAMES[turIdx % TURISMO_NAMES.length] : NAMES[i % NAMES.length]
     const slogan  = SLOGANS[i % SLOGANS.length]
+    const uid = 9001 + i   // ID explícito: 9001-9028
 
-    // ── Verificar si ya existe ─────────────────────────────────────────────
-    const [[existe]] = await pool.query('SELECT id FROM usuarios WHERE email = ?', [qa.email])
-    if (existe) {
-      console.log(`  ⏭  ${qa.email} ya existe`)
-      skipped++
-      continue
-    }
-
-    // ── Insertar usuario ───────────────────────────────────────────────────
-    const [res] = await pool.query(
+    // ── Insertar usuario con ID explícito ──────────────────────────────────
+    await pool.query(
       `INSERT INTO usuarios
-         (nombre, email, password_hash, rol, tipo_cuenta, plan_id,
+         (id, nombre, email, password_hash, rol, tipo_cuenta, plan_id,
           vende_productos, ofrece_servicios, ofrece_arriendos,
           telefono, direccion, comuna, activo)
-       VALUES (?, ?, ?, 'usuario', ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+       VALUES (?, ?, ?, ?, 'usuario', ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
       [
+        uid,
         negName,
         qa.email,
         hash,
@@ -213,7 +217,6 @@ async function main() {
         'San Martín de los Andes',
       ]
     )
-    const uid = res.insertId
 
     // ── Insertar negocio ───────────────────────────────────────────────────
     await pool.query(
@@ -338,13 +341,14 @@ async function main() {
       }
     }
 
-    console.log(`  ✅ ${qa.email} → ${negName} (${listCount} listings)`)
+    console.log(`  ✅ [ID ${uid}] ${qa.email} → ${negName} (${listCount} listings)`)
     created++
   }
 
   await pool.end()
-  console.log(`\n🎉 Seed completo: ${created} usuarios creados, ${skipped} ya existían.`)
+  console.log(`\n🎉 Seed completo: ${created} usuarios creados con IDs 9001-9028.`)
   console.log(`   Email: cualquier @qa.dev | Password: ${QA_PASSWORD}`)
+  console.log(`   Los IDs coinciden con los mock de DevQuickLogin.`)
 }
 
 main().catch(err => {

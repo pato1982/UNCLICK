@@ -48,6 +48,43 @@ export default function StoresCarousel({ onViewAll }) {
   const scrollRef = useRef(null)
   const intervalRef = useRef(null)
 
+  const [dragging, setDragging] = useState(false)
+  const isDragging = useRef(false)
+  const dragStart = useRef(0)
+  const scrollStart = useRef(0)
+  const pointerActive = useRef(false)
+
+  const DRAG_THRESHOLD = 6
+
+  const onPointerDown = (e) => {
+    pointerActive.current = true
+    isDragging.current = false
+    dragStart.current = e.clientX
+    scrollStart.current = e.currentTarget.scrollLeft
+    if (intervalRef.current) clearInterval(intervalRef.current)
+  }
+
+  const onPointerMove = (e) => {
+    if (!pointerActive.current) return
+    const delta = Math.abs(e.clientX - dragStart.current)
+    if (!isDragging.current) {
+      if (delta < DRAG_THRESHOLD) return
+      isDragging.current = true
+      setDragging(true)
+      e.currentTarget.setPointerCapture(e.pointerId)
+    }
+    e.preventDefault()
+    e.currentTarget.scrollLeft = scrollStart.current - (e.clientX - dragStart.current)
+  }
+
+  const onPointerUp = () => {
+    pointerActive.current = false
+    if (!isDragging.current) return
+    isDragging.current = false
+    setDragging(false)
+    resetAutoScroll()
+  }
+
   useEffect(() => {
     fetch(`${API}/api/v1/locales`)
       .then(r => r.json())
@@ -128,6 +165,11 @@ export default function StoresCarousel({ onViewAll }) {
         <div
           ref={scrollRef}
           className="flex gap-2 sm:gap-3 overflow-x-hidden scroll-smooth py-1 px-1"
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerLeave={onPointerUp}
+          style={{ cursor: dragging ? 'grabbing' : 'grab', userSelect: 'none' }}
         >
           {displayStores.map((store, i) => (
             <button

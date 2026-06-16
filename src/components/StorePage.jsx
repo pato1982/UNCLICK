@@ -566,9 +566,9 @@ export default function StorePage({ store, onBack, onOpenStore, mobileCatKey }) 
   useEffect(() => {
     if (!store.userId) return
     Promise.all([
-      fetch(`${API}/api/v1/listings?user_id=${store.userId}`).then(r => r.json()),
-      fetch(`${API}/api/v1/listings?user_id=${store.userId}&banner=1`).then(r => r.json()),
-      fetch(`${API}/api/v1/business/${store.userId}`).then(r => r.json()),
+      fetch(`${API}/api/v1/public/listings/${store.userId}`).then(r => r.json()),
+      fetch(`${API}/api/v1/public/listings/${store.userId}?banner=1`).then(r => r.json()),
+      fetch(`${API}/api/v1/public/business/${store.userId}`).then(r => r.json()),
     ]).then(([listData, banData, bizData]) => {
       if (listData.listings) {
         setApiProducts(listData.listings.map(mapListing))

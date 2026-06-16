@@ -56,13 +56,14 @@ function registrarActividad(pool, usuario_id, accion, entidad = null, entidad_id
   ).catch(() => {}) // no bloquea si falla el log
 }
 
-function cookieOpts(req) {
-  return {
+function cookieOpts(req, remember = true) {
+  const opts = {
     httpOnly: true,
     sameSite: 'lax',
     secure:   req.secure || req.headers['x-forwarded-proto'] === 'https',
-    maxAge:   SESSION_DAYS * 24 * 60 * 60 * 1000,
   }
+  if (remember) opts.maxAge = SESSION_DAYS * 24 * 60 * 60 * 1000
+  return opts
 }
 
 // ── POST /api/v1/auth/register ─────────────────────────────────────────────
@@ -151,7 +152,7 @@ router.post('/register', async (req, res) => {
 
 // ── POST /api/v1/auth/login ────────────────────────────────────────────────
 router.post('/login', async (req, res) => {
-  const { email, password } = req.body
+  const { email, password, remember_me = false } = req.body
 
   if (!email || !password)
     return res.status(400).json({ error: 'Email y contraseña son requeridos' })
@@ -221,7 +222,7 @@ router.post('/login', async (req, res) => {
 
     const { password_hash, ...usuarioPublico } = usuario
 
-    res.cookie('session_token', token, cookieOpts(req))
+    res.cookie('session_token', token, cookieOpts(req, remember_me))
     res.json({ usuario: usuarioPublico })
   } catch (err) {
     console.error(err)
