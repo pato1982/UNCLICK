@@ -7,12 +7,13 @@ import { uploadImagen }  from '../middleware/upload.js'
 const router    = Router()
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
-// Auto-migración: agrega logo_size si no existe (corre una sola vez al primer request)
+// Auto-migración: agrega logo_size y siembra placeholder de logo (corre una sola vez)
 let _migrated = false
 async function ensureLogoSize(pool) {
   if (_migrated) return
   _migrated = true
   try {
+    // 1. Agregar columna logo_size si no existe
     const [cols] = await pool.query(
       "SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='negocios' AND COLUMN_NAME='logo_size'"
     )
@@ -21,9 +22,21 @@ async function ensureLogoSize(pool) {
       await pool.query("UPDATE negocios SET logo_size=3 WHERE logo_size IS NULL")
       console.log('[migrate] logo_size column added to negocios')
     }
+    // 2. Sembrar placeholder de logo para negocios pagados sin logo
+    const PLACEHOLDER = '/uploads/negocios/logo-demo-placeholder.webp'
+    await pool.query(
+      `UPDATE negocios n
+       JOIN usuarios u ON u.id = n.usuario_id
+       SET n.logo_url = ?, n.logo_size = COALESCE(n.logo_size, 3)
+       WHERE u.plan_id >= 2
+         AND u.tipo_cuenta != 'turismo'
+         AND (n.logo_url IS NULL OR n.logo_url = '')`,
+      [PLACEHOLDER]
+    )
+    console.log('[migrate] logo placeholder seeded for paid negocios')
   } catch (e) {
-    console.error('[migrate] logo_size error:', e.message)
-    _migrated = false // permite reintentar si hubo error
+    console.error('[migrate] error:', e.message)
+    _migrated = false
   }
 }
 
