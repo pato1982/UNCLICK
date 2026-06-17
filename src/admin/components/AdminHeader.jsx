@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { GeneralPlans, TurismoPlans } from '../../components/PlansModal.jsx'
 
 const API = import.meta.env.VITE_API || ''
@@ -893,35 +893,9 @@ function ProfileModal({ onClose }) {
 
 export default function AdminHeader({ onToggleSidebar }) {
   const [showProfile, setShowProfile] = useState(false)
-  const [pwaVisible, setPwaVisible] = useState(false)
-  const [showHint, setShowHint] = useState(false)
-  const deferredPrompt = useRef(null)
   const user = JSON.parse(localStorage.getItem('user') || '{}')
   const hasPage = user.plan_id && user.plan_id >= 2
   const isProg = (user.rol || 'usuario') === 'programador'
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent)
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true
-
-  useEffect(() => {
-    if (isProg || isStandalone) return
-    if (isIOS) { setPwaVisible(true); return }
-    const handler = (e) => { e.preventDefault(); deferredPrompt.current = e; window.__pwaPrompt = e; setPwaVisible(true) }
-    window.addEventListener('beforeinstallprompt', handler)
-    if (window.__pwaPrompt) { deferredPrompt.current = window.__pwaPrompt; setPwaVisible(true) }
-    else { const t = setTimeout(() => setPwaVisible(true), 1200); return () => { window.removeEventListener('beforeinstallprompt', handler); clearTimeout(t) } }
-    return () => window.removeEventListener('beforeinstallprompt', handler)
-  }, [])
-
-  const handlePwaInstall = async () => {
-    if (isIOS) { setShowHint(h => !h); return }
-    const prompt = deferredPrompt.current || window.__pwaPrompt
-    if (prompt) {
-      prompt.prompt()
-      const { outcome } = await prompt.userChoice
-      deferredPrompt.current = null; window.__pwaPrompt = null
-      if (outcome === 'accepted') { setPwaVisible(false); setShowHint(false) }
-    } else { setShowHint(h => !h) }
-  }
 
   return (
     <>
@@ -1019,60 +993,9 @@ export default function AdminHeader({ onToggleSidebar }) {
           </div>
         )}
 
-        {/* Barra PWA mobile — debajo de Ver sitio / Ver mi página */}
-        {!isProg && pwaVisible && (
-          <div
-            className="sm:hidden w-full border-t-2 border-[#3B1969]/30 px-3 py-2 relative"
-            style={{ background: 'linear-gradient(90deg, #7B3FA0 0%, #F5C842 18%, #F5C842 82%, #7B3FA0 100%)' }}
-          >
-            <div className="flex items-center gap-2">
-              <div className="flex-1 min-w-0">
-                <p className="text-[#3B1969] text-[10px] font-black leading-none">Instala el acceso directo</p>
-                <p className="text-[#3B1969]/60 text-[9px] mt-0.5 leading-none">Abre tu panel desde la pantalla de inicio</p>
-              </div>
-              <button
-                onClick={handlePwaInstall}
-                className="shrink-0 text-[9px] font-black px-2.5 py-1 rounded-full transition-all hover:brightness-110 active:scale-95"
-                style={{ background: '#3B1969', color: '#F5C842' }}
-              >
-                {isIOS ? 'Cómo instalar' : 'Instalar'}
-              </button>
-            </div>
-            {showHint && (
-              <div className="mt-1.5 bg-[#3B1969]/10 rounded-lg px-3 py-1.5 text-[9px] text-[#3B1969]/90 text-center border border-[#3B1969]/20">
-                {isIOS
-                  ? <>Toca <strong>⬆ Compartir</strong> → <strong>"Añadir a pantalla de inicio"</strong></>
-                  : <>En Chrome toca <strong>⋮</strong> → <strong>"Instalar aplicación"</strong></>
-                }
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Barra tablet/desktop: PWA izquierda + Ver sitio/Ver mi página centrado */}
+        {/* Barra tablet/desktop: Ver sitio/Ver mi página centrado */}
         {!isProg && (
           <div className="hidden sm:flex bg-[#4A2070] border-t border-white/10 py-1.5 items-center px-4 relative min-h-[32px]">
-            {/* Izquierda: botón instalar acceso directo */}
-            {pwaVisible && (
-              <div className="flex items-center gap-1.5 relative">
-                <button
-                  onClick={handlePwaInstall}
-                  className="flex items-center gap-1 text-[10px] font-black px-2.5 py-1 rounded-full transition-all hover:brightness-110"
-                  style={{ background: '#F5C842', color: '#3B1969' }}
-                >
-                  <span className="material-symbols-outlined text-xs">install_desktop</span>
-                  {isIOS ? 'Añadir a inicio' : 'Instalar acceso directo'}
-                </button>
-                {showHint && (
-                  <div className="absolute top-full left-0 mt-1.5 bg-white text-slate-800 rounded-xl shadow-2xl px-4 py-2.5 text-xs font-medium whitespace-nowrap border border-slate-200 z-50">
-                    {isIOS
-                      ? <span>Toca <strong className="text-primary">⬆ Compartir</strong> → <strong className="text-primary">"Añadir a pantalla de inicio"</strong></span>
-                      : <span>En Chrome toca <strong className="text-primary">⋮</strong> → <strong className="text-primary">"Instalar aplicación"</strong></span>
-                    }
-                  </div>
-                )}
-              </div>
-            )}
             {/* Centro: Ver sitio + Ver mi página */}
             <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-4">
               <a href="/" className="flex items-center gap-1 text-xs font-bold text-white/60 hover:text-white transition-colors">
