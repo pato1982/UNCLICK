@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from 'react'
 import { QA_PASSWORD, QA_USERS } from '../lib/qaUsers'
 
+const PROG_EMAIL    = import.meta.env.VITE_PROG_EMAIL    ?? ''
+const PROG_PASSWORD = import.meta.env.VITE_PROG_PASSWORD ?? ''
+
 const PLAN_LABEL = { 1: 'Gratis', 2: 'Normal', 3: 'Premium' }
 const PLAN_COLOR = { 1: 'bg-slate-500', 2: 'bg-amber-500', 3: 'bg-emerald-600' }
 const CAP_COLOR = {
@@ -28,6 +31,16 @@ export default function DevQuickLogin({ onSelect, onLogin }) {
 
   function handleEnter(user) {
     onLogin?.(user.email)
+    setOpen(false)
+  }
+
+  function handleEnterProg() {
+    onLogin?.(PROG_EMAIL, PROG_PASSWORD)
+    setOpen(false)
+  }
+
+  function handleFillProg() {
+    onSelect(PROG_EMAIL, PROG_PASSWORD)
     setOpen(false)
   }
 
@@ -76,6 +89,26 @@ export default function DevQuickLogin({ onSelect, onLogin }) {
             </div>
 
             <div className="overflow-y-auto p-3 space-y-3">
+              {/* Programador */}
+              <div>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-white px-1.5 py-0.5 rounded bg-slate-900">DEV</span>
+                  <span className="text-[11px] font-semibold text-gray-600 uppercase tracking-wide">Programador</span>
+                </div>
+                <div className="w-full flex items-center gap-2 px-2.5 py-2 rounded-lg bg-slate-50 border border-slate-200 hover:border-primary/40 transition-colors">
+                  <button type="button" onClick={handleEnterProg} className="flex-1 min-w-0 flex items-center gap-2 text-left">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-semibold text-gray-800">Patricio</div>
+                      <div className="text-[10px] text-gray-500 font-mono truncate">{PROG_EMAIL}</div>
+                    </div>
+                    <span className="text-[9px] font-bold text-white px-1.5 py-0.5 rounded bg-slate-900">PROG</span>
+                  </button>
+                  <button type="button" onClick={handleFillProg} title="Solo rellenar formulario" className="shrink-0 text-gray-400 hover:text-primary transition-colors">
+                    <span className="material-symbols-outlined text-base">edit</span>
+                  </button>
+                </div>
+              </div>
+
               <Group title="General · Plan 1 (Gratis)"  plan={1} users={generalP1} onPick={handleEnter} onFill={handlePick} />
               <Group title="General · Plan 2 (Normal)"  plan={2} users={generalP2} onPick={handleEnter} onFill={handlePick} />
               <Group title="General · Plan 3 (Premium)" plan={3} users={generalP3} onPick={handleEnter} onFill={handlePick} />
