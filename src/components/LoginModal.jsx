@@ -571,17 +571,18 @@ export default function LoginModal({ onClose, onSwitchToRegister, onLoginSuccess
                 </button>
               </p>
 
-              {import.meta.env.DEV && (
+              {(import.meta.env.DEV || window.location.hostname.includes('stage')) && (
                 <DevQuickLogin
                   onSelect={(email, password) => setForm({ email, password })}
-                  onLogin={async (email) => {
+                  onLogin={async (email, password) => {
+                    const pwd = password || QA_PASSWORD
                     // Intentar login real contra el backend primero
                     try {
                       const res = await fetch(`${API}/api/v1/auth/login`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         credentials: 'include',
-                        body: JSON.stringify({ email, password: QA_PASSWORD }),
+                        body: JSON.stringify({ email, password: pwd }),
                       })
                       const data = await res.json()
                       if (res.ok && (data.usuario || data.user)) {
