@@ -1,6 +1,6 @@
 import { getStoreHeaderStyle } from '../lib/storeHeaderPresets'
 
-/* Logo "un CLICK" */
+/* Logo "un CLICK" — solo planes gratuitos o cuando no hay logo propio */
 function Brand({ light, mini, onClick }) {
   const sub = light ? 'text-white/70' : 'text-slate-400'
   const main = light ? 'text-white' : 'text-slate-900'
@@ -20,6 +20,29 @@ function Brand({ light, mini, onClick }) {
   return onClick
     ? <button type="button" onClick={onClick} className="shrink-0 hover:opacity-80 transition-opacity">{inner}</button>
     : <div className="shrink-0">{inner}</div>
+}
+
+/* Logo propio del negocio — planes pagados (plan_id >= 2) con logo subido */
+function BusinessLogo({ store, light, mini, onClick }) {
+  const hasPaidPlan = store?.plan_id >= 2
+  const logoUrl = store?.logo
+
+  if (!hasPaidPlan || !logoUrl) {
+    return <Brand light={light} mini={mini} onClick={onClick} />
+  }
+
+  const size = mini ? 'h-8 w-8' : 'h-12 w-12 sm:h-16 sm:w-16'
+  const img = (
+    <img
+      src={logoUrl}
+      alt="Logo"
+      className={`${size} rounded-lg object-contain bg-white/10 shrink-0`}
+      onError={e => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling?.style && (e.currentTarget.nextSibling.style.display = '') }}
+    />
+  )
+  return onClick
+    ? <button type="button" onClick={onClick} className="shrink-0 hover:opacity-80 transition-opacity">{img}</button>
+    : <div className="shrink-0">{img}</div>
 }
 
 /* Buscador (decorativo) */
@@ -46,28 +69,24 @@ export default function StoreHeaderThemed({ store, name, slogan, mini, onBrandCl
   const v = hdr.variant
   const right = actions || <Search name={name} mini={mini} />
   const px = mini ? 'px-3' : 'px-3 sm:px-4 md:px-6'
-  // En mini el alto escala proporcionalmente a la altura elegida (factor reducido
-  // para que las miniaturas de ejemplo no queden enormes), así reflejan el slider.
   const miniPad = Math.max(6, Math.round(hdr.padY * 0.45))
   const padStyle = mini ? { paddingTop: miniPad, paddingBottom: miniPad } : { paddingTop: hdr.padY, paddingBottom: hdr.padY }
   const nameBig = mini ? 'text-sm' : 'text-xl sm:text-2xl md:text-3xl'
   const nameMd = mini ? 'text-sm' : 'text-lg sm:text-2xl'
   const eyebrow = mini ? 'text-[7px]' : 'text-[9px] sm:text-[10px]'
 
-  // El contenido siempre va verticalmente centrado (items-center) y el alto lo da padStyle.
   const Shell = ({ style, extra, vpad = true, children }) => (
     <header className={`relative overflow-hidden w-full max-w-full ${px} shadow-lg ${extra || ''}`} style={{ ...style, ...(vpad ? padStyle : {}) }}>
       {children}
     </header>
   )
 
-  // 1) ESENCIAL — claro, editorial, nombre centrado (en flujo, nunca recortado).
-  // Fondo claro teñido con tu color y nombre en tu color, para que refleje la selección.
+  // 1) ESENCIAL
   if (v === 'esencial') {
     return (
       <Shell style={{ backgroundColor: hdr.colorPale }} extra="border-b border-slate-200 !shadow-sm">
         <div className="relative z-10 max-w-7xl mx-auto flex items-center gap-3">
-          <Brand mini={mini} onClick={onBrandClick} />
+          <BusinessLogo store={store} mini={mini} onClick={onBrandClick} />
           <div className="flex-1 min-w-0 flex flex-col items-center justify-center text-center">
             {slogan && <span className={`${eyebrow} uppercase tracking-[0.3em] text-slate-400 mb-0.5 truncate max-w-full`}>{slogan}</span>}
             <span className={`${nameBig} font-semibold tracking-tight truncate max-w-full`} style={{ color: hdr.color }}>{name}</span>
@@ -78,12 +97,12 @@ export default function StoreHeaderThemed({ store, name, slogan, mini, onBrandCl
     )
   }
 
-  // 2) MARCA — banda de color, identidad a la izquierda
+  // 2) MARCA
   if (v === 'marca') {
     return (
       <Shell style={{ backgroundColor: hdr.color }}>
         <div className="relative z-10 max-w-7xl mx-auto flex items-center gap-3 sm:gap-4">
-          <Brand light mini={mini} onClick={onBrandClick} />
+          <BusinessLogo store={store} light mini={mini} onClick={onBrandClick} />
           <span className="h-7 sm:h-9 w-px bg-white/25 shrink-0" />
           <div className="flex flex-col leading-none min-w-0">
             <span className={`${nameMd} font-bold tracking-tight text-white truncate`}>{name}</span>
@@ -96,12 +115,12 @@ export default function StoreHeaderThemed({ store, name, slogan, mini, onBrandCl
     )
   }
 
-  // 3) BOUTIQUE — oscuro, nombre serif centrado con filete dorado (tintado con tu color)
+  // 3) BOUTIQUE
   if (v === 'boutique') {
     return (
       <Shell style={{ backgroundColor: hdr.colorDeep }}>
         <div className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-10">
-          <Brand light mini onClick={onBrandClick} />
+          <BusinessLogo store={store} light mini onClick={onBrandClick} />
         </div>
         {actions && (
           <div className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-10">{actions}</div>
@@ -115,12 +134,12 @@ export default function StoreHeaderThemed({ store, name, slogan, mini, onBrandCl
     )
   }
 
-  // 4) DEGRADÉ — gradiente suave, nombre destacado al centro (en flujo)
+  // 4) DEGRADÉ
   if (v === 'degrade') {
     return (
       <Shell style={{ background: `linear-gradient(120deg, ${hdr.colorLight} 0%, ${hdr.color} 55%, ${hdr.colorDark} 100%)` }}>
         <div className="relative z-10 max-w-7xl mx-auto flex items-center gap-3">
-          <Brand light mini={mini} onClick={onBrandClick} />
+          <BusinessLogo store={store} light mini={mini} onClick={onBrandClick} />
           <div className="flex-1 min-w-0 flex flex-col items-center justify-center text-center">
             {slogan && <span className={`${eyebrow} uppercase tracking-[0.3em] text-white/70 mb-0.5 truncate max-w-full`}>{slogan}</span>}
             <span className={`${nameBig} font-extrabold tracking-tight text-white truncate max-w-full`}>{name}</span>
@@ -131,12 +150,12 @@ export default function StoreHeaderThemed({ store, name, slogan, mini, onBrandCl
     )
   }
 
-  // 5) PANEL — bloque de color (logo + nombre) y panel claro al otro lado
+  // 5) PANEL
   return (
     <Shell style={{ backgroundColor: '#f1f5f9' }} extra="!px-0 !shadow-sm" vpad={false}>
       <div className="relative z-10 flex items-stretch">
         <div className={`flex items-center gap-2 sm:gap-3 ${px} rounded-r-[1.75rem]`} style={{ backgroundColor: hdr.color, ...padStyle }}>
-          <Brand light mini={mini} onClick={onBrandClick} />
+          <BusinessLogo store={store} light mini={mini} onClick={onBrandClick} />
           <span className="h-7 sm:h-9 w-px bg-white/25 shrink-0 hidden sm:block" />
           <div className="flex flex-col leading-none min-w-0">
             <span className={`${nameMd} font-bold tracking-tight text-white truncate`}>{name}</span>

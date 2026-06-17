@@ -165,31 +165,33 @@ export default function AdminNegocio() {
         </div>
       )}
 
-      {/* Logo */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5 mb-4 flex items-center gap-5">
-        <div className="relative flex-shrink-0">
-          <div className="w-20 h-20 rounded-full border-2 border-dashed border-gray-300 overflow-hidden flex items-center justify-center bg-gray-50">
-            {logo
-              ? <img src={logo} alt="Logo" className="w-full h-full object-cover" />
-              : <span className="material-symbols-outlined text-gray-300 text-3xl">store</span>
-            }
-          </div>
-          {uploadingLogo && (
-            <div className="absolute inset-0 rounded-full bg-white/80 flex items-center justify-center">
-              <span className="material-symbols-outlined text-primary text-xl animate-spin">progress_activity</span>
+      {/* Logo — solo planes pagados de productos generales */}
+      {!esTurismo && user.plan_id >= 2 && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5 mb-4 flex items-center gap-5">
+          <div className="relative flex-shrink-0">
+            <div className="w-20 h-20 rounded-full border-2 border-dashed border-gray-300 overflow-hidden flex items-center justify-center bg-gray-50">
+              {logo
+                ? <img src={logo} alt="Logo" className="w-full h-full object-cover" />
+                : <span className="material-symbols-outlined text-gray-300 text-3xl">store</span>
+              }
             </div>
-          )}
+            {uploadingLogo && (
+              <div className="absolute inset-0 rounded-full bg-white/80 flex items-center justify-center">
+                <span className="material-symbols-outlined text-primary text-xl animate-spin">progress_activity</span>
+              </div>
+            )}
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-gray-700 mb-0.5">Logo del negocio</p>
+            <p className="text-xs text-gray-400 mb-2">Se mostrará en el header de tu página. Se comprime automáticamente.</p>
+            <label className={`cursor-pointer inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors ${uploadingLogo ? 'opacity-50 pointer-events-none' : 'text-primary bg-primary/10 hover:bg-primary/20'}`}>
+              <span className="material-symbols-outlined text-sm">upload</span>
+              {uploadingLogo ? 'Subiendo...' : logo ? 'Cambiar logo' : 'Subir logo'}
+              <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleLogoChange} disabled={uploadingLogo} />
+            </label>
+          </div>
         </div>
-        <div>
-          <p className="text-sm font-semibold text-gray-700 mb-0.5">Logo del negocio</p>
-          <p className="text-xs text-gray-400 mb-2">Se mostrará en tu perfil y publicaciones. Se comprime automáticamente.</p>
-          <label className={`cursor-pointer inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors ${uploadingLogo ? 'opacity-50 pointer-events-none' : 'text-primary bg-primary/10 hover:bg-primary/20'}`}>
-            <span className="material-symbols-outlined text-sm">upload</span>
-            {uploadingLogo ? 'Subiendo...' : logo ? 'Cambiar logo' : 'Subir logo'}
-            <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleLogoChange} disabled={uploadingLogo} />
-          </label>
-        </div>
-      </div>
+      )}
 
       <form onSubmit={handleSave} className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
