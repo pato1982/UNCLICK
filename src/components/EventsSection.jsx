@@ -71,6 +71,8 @@ export default function EventsSection({ onViewAll }) {
           id: e.id,
           title: e.titulo,
           image: e.imagen ? `${API}${e.imagen}` : '',
+          imagen_2: e.imagen_2 ? `${API}${e.imagen_2}` : null,
+          imagen_3: e.imagen_3 ? `${API}${e.imagen_3}` : null,
           date: e.fecha || '',
           location: e.ubicacion || '',
           price: e.precio || 'Entrada libre',

@@ -44,10 +44,11 @@ export default function DevQuickLogin({ onSelect, onLogin }) {
     setOpen(false)
   }
 
-  const generalP1 = QA_USERS.filter(u => u.tipo === 'general' && u.plan === 1)
-  const generalP2 = QA_USERS.filter(u => u.tipo === 'general' && u.plan === 2)
-  const generalP3 = QA_USERS.filter(u => u.tipo === 'general' && u.plan === 3)
-  const turismo   = QA_USERS.filter(u => u.tipo === 'turismo')
+  const generalP1    = QA_USERS.filter(u => u.tipo === 'general' && u.plan === 1)
+  const generalP2    = QA_USERS.filter(u => u.tipo === 'general' && u.plan === 2)
+  const generalP3    = QA_USERS.filter(u => u.tipo === 'general' && u.plan === 3)
+  const turismo      = QA_USERS.filter(u => u.tipo === 'turismo')
+  const localEvento  = QA_USERS.filter(u => u.tipo === 'local' || u.tipo === 'evento')
 
   return (
     <>
@@ -112,7 +113,8 @@ export default function DevQuickLogin({ onSelect, onLogin }) {
               <Group title="General · Plan 1 (Gratis)"  plan={1} users={generalP1} onPick={handleEnter} onFill={handlePick} />
               <Group title="General · Plan 2 (Normal)"  plan={2} users={generalP2} onPick={handleEnter} onFill={handlePick} />
               <Group title="General · Plan 3 (Premium)" plan={3} users={generalP3} onPick={handleEnter} onFill={handlePick} />
-              <Group title="Turismo"                    plan={null} users={turismo}   onPick={handleEnter} onFill={handlePick} />
+              <Group title="Turismo"                    plan={null} users={turismo}      onPick={handleEnter} onFill={handlePick} />
+              <Group title="Locales & Eventos"          plan={null} users={localEvento} onPick={handleEnter} onFill={handlePick} />
             </div>
           </div>
         </div>

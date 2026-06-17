@@ -27,6 +27,14 @@ const menuProgramador = [
   { label: 'Monitor', icon: 'monitor_heart', path: '/admin/programador/monitor' },
 ]
 
+const menuLocal = [
+  { label: 'Mi Local', icon: 'local_grocery_store', path: '/admin/mi-local' },
+]
+
+const menuEvento = [
+  { label: 'Mis Eventos', icon: 'event', path: '/admin/mis-eventos' },
+]
+
 const PLAN_NAMES = { 2: 'Normal', 3: 'Premium', 5: 'Premium' }
 
 export default function AdminSidebar({ open, onClose }) {
@@ -35,7 +43,11 @@ export default function AdminSidebar({ open, onClose }) {
   const tipoCuenta = user.tipo_cuenta || 'general'
   const rol = user.rol || 'usuario'
   const isProg = rol === 'programador'
-  const menuItems = isProg ? menuProgramador : (tipoCuenta === 'turismo' ? menuTurismo : menuGeneral)
+  const menuItems = isProg ? menuProgramador
+    : tipoCuenta === 'turismo' ? menuTurismo
+    : tipoCuenta === 'local'   ? menuLocal
+    : tipoCuenta === 'evento'  ? menuEvento
+    : menuGeneral
   const [lockedPopup, setLockedPopup] = useState(null)
   const [counts, setCounts] = useState(null)
   const location = useLocation()

@@ -48,6 +48,10 @@ const QA_USERS = [
   { email: 'tur_p3_d@qa.dev',   nombre: 'Turismo Premium 4', tipo: 'turismo', plan: 5, caps: [] },
   { email: 'tur_p1_c@qa.dev',   nombre: 'Turismo Gratis 3',  tipo: 'turismo', plan: 1, caps: [] },
   { email: 'tur_p3_e@qa.dev',   nombre: 'Turismo Premium 5', tipo: 'turismo', plan: 5, caps: [] },
+  // Local de barrio
+  { email: 'local_p1@qa.dev',  nombre: 'Almacén El Rincón', tipo: 'local',   plan: 1, caps: [] },
+  // Organizador de eventos
+  { email: 'evento_p1@qa.dev', nombre: 'Eventos Patagonia', tipo: 'evento',  plan: 1, caps: [] },
 ]
 
 // ─── Datos de muestra ─────────────────────────────────────────────────────────
@@ -138,6 +142,25 @@ const ARRIENDO_DATA = [
   { nombre: 'Equipo de Esquí Completo',     precio: 29900, seccion: 'arriendos', cat: 'Equipos',     sub: 'Esquí' },
   { nombre: 'Carpa 4 Personas',             precio: 9900,  seccion: 'arriendos', cat: 'Equipos',     sub: 'Camping' },
 ]
+const LOCAL_DATA = {
+  nombre:      'Almacén El Rincón',
+  descripcion: 'Almacén de barrio con todos los productos de primera necesidad. Atendemos de lunes a sábado con la mejor atención y precios convenientes.',
+  horario:     'Lunes a Viernes 09:00 - 20:00, Sábado 09:00 - 14:00',
+  categoria_id: 1,
+  lat:          -39.5371,
+  lng:          -72.2253,
+  imgs: [
+    'photo-1555396273-367ea4eb4db5',
+    'photo-1528698827591-e19ccd7bc23d',
+    'photo-1604719312566-8912e9c8a213',
+  ],
+}
+const EVENTO_DATA_SEED = [
+  { titulo: 'Feria Artesanal Villarrica',    fecha: '2026-07-15', ubicacion: 'Plaza Central, Villarrica', precio: 'Entrada libre', horario: '10:00 - 20:00', organizador: 'Eventos Patagonia', categoria_id: 8, imgs: ['photo-1492684223066-81342ee5ff30','photo-1540575467063-178a50c2df87','photo-1501281668745-f7f57925c3b4'] },
+  { titulo: 'Festival de Música Patagonia',  fecha: '2026-08-01', ubicacion: 'Anfiteatro Municipal',      precio: '$5.000',        horario: '20:00 - 00:00', organizador: 'Eventos Patagonia', categoria_id: 1, imgs: ['photo-1516450360452-9312f5e86fc7','photo-1470229722913-7c0e2dbbafd3','photo-1429962714451-bb934ecdc4ec'] },
+  { titulo: 'Encuentro Gastronómico SMA',    fecha: '2026-05-20', ubicacion: 'Costanera del Lago',        precio: 'Entrada libre', horario: '12:00 - 22:00', organizador: 'Eventos Patagonia', categoria_id: 2, imgs: ['photo-1501281668745-f7f57925c3b4','photo-1492684223066-81342ee5ff30','photo-1516450360452-9312f5e86fc7'] },
+]
+
 const TOUR_DATA = [
   { nombre: 'Ascenso al Volcán Lanín',  precio: 49900, cat: 'Aventura',    ubicacion: 'Parque Nacional Lanín' },
   { nombre: 'Trekking Lago Lácar',      precio: 29900, cat: 'Naturaleza',  ubicacion: 'Lago Lácar, San Martín de los Andes' },
@@ -286,6 +309,63 @@ async function main() {
       }
     }
 
+    // ── Local de barrio ────────────────────────────────────────────────────
+    if (qa.tipo === 'local') {
+      const slug = qa.email.split('@')[0]
+      await pool.query(
+        `INSERT INTO tb_locales
+           (usuario_id, nombre, descripcion, direccion, horario, telefono, whatsapp,
+            facebook, instagram, correo, imagen, imagen_2, imagen_3, categoria_barrio_id, lat, lng)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          uid,
+          LOCAL_DATA.nombre,
+          LOCAL_DATA.descripcion,
+          'Av. San Martín ' + (100 + i * 50) + ', San Martín de los Andes',
+          LOCAL_DATA.horario,
+          '+56 9 ' + String(i * 1111111 + 90000000),
+          '+56 9 ' + String(i * 1111111 + 90000000),
+          'fb.com/' + slug,
+          'instagram.com/' + slug,
+          'contacto@' + slug + '.cl',
+          UNSPLASH(LOCAL_DATA.imgs[0]),
+          UNSPLASH(LOCAL_DATA.imgs[1]),
+          UNSPLASH(LOCAL_DATA.imgs[2]),
+          LOCAL_DATA.categoria_id,
+          LOCAL_DATA.lat,
+          LOCAL_DATA.lng,
+        ]
+      )
+    }
+
+    // ── Eventos ────────────────────────────────────────────────────────────
+    if (qa.tipo === 'evento') {
+      for (const ev of EVENTO_DATA_SEED) {
+        await pool.query(
+          `INSERT INTO tb_eventos
+             (usuario_id, titulo, descripcion, fecha, ubicacion, precio, horario,
+              telefono, whatsapp, organizador, imagen, imagen_2, imagen_3, categoria_evento_id)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            uid,
+            ev.titulo,
+            `${ev.titulo}: un evento imperdible en la región. Ven a disfrutar con toda la familia.`,
+            ev.fecha,
+            ev.ubicacion,
+            ev.precio,
+            ev.horario,
+            '+56 9 ' + String(i * 1111111 + 90000000),
+            '+56 9 ' + String(i * 1111111 + 90000000),
+            ev.organizador,
+            UNSPLASH(ev.imgs[0]),
+            UNSPLASH(ev.imgs[1]),
+            UNSPLASH(ev.imgs[2]),
+            ev.categoria_id,
+          ]
+        )
+      }
+    }
+
     // ── Turismo: portada + tours + pagina ──────────────────────────────────
     if (isTur) {
       const catSet = TURISMO_CAT_SETS[turIdx % TURISMO_CAT_SETS.length]
@@ -346,7 +426,7 @@ async function main() {
   }
 
   await pool.end()
-  console.log(`\n🎉 Seed completo: ${created} usuarios creados con IDs 9001-9028.`)
+  console.log(`\n🎉 Seed completo: ${created} usuarios creados con IDs 9001-9030.`)
   console.log(`   Email: cualquier @qa.dev | Password: ${QA_PASSWORD}`)
   console.log(`   Los IDs coinciden con los mock de DevQuickLogin.`)
 }

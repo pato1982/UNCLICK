@@ -19,7 +19,7 @@ router.get('/', async (req, res) => {
     const [locales] = await req.pool.query(
       `SELECT l.*, c.nombre AS categoria_nombre, c.icono AS categoria_icono
        FROM tb_locales l
-       LEFT JOIN tb_categorias c ON c.id = l.categoria_barrio_id
+       LEFT JOIN tb_categorias_locales c ON c.id = l.categoria_barrio_id
        WHERE l.activo = 1
        ORDER BY l.created_at DESC`
     )
@@ -36,7 +36,7 @@ router.get('/categorias', async (req, res) => {
   try {
     const [categorias] = await req.pool.query(
       `SELECT DISTINCT c.id, c.nombre, c.icono
-       FROM tb_categorias c
+       FROM tb_categorias_locales c
        INNER JOIN tb_locales l ON l.categoria_barrio_id = c.id AND l.activo = 1
        ORDER BY c.nombre ASC`
     )

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import LocalModal from './LocalModal'
 
 const API = import.meta.env.VITE_API || ''
 
@@ -30,32 +31,39 @@ const typeColors = {
 }
 
 function StoreCard({ store }) {
+  const [showModal, setShowModal] = useState(false)
   return (
-    <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all flex flex-col group border border-slate-100">
-      <div className="relative h-32 sm:h-32 md:h-40 bg-slate-100 overflow-hidden">
-        <img
-          src={store.image}
-          alt={store.name}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-        />
-        {store.type && (
-          <span className="absolute top-1 right-1 sm:top-2 sm:right-2 bg-primary/80 backdrop-blur text-white px-1.5 sm:px-2 py-0.5 rounded-full text-[7px] sm:text-[8px] font-bold uppercase tracking-wider">
-            {store.type}
-          </span>
-        )}
-      </div>
-      <div className="px-1.5 sm:px-4 py-1.5 sm:py-3 flex flex-col flex-1">
-        <div className="min-h-[24px] sm:min-h-0 flex items-start">
-          <h3 className="font-bold text-xs sm:text-xs text-slate-900 leading-tight line-clamp-2 sm:line-clamp-1 mb-0.5 sm:mb-1">{store.name}</h3>
+    <>
+      <div
+        className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all flex flex-col group border border-slate-100 cursor-pointer"
+        onClick={() => setShowModal(true)}
+      >
+        <div className="relative h-32 sm:h-32 md:h-40 bg-slate-100 overflow-hidden">
+          <img
+            src={store.image}
+            alt={store.name}
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          />
+          {store.type && (
+            <span className="absolute top-1 right-1 sm:top-2 sm:right-2 bg-primary/80 backdrop-blur text-white px-1.5 sm:px-2 py-0.5 rounded-full text-[7px] sm:text-[8px] font-bold uppercase tracking-wider">
+              {store.type}
+            </span>
+          )}
         </div>
-        {store.address && (
-          <div className="flex items-start gap-0.5 sm:gap-1 mb-0.5 sm:mb-1">
-            <span className="material-symbols-outlined text-slate-400 text-[10px] sm:text-xs mt-0.5 shrink-0">location_on</span>
-            <p className="text-[10px] sm:text-[10px] text-slate-500 line-clamp-2">{store.address}</p>
+        <div className="px-1.5 sm:px-4 py-1.5 sm:py-3 flex flex-col flex-1">
+          <div className="min-h-[24px] sm:min-h-0 flex items-start">
+            <h3 className="font-bold text-xs sm:text-xs text-slate-900 leading-tight line-clamp-2 sm:line-clamp-1 mb-0.5 sm:mb-1">{store.name}</h3>
           </div>
-        )}
+          {store.address && (
+            <div className="flex items-start gap-0.5 sm:gap-1 mb-0.5 sm:mb-1">
+              <span className="material-symbols-outlined text-slate-400 text-[10px] sm:text-xs mt-0.5 shrink-0">location_on</span>
+              <p className="text-[10px] sm:text-[10px] text-slate-500 line-clamp-2">{store.address}</p>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+      {showModal && <LocalModal local={store} onClose={() => setShowModal(false)} />}
+    </>
   )
 }
 
@@ -137,17 +145,45 @@ function StoresMap({ stores, activeFilter }) {
 export default function StoresPage({ sidebarOpen, onBack, activeFilter, mapMode, onToggleMap }) {
   const [allStores, setAllStores] = useState([])
   const [currentPage, setCurrentPage] = useState(0)
+  const [scrolled, setScrolled] = useState(false)
+  const [headerH, setHeaderH] = useState(116)
+
+  useEffect(() => {
+    const measure = () => {
+      const el = document.getElementById('main-header')
+      if (el) setHeaderH(el.offsetHeight)
+    }
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [])
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 60)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   useEffect(() => {
     fetch(`${API}/api/v1/locales`)
       .then(r => r.json())
       .then(data => {
+        const imgUrl = (p) => p ? (p.startsWith('http') ? p : `${API}${p}`) : null
         const mapped = (data.locales || []).map(l => ({
           id: l.id,
           name: l.nombre,
-          image: l.imagen ? (l.imagen.startsWith('http') ? l.imagen : `${API}${l.imagen}`) : '',
+          image: imgUrl(l.imagen) || '',
+          imagen_2: imgUrl(l.imagen_2),
+          imagen_3: imgUrl(l.imagen_3),
           address: l.direccion || '',
           type: l.categoria_nombre || '',
+          descripcion: l.descripcion || '',
+          horario: l.horario || '',
+          telefono: l.telefono || '',
+          whatsapp: l.whatsapp || '',
+          facebook: l.facebook || '',
+          instagram: l.instagram || '',
+          correo: l.correo || '',
           lat: l.lat != null ? parseFloat(l.lat) : null,
           lng: l.lng != null ? parseFloat(l.lng) : null,
         }))
@@ -173,6 +209,16 @@ export default function StoresPage({ sidebarOpen, onBack, activeFilter, mapMode,
 
   return (
     <div>
+      {scrolled && (
+        <button
+          onClick={onBack}
+          aria-label="Inicio"
+          className="sm:hidden fixed right-3 z-50 flex items-center justify-center h-11 w-11 rounded-full bg-accent text-primary shadow-lg hover:brightness-110 active:scale-95 transition-all"
+          style={{ top: headerH + 10 }}
+        >
+          <span className="material-symbols-outlined text-xl">home</span>
+        </button>
+      )}
       <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
         <button
           onClick={onBack}
