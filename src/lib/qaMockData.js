@@ -233,6 +233,7 @@ export function businessProfile(p) {
     instagram: c.instagram,
     horarios: horariosEstandar(),
     plan_id: p.plan_id,
+    logo_url: p.plan_id >= 2 ? '/uploads/negocios/logo-demo-placeholder.webp' : null,
     // Estilo del header (default variado + override guardado por el usuario)
     ...defaultHeaderFor(p),
     ...(readHeaderOverride(p.id) || {}),

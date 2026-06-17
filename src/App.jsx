@@ -351,6 +351,7 @@ export default function App() {
               sidebar_style: b.sidebar_style,
               nav_color: b.nav_color,
               nav_style: b.nav_style,
+              logo: b.logo_url || '',
             }))
           }
         })
@@ -483,6 +484,7 @@ export default function App() {
               sidebar_style: b.sidebar_style,
               nav_color: b.nav_color,
               nav_style: b.nav_style,
+              logo: b.logo_url || '',
             })
           } else {
             setActiveStore(store)
