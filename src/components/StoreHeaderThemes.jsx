@@ -22,6 +22,14 @@ function Brand({ light, mini, onClick }) {
     : <div className="shrink-0">{inner}</div>
 }
 
+const LOGO_SIZES = {
+  1: 'h-8 w-8',
+  2: 'h-10 w-10 sm:h-12 sm:w-12',
+  3: 'h-12 w-12 sm:h-16 sm:w-16',
+  4: 'h-16 w-16 sm:h-20 sm:w-20',
+  5: 'h-20 w-20 sm:h-24 sm:w-24',
+}
+
 /* Logo propio del negocio — planes pagados (plan_id >= 2) con logo subido */
 function BusinessLogo({ store, light, mini, onClick }) {
   const hasPaidPlan = store?.plan_id >= 2
@@ -31,7 +39,8 @@ function BusinessLogo({ store, light, mini, onClick }) {
     return <Brand light={light} mini={mini} onClick={onClick} />
   }
 
-  const size = mini ? 'h-8 w-8' : 'h-12 w-12 sm:h-16 sm:w-16'
+  const sizeKey = mini ? 1 : Math.min(5, Math.max(1, store?.logo_size || 3))
+  const size = LOGO_SIZES[sizeKey]
   const img = (
     <img
       src={logoUrl}

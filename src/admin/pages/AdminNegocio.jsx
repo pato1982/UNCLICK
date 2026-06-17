@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import StoreHeaderThemed from '../../components/StoreHeaderThemes'
+import { writeHeaderOverride } from '../../lib/qaMockData'
 
 const API = import.meta.env.VITE_API || ''
 const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
@@ -29,11 +31,15 @@ const emptyForm = {
 export default function AdminNegocio() {
   const [form, setForm] = useState(emptyForm)
   const [logo, setLogo] = useState('')
+  const [logoSize, setLogoSize] = useState(3)
+  const [savingSize, setSavingSize] = useState(false)
+  const [businessRaw, setBusinessRaw] = useState(null)
   const [saved, setSaved] = useState(false)
   const [saving, setSaving] = useState(false)
   const [uploadingLogo, setUploadingLogo] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const sizeTimerRef = useRef(null)
 
   const user = JSON.parse(localStorage.getItem('user') || '{}')
 
@@ -52,6 +58,8 @@ export default function AdminNegocio() {
       .then(data => {
         if (data.business) {
           setLogo(data.business.logo_url || '')
+          setLogoSize(data.business.logo_size ?? 3)
+          setBusinessRaw(data.business)
           setForm({
             nombre_negocio: data.business.nombre_negocio || '',
             slogan: data.business.slogan || '',
@@ -112,6 +120,25 @@ export default function AdminNegocio() {
     e.target.value = ''
   }
 
+  const handleLogoSizeChange = (newSize) => {
+    setLogoSize(newSize)
+    // Actualizar mock local para que la página del negocio refleje el cambio en modo dev
+    if (user.id) writeHeaderOverride(user.id, { logo_size: newSize })
+    clearTimeout(sizeTimerRef.current)
+    sizeTimerRef.current = setTimeout(async () => {
+      setSavingSize(true)
+      try {
+        await fetch(`${API}/api/v1/business`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ logo_size: newSize }),
+        })
+      } catch {}
+      setSavingSize(false)
+    }, 600)
+  }
+
   const fbValid = !form.facebook || /^https?:\/\/(www\.)?(facebook\.com|fb\.com)\//i.test(form.facebook)
   const igValid = !form.instagram || /^https?:\/\/(www\.)?instagram\.com\//i.test(form.instagram) || /^@[\w.]+$/.test(form.instagram)
 
@@ -167,29 +194,133 @@ export default function AdminNegocio() {
 
       {/* Logo — solo planes pagados de productos generales */}
       {!esTurismo && user.plan_id >= 2 && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5 mb-4 flex items-center gap-5">
-          <div className="relative flex-shrink-0">
-            <div className="w-20 h-20 rounded-full border-2 border-dashed border-gray-300 overflow-hidden flex items-center justify-center bg-gray-50">
-              {logo
-                ? <img src={logo} alt="Logo" className="w-full h-full object-cover" />
-                : <span className="material-symbols-outlined text-gray-300 text-3xl">store</span>
-              }
-            </div>
-            {uploadingLogo && (
-              <div className="absolute inset-0 rounded-full bg-white/80 flex items-center justify-center">
-                <span className="material-symbols-outlined text-primary text-xl animate-spin">progress_activity</span>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5 mb-4">
+          {/* Fila superior: miniatura + controles */}
+          <div className="flex items-start gap-5">
+            <div className="relative flex-shrink-0">
+              <div className="w-20 h-20 rounded-full border-2 border-dashed border-gray-300 overflow-hidden flex items-center justify-center bg-gray-50">
+                {logo
+                  ? <img src={logo} alt="Logo" className="w-full h-full object-cover" />
+                  : <span className="material-symbols-outlined text-gray-300 text-3xl">store</span>
+                }
               </div>
-            )}
+              {uploadingLogo && (
+                <div className="absolute inset-0 rounded-full bg-white/80 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-primary text-xl animate-spin">progress_activity</span>
+                </div>
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-gray-700 mb-0.5">Logo del negocio</p>
+              <p className="text-xs text-gray-400 mb-2">Se mostrará en el header de tu página. Se comprime automáticamente.</p>
+              <label className={`cursor-pointer inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors ${uploadingLogo ? 'opacity-50 pointer-events-none' : 'text-primary bg-primary/10 hover:bg-primary/20'}`}>
+                <span className="material-symbols-outlined text-sm">upload</span>
+                {uploadingLogo ? 'Subiendo...' : logo ? 'Cambiar logo' : 'Subir logo'}
+                <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleLogoChange} disabled={uploadingLogo} />
+              </label>
+
+              {/* Control de tamaño — solo cuando hay logo */}
+              {logo && (
+                <div className="mt-3 pt-3 border-t border-gray-100">
+                  <p className="text-xs font-semibold text-gray-500 mb-2">Tamaño del logo en el header</p>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => handleLogoSizeChange(Math.max(1, logoSize - 1))}
+                      disabled={logoSize <= 1 || savingSize}
+                      className="w-7 h-7 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary disabled:opacity-30 transition-colors font-bold text-base leading-none"
+                    >−</button>
+                    <div className="flex items-center gap-1.5">
+                      {[1, 2, 3, 4, 5].map(n => (
+                        <button
+                          key={n}
+                          type="button"
+                          onClick={() => handleLogoSizeChange(n)}
+                          className={`w-2.5 h-2.5 rounded-full transition-all ${n <= logoSize ? 'bg-primary scale-110' : 'bg-gray-200 hover:bg-gray-300'}`}
+                        />
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleLogoSizeChange(Math.min(5, logoSize + 1))}
+                      disabled={logoSize >= 5 || savingSize}
+                      className="w-7 h-7 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary disabled:opacity-30 transition-colors font-bold text-base leading-none"
+                    >+</button>
+                    <span className="text-xs font-semibold text-gray-400 w-4">
+                      {['', 'XS', 'S', 'M', 'L', 'XL'][logoSize]}
+                    </span>
+                    {savingSize && (
+                      <span className="material-symbols-outlined text-xs text-primary animate-spin">progress_activity</span>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-          <div>
-            <p className="text-sm font-semibold text-gray-700 mb-0.5">Logo del negocio</p>
-            <p className="text-xs text-gray-400 mb-2">Se mostrará en el header de tu página. Se comprime automáticamente.</p>
-            <label className={`cursor-pointer inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors ${uploadingLogo ? 'opacity-50 pointer-events-none' : 'text-primary bg-primary/10 hover:bg-primary/20'}`}>
-              <span className="material-symbols-outlined text-sm">upload</span>
-              {uploadingLogo ? 'Subiendo...' : logo ? 'Cambiar logo' : 'Subir logo'}
-              <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleLogoChange} disabled={uploadingLogo} />
-            </label>
-          </div>
+
+          {/* Vista previa del header — solo cuando hay logo */}
+          {logo && (
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              <p className="text-xs font-semibold text-gray-500 mb-3 flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-sm">preview</span>
+                Vista previa en tu página
+              </p>
+
+              {/* Preview móvil */}
+              <div className="mb-3">
+                <p className="text-[10px] text-gray-400 mb-1.5 flex items-center gap-1">
+                  <span className="material-symbols-outlined text-xs">smartphone</span>
+                  Móvil
+                </p>
+                <div className="w-[375px] max-w-full overflow-hidden rounded-lg border border-gray-200 shadow-sm">
+                  <StoreHeaderThemed
+                    store={{
+                      logo,
+                      logo_size: logoSize,
+                      plan_id: user.plan_id,
+                      header_preset: businessRaw?.header_preset,
+                      header_color: businessRaw?.header_color,
+                      header_height: businessRaw?.header_height,
+                      header_bar: businessRaw?.header_bar,
+                      nav_color: businessRaw?.nav_color,
+                      nav_style: businessRaw?.nav_style,
+                    }}
+                    name={form.nombre_negocio || 'Tu negocio'}
+                    slogan={form.slogan || ''}
+                    actions={null}
+                  />
+                </div>
+              </div>
+
+              {/* Preview escritorio */}
+              <div>
+                <p className="text-[10px] text-gray-400 mb-1.5 flex items-center gap-1">
+                  <span className="material-symbols-outlined text-xs">computer</span>
+                  Escritorio
+                </p>
+                <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+                  <div className="min-w-[780px]">
+                    <StoreHeaderThemed
+                      store={{
+                        logo,
+                        logo_size: logoSize,
+                        plan_id: user.plan_id,
+                        header_preset: businessRaw?.header_preset,
+                        header_color: businessRaw?.header_color,
+                        header_height: businessRaw?.header_height,
+                        header_bar: businessRaw?.header_bar,
+                        nav_color: businessRaw?.nav_color,
+                        nav_style: businessRaw?.nav_style,
+                      }}
+                      name={form.nombre_negocio || 'Tu negocio'}
+                      slogan={form.slogan || ''}
+                      actions={null}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
