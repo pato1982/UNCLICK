@@ -122,18 +122,25 @@ export default function EventsPage({ sidebarOpen, onBack, activeFilter }) {
       <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
         <button
           onClick={onBack}
-          className="flex items-center gap-1 text-primary hover:text-accent transition-colors text-[10px] sm:text-xs font-bold"
+          className="hidden sm:flex items-center gap-1 text-primary hover:text-accent transition-colors text-[10px] sm:text-xs font-bold"
         >
           <span className="material-symbols-outlined text-sm">arrow_back</span>
           Volver
         </button>
-        <div className="w-1 h-4 sm:h-5 bg-accent rounded-full"></div>
+        <div className="w-1 h-4 sm:h-5 bg-accent rounded-full sm:block hidden"></div>
         <h2 className="text-xs sm:text-sm font-bold text-slate-700 tracking-wide">
           {activeFilter ? activeFilter : 'Todos los Eventos'}
         </h2>
         <span className="text-[9px] sm:text-[10px] text-slate-400">
           {filteredEvents.length} {filteredEvents.length === 1 ? 'evento' : 'eventos'}
         </span>
+        <button
+          onClick={onBack}
+          aria-label="Inicio"
+          className="sm:hidden ml-auto shrink-0 flex items-center justify-center h-7 w-7 rounded-full bg-accent text-primary shadow hover:brightness-110 active:scale-95 transition-all"
+        >
+          <span className="material-symbols-outlined text-base">home</span>
+        </button>
       </div>
 
       <div className={`grid gap-2 sm:gap-3 md:gap-4 ${sidebarOpen ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-5' : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-6'} transition-all duration-300`}>

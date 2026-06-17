@@ -679,14 +679,21 @@ export default function App() {
               return (
                 <div>
                   <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-                    <button onClick={goHome} className="flex items-center gap-1 text-primary hover:text-accent transition-colors text-[10px] sm:text-xs font-bold">
+                    <button onClick={goHome} className="hidden sm:flex items-center gap-1 text-primary hover:text-accent transition-colors text-[10px] sm:text-xs font-bold">
                       <span className="material-symbols-outlined text-sm">arrow_back</span>
                       Volver
                     </button>
-                    <div className="w-1 h-4 sm:h-5 bg-accent rounded-full"></div>
+                    <div className="w-1 h-4 sm:h-5 bg-accent rounded-full sm:block hidden"></div>
                     <h2 className="text-xs sm:text-sm font-bold text-slate-700 tracking-wide">
                       {activeFilter ? (typeof activeFilter === 'object' ? activeFilter.category : activeFilter) : 'Todos los Productos'}
                     </h2>
+                    <button
+                      onClick={goHome}
+                      aria-label="Inicio"
+                      className="sm:hidden ml-auto shrink-0 flex items-center justify-center h-7 w-7 rounded-full bg-accent text-primary shadow hover:brightness-110 active:scale-95 transition-all"
+                    >
+                      <span className="material-symbols-outlined text-base">home</span>
+                    </button>
                   </div>
                   {productSections.length > 0 ? (
                     <div className="flex flex-col gap-8">
@@ -773,16 +780,23 @@ export default function App() {
                   <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
                     <button
                       onClick={() => setActiveFilter(null)}
-                      className="flex items-center gap-1 text-primary hover:text-accent transition-colors text-[10px] sm:text-xs font-bold"
+                      className="hidden sm:flex items-center gap-1 text-primary hover:text-accent transition-colors text-[10px] sm:text-xs font-bold"
                     >
                       <span className="material-symbols-outlined text-sm">arrow_back</span>
                       Volver
                     </button>
-                    <div className="w-1 h-4 sm:h-5 bg-accent rounded-full"></div>
+                    <div className="w-1 h-4 sm:h-5 bg-accent rounded-full sm:block hidden"></div>
                     <h2 className="text-xs sm:text-sm font-bold text-slate-700 tracking-wide">{filterLabel}</h2>
                     <span className="text-[9px] sm:text-[10px] text-slate-400">
                       {filteredSections.reduce((acc, s) => acc + s.items.length, 0)} resultados
                     </span>
+                    <button
+                      onClick={() => setActiveFilter(null)}
+                      aria-label="Inicio"
+                      className="sm:hidden ml-auto shrink-0 flex items-center justify-center h-7 w-7 rounded-full bg-accent text-primary shadow hover:brightness-110 active:scale-95 transition-all"
+                    >
+                      <span className="material-symbols-outlined text-base">home</span>
+                    </button>
                   </div>
                   <div className="flex flex-col gap-8">
                     {filteredSections.map((section, index) => (

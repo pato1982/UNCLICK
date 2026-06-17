@@ -173,19 +173,8 @@ export default function Header({ activeNav, toggleNav, onToggleSidebar, sidebarO
 
       {/* === NAV BAR Mobile: siempre visible === */}
       <nav className="sm:hidden bg-[#4A2070] px-2 py-2 border-y-2 border-accent shadow-md min-h-[36px]">
-        <div className="flex items-center gap-3 overflow-x-auto hide-scrollbar">
-          {showInicio && (
-            <button
-              onClick={onGoHome}
-              className="shrink-0 flex items-center gap-1 px-2 py-1 text-[10px] font-semibold bg-accent text-primary rounded-full"
-            >
-              <span className="material-symbols-outlined text-sm">home</span>
-              Inicio
-            </button>
-          )}
-        </div>
-        {/* Segunda fila: Hamburguesa + Buscador + Sesión + Planes */}
-        <div className="flex items-center gap-1.5 pt-1 mt-1 border-t border-white/10">
+        {/* Hamburguesa + Buscador + Sesión + Planes */}
+        <div className="flex items-center gap-1.5">
           {/* Botón hamburguesa — abre/cierra el menú lateral de categorías */}
           {activeNav && (
             <button
