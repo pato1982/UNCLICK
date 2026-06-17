@@ -7,6 +7,26 @@ import { uploadImagen }  from '../middleware/upload.js'
 const router    = Router()
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
+// Auto-migración: agrega logo_size si no existe (corre una sola vez al primer request)
+let _migrated = false
+async function ensureLogoSize(pool) {
+  if (_migrated) return
+  _migrated = true
+  try {
+    const [cols] = await pool.query(
+      "SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='negocios' AND COLUMN_NAME='logo_size'"
+    )
+    if (!cols.length) {
+      await pool.query("ALTER TABLE negocios ADD COLUMN logo_size TINYINT UNSIGNED DEFAULT 3 AFTER logo_url")
+      await pool.query("UPDATE negocios SET logo_size=3 WHERE logo_size IS NULL")
+      console.log('[migrate] logo_size column added to negocios')
+    }
+  } catch (e) {
+    console.error('[migrate] logo_size error:', e.message)
+    _migrated = false // permite reintentar si hubo error
+  }
+}
+
 function log(pool, usuario_id, accion) {
   pool.query(
     'INSERT INTO tb_actividad_usuarios (usuario_id, accion, entidad) VALUES (?, ?, ?)',
@@ -24,6 +44,7 @@ function parseHorarios(row) {
 
 // ── GET /api/v1/business ───────────────────────────────────────────────────
 router.get('/', async (req, res) => {
+  await ensureLogoSize(req.pool)
   try {
     const [[business]] = await req.pool.query(
       'SELECT * FROM negocios WHERE usuario_id = ?',
