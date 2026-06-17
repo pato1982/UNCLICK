@@ -12,12 +12,12 @@ backend/node_modules
 .claude
 
 # Backups y dumps con datos sensibles (NO commitear: contienen password_hash)
-# Patrones precisos para no afectar schema.sql ni unclik_dump.sql legitimos
 backup-*.sql
 backend/backup-*.sql
 backup-err.txt
 backend/backup-err.txt
 *.dump.sql
+unclik_dump.sql
 backend/backups/
 
 # Memoria local de Claude (no versionar)
