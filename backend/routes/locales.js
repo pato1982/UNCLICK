@@ -30,6 +30,23 @@ router.get('/', async (req, res) => {
   }
 })
 
+// ── GET /api/v1/locales/categorias ────────────────────────────────────────
+// Devuelve solo las categorías que tienen al menos un local activo
+router.get('/categorias', async (req, res) => {
+  try {
+    const [categorias] = await req.pool.query(
+      `SELECT DISTINCT c.id, c.nombre, c.icono
+       FROM tb_categorias c
+       INNER JOIN tb_locales l ON l.categoria_barrio_id = c.id AND l.activo = 1
+       ORDER BY c.nombre ASC`
+    )
+    res.json({ categorias })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Error al obtener categorías de locales' })
+  }
+})
+
 // ── GET /api/v1/locales/admin ──────────────────────────────────────────────
 router.get('/admin', requireAuth, requireProgramador, async (req, res) => {
   try {
