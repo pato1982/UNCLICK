@@ -1,10 +1,48 @@
-import { useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import ProductCard from './ProductCard'
 
 export default function ProductCarousel({ title, items, sidebarOpen, hidePrice, onViewAll, onOpenStore, hideHeader }) {
   const mobileScrollRef = useRef(null)
   const desktopScrollRef = useRef(null)
   const intervalRef = useRef(null)
+
+  const [dragging, setDragging] = useState(false)
+  const isDragging = useRef(false)
+  const dragStart = useRef(0)
+  const scrollStart = useRef(0)
+  const pointerActive = useRef(false)
+
+  const DRAG_THRESHOLD = 6 // px antes de considerar drag real
+
+  const onPointerDown = (e) => {
+    pointerActive.current = true
+    isDragging.current = false
+    dragStart.current = e.clientX
+    scrollStart.current = e.currentTarget.scrollLeft
+    if (intervalRef.current) clearInterval(intervalRef.current)
+  }
+
+  const onPointerMove = (e) => {
+    if (!pointerActive.current) return
+    const delta = Math.abs(e.clientX - dragStart.current)
+    if (!isDragging.current) {
+      if (delta < DRAG_THRESHOLD) return
+      // Supera el umbral: activar drag y capturar puntero
+      isDragging.current = true
+      setDragging(true)
+      e.currentTarget.setPointerCapture(e.pointerId)
+    }
+    e.preventDefault()
+    e.currentTarget.scrollLeft = scrollStart.current - (e.clientX - dragStart.current)
+  }
+
+  const onPointerUp = () => {
+    pointerActive.current = false
+    if (!isDragging.current) return
+    isDragging.current = false
+    setDragging(false)
+    resetAutoScroll()
+  }
 
   const getScrollEl = () => {
     if (window.innerWidth < 640 && mobileScrollRef.current) return mobileScrollRef.current
@@ -80,6 +118,11 @@ export default function ProductCarousel({ title, items, sidebarOpen, hidePrice, 
         <div
           ref={mobileScrollRef}
           className="flex gap-2 overflow-x-hidden scroll-smooth py-1 px-1"
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerLeave={onPointerUp}
+          style={{ cursor: dragging ? 'grabbing' : 'grab', userSelect: 'none' }}
         >
           {items.map((product) => (
             <div
@@ -129,7 +172,15 @@ export default function ProductCarousel({ title, items, sidebarOpen, hidePrice, 
               <span className="material-symbols-outlined text-base md:text-lg">chevron_right</span>
             </button>
 
-            <div ref={desktopScrollRef} className="flex gap-3 md:gap-4 overflow-x-hidden scroll-smooth">
+            <div
+              ref={desktopScrollRef}
+              className="flex gap-3 md:gap-4 overflow-x-hidden scroll-smooth"
+              onPointerDown={onPointerDown}
+              onPointerMove={onPointerMove}
+              onPointerUp={onPointerUp}
+              onPointerLeave={onPointerUp}
+              style={{ cursor: dragging ? 'grabbing' : 'grab', userSelect: 'none' }}
+            >
               {restItems.map((product) => (
                 <div
                   key={product.id}

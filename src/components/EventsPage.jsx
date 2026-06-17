@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import EventModal from './EventModal'
 
 const API = import.meta.env.VITE_API || ''
 
@@ -32,35 +33,42 @@ function isGratis(precio) {
 }
 
 function EventCard({ event }) {
+  const [showModal, setShowModal] = useState(false)
   return (
-    <div className="bg-white rounded-lg sm:rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all flex flex-col group border border-slate-100">
-      <div className="relative h-32 sm:h-32 md:h-40 bg-slate-100 overflow-hidden">
-        <img
-          src={event.image}
-          alt={event.title}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-        />
-        <span className={`absolute top-1 left-1 sm:top-2 sm:left-2 ${event.badgeColor} px-1 sm:px-2 py-0.5 rounded-full text-[6px] sm:text-[8px] font-black uppercase tracking-wider shadow`}>
-          {event.badge}
-        </span>
+    <>
+      <div
+        className="bg-white rounded-lg sm:rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all flex flex-col group border border-slate-100 cursor-pointer"
+        onClick={() => setShowModal(true)}
+      >
+        <div className="relative h-32 sm:h-32 md:h-40 bg-slate-100 overflow-hidden">
+          <img
+            src={event.image}
+            alt={event.title}
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          />
+          <span className={`absolute top-1 left-1 sm:top-2 sm:left-2 ${event.badgeColor} px-1 sm:px-2 py-0.5 rounded-full text-[6px] sm:text-[8px] font-black uppercase tracking-wider shadow`}>
+            {event.badge}
+          </span>
+        </div>
+        <div className="px-1.5 sm:px-4 py-1.5 sm:py-3 flex flex-col flex-1">
+          <div className="min-h-[24px] sm:min-h-0 flex items-start">
+            <h3 className="font-bold text-[10px] sm:text-xs text-slate-900 leading-tight line-clamp-2 sm:line-clamp-1 mb-0.5 sm:mb-1.5">{event.title}</h3>
+          </div>
+          <div className="flex items-center gap-0.5 sm:gap-1 mb-0.5 sm:mb-1">
+            <span className="material-symbols-outlined text-accent text-[9px] sm:text-xs shrink-0">calendar_month</span>
+            <p className="text-[9px] sm:text-[10px] font-bold text-slate-600">{event.date}</p>
+          </div>
+          <div className="flex items-start gap-0.5 sm:gap-1 mb-0.5 sm:mb-2">
+            <span className="material-symbols-outlined text-slate-400 text-[9px] sm:text-xs mt-0.5 shrink-0">location_on</span>
+            <p className="text-[9px] sm:text-[10px] text-slate-500 line-clamp-1">{event.location}</p>
+          </div>
+          <div className="mt-auto text-center">
+            <span className="text-[10px] sm:text-xs font-black text-primary">{event.price}</span>
+          </div>
+        </div>
       </div>
-      <div className="px-1.5 sm:px-4 py-1.5 sm:py-3 flex flex-col flex-1">
-        <div className="min-h-[24px] sm:min-h-0 flex items-start">
-          <h3 className="font-bold text-[10px] sm:text-xs text-slate-900 leading-tight line-clamp-2 sm:line-clamp-1 mb-0.5 sm:mb-1.5">{event.title}</h3>
-        </div>
-        <div className="flex items-center gap-0.5 sm:gap-1 mb-0.5 sm:mb-1">
-          <span className="material-symbols-outlined text-accent text-[9px] sm:text-xs shrink-0">calendar_month</span>
-          <p className="text-[9px] sm:text-[10px] font-bold text-slate-600">{event.date}</p>
-        </div>
-        <div className="flex items-start gap-0.5 sm:gap-1 mb-0.5 sm:mb-2">
-          <span className="material-symbols-outlined text-slate-400 text-[9px] sm:text-xs mt-0.5 shrink-0">location_on</span>
-          <p className="text-[9px] sm:text-[10px] text-slate-500 line-clamp-1">{event.location}</p>
-        </div>
-        <div className="mt-auto text-center">
-          <span className="text-[10px] sm:text-xs font-black text-primary">{event.price}</span>
-        </div>
-      </div>
-    </div>
+      {showModal && <EventModal event={event} onClose={() => setShowModal(false)} />}
+    </>
   )
 }
 
@@ -83,6 +91,11 @@ export default function EventsPage({ sidebarOpen, onBack, activeFilter }) {
           type: e.categoria_nombre || '',
           badge: isGratis(e.precio) ? 'Gratis' : (e.categoria_nombre || ''),
           badgeColor: isGratis(e.precio) ? 'bg-green-500 text-white' : getBadgeColor(e.categoria_nombre),
+          descripcion: e.descripcion || '',
+          organizador: e.organizador || '',
+          telefono: e.telefono || '',
+          whatsapp: e.whatsapp || '',
+          horario: e.horario || '',
         }))
         setAllEvents(mapped)
       })

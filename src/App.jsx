@@ -1083,7 +1083,9 @@ export default function App() {
         </main>
       </div>
 
-      <Footer onNavigate={toggleNav} onLoginSuccess={handleLoginSuccess} />
+      {currentPage !== 'turismo' && (
+        <Footer onNavigate={toggleNav} onLoginSuccess={handleLoginSuccess} />
+      )}
     </div>
   )
 }

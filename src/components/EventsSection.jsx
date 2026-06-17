@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import EventModal from './EventModal'
 
 const API = import.meta.env.VITE_API || ''
 
@@ -59,6 +60,7 @@ export default function EventsSection({ onViewAll }) {
   const [allEvents, setAllEvents] = useState([])
   const [displayEvents, setDisplayEvents] = useState([])
   const [fading, setFading] = useState(false)
+  const [selectedEvent, setSelectedEvent] = useState(null)
   const rotationRef = useRef(null)
 
   useEffect(() => {
@@ -74,6 +76,11 @@ export default function EventsSection({ onViewAll }) {
           price: e.precio || 'Entrada libre',
           badge: isGratis(e.precio) ? 'Gratis' : (e.categoria_nombre || ''),
           badgeColor: isGratis(e.precio) ? 'bg-green-500 text-white' : getBadgeColor(e.categoria_nombre),
+          descripcion: e.descripcion || '',
+          organizador: e.organizador || '',
+          telefono: e.telefono || '',
+          whatsapp: e.whatsapp || '',
+          horario: e.horario || '',
         }))
         setAllEvents(mapped)
         const source = mapped.length > 0 ? mapped : PLACEHOLDER_EVENTS
@@ -103,8 +110,9 @@ export default function EventsSection({ onViewAll }) {
   const renderCard = (event) => (
     <div
       key={event.id}
-      className={`rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-white/10 group w-full duration-700 ${fading ? 'opacity-0' : 'opacity-100'}`}
+      className={`rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-white/10 group w-full duration-700 cursor-pointer ${fading ? 'opacity-0' : 'opacity-100'}`}
       style={{ background: 'rgba(255,255,255,0.06)' }}
+      onClick={() => setSelectedEvent(event)}
     >
       <div className="relative w-full overflow-hidden" style={{ aspectRatio: '1/1' }}>
         <img
@@ -154,6 +162,7 @@ export default function EventsSection({ onViewAll }) {
           {displayEvents.map(event => renderCard(event))}
         </div>
       </>
+      {selectedEvent && <EventModal event={selectedEvent} onClose={() => setSelectedEvent(null)} />}
     </div>
   )
 }

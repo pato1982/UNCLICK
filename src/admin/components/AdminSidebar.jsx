@@ -153,15 +153,29 @@ export default function AdminSidebar({ open, onClose }) {
 
       {/* Pie del sidebar (solo admin normal) */}
       {!isProg && (
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100 bg-white">
           <div className="flex items-center gap-3 px-2">
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
               <span className="material-symbols-outlined text-primary text-lg">person</span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-gray-700 truncate">Administrador</p>
-              <p className="text-[10px] text-gray-400 truncate">{user.email || 'admin@aunclick.cl'}</p>
+              <p className="text-xs font-semibold text-gray-700 truncate">{user.nombre || 'Administrador'}</p>
+              <p className="text-[10px] text-gray-400 truncate">{user.email || ''}</p>
             </div>
+            <button
+              onClick={async () => {
+                await fetch(`${API}/api/v1/auth/logout`, { method: 'POST', credentials: 'include' })
+                localStorage.removeItem('token')
+                localStorage.removeItem('user')
+                localStorage.removeItem('auth_mode')
+                localStorage.removeItem('dev_user_id')
+                window.location.href = '/'
+              }}
+              className="shrink-0 p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+              title="Cerrar sesión"
+            >
+              <span className="material-symbols-outlined text-xl">logout</span>
+            </button>
           </div>
         </div>
       )}

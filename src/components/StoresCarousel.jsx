@@ -14,15 +14,91 @@ function StoreModal({ store, onClose }) {
           <span className="material-symbols-outlined text-slate-600 text-base">close</span>
         </button>
         <div className="flex flex-col md:flex-row">
-          <div className="md:w-[50%] h-56 md:h-auto shrink-0">
+          <div className="md:w-[45%] h-52 md:h-auto shrink-0">
             <img src={store.image} alt={store.name} className="w-full h-full object-cover" />
           </div>
-          <div className="md:w-[50%] p-5 flex flex-col justify-center">
-            <h3 className="text-base font-black text-primary mb-3">{store.name}</h3>
-            {store.address && (
-              <div className="flex items-start gap-2 mb-2">
-                <span className="material-symbols-outlined text-slate-400 text-base mt-0.5">location_on</span>
-                <p className="text-sm text-slate-500">{store.address}</p>
+          <div className="md:w-[55%] p-5 flex flex-col justify-center overflow-y-auto max-h-[80vh]">
+            <h3 className="text-base font-black text-primary mb-1">{store.name}</h3>
+            {store.categoria && (
+              <span className="text-[10px] font-bold text-primary/60 uppercase tracking-wide mb-3">{store.categoria}</span>
+            )}
+
+            <div className="space-y-2">
+              {store.address && (
+                <div className="flex items-start gap-2">
+                  <span className="material-symbols-outlined text-slate-400 text-sm shrink-0 mt-0.5">location_on</span>
+                  <p className="text-sm text-slate-600">{store.address}</p>
+                </div>
+              )}
+              {store.horario && (
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-slate-400 text-sm shrink-0">schedule</span>
+                  <p className="text-sm text-slate-600">{store.horario}</p>
+                </div>
+              )}
+              {store.descripcion && (
+                <p className="text-sm text-slate-600 leading-relaxed pt-1 border-t border-slate-100">{store.descripcion}</p>
+              )}
+            </div>
+
+            {(store.telefono || store.whatsapp || store.correo || store.facebook || store.instagram) && (
+              <div className="flex items-center gap-2 mt-4 pt-3 border-t border-slate-100 flex-wrap">
+                {store.whatsapp && (
+                  <a
+                    href={`https://wa.me/${store.whatsapp.replace(/\D/g, '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={e => e.stopPropagation()}
+                    className="h-8 w-8 rounded-full bg-green-500 text-white flex items-center justify-center hover:bg-green-400 transition-colors"
+                    title="WhatsApp"
+                  >
+                    <span className="material-symbols-outlined text-sm">chat</span>
+                  </a>
+                )}
+                {store.telefono && (
+                  <a
+                    href={`tel:${store.telefono}`}
+                    onClick={e => e.stopPropagation()}
+                    className="h-8 w-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-200 transition-colors"
+                    title="Llamar"
+                  >
+                    <span className="material-symbols-outlined text-sm">call</span>
+                  </a>
+                )}
+                {store.correo && (
+                  <a
+                    href={`mailto:${store.correo}`}
+                    onClick={e => e.stopPropagation()}
+                    className="h-8 w-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-200 transition-colors"
+                    title="Correo"
+                  >
+                    <span className="material-symbols-outlined text-sm">mail</span>
+                  </a>
+                )}
+                {store.facebook && (
+                  <a
+                    href={store.facebook.startsWith('http') ? store.facebook : `https://${store.facebook}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={e => e.stopPropagation()}
+                    className="h-8 w-8 rounded-full bg-blue-600 text-white flex items-center justify-center hover:bg-blue-500 transition-colors"
+                    title="Facebook"
+                  >
+                    <span className="material-symbols-outlined text-sm">public</span>
+                  </a>
+                )}
+                {store.instagram && (
+                  <a
+                    href={store.instagram.startsWith('http') ? store.instagram : `https://instagram.com/${store.instagram.replace('@','')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={e => e.stopPropagation()}
+                    className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-white flex items-center justify-center hover:opacity-80 transition-opacity"
+                    title="Instagram"
+                  >
+                    <span className="material-symbols-outlined text-sm">photo_camera</span>
+                  </a>
+                )}
               </div>
             )}
           </div>
@@ -48,6 +124,43 @@ export default function StoresCarousel({ onViewAll }) {
   const scrollRef = useRef(null)
   const intervalRef = useRef(null)
 
+  const [dragging, setDragging] = useState(false)
+  const isDragging = useRef(false)
+  const dragStart = useRef(0)
+  const scrollStart = useRef(0)
+  const pointerActive = useRef(false)
+
+  const DRAG_THRESHOLD = 6
+
+  const onPointerDown = (e) => {
+    pointerActive.current = true
+    isDragging.current = false
+    dragStart.current = e.clientX
+    scrollStart.current = e.currentTarget.scrollLeft
+    if (intervalRef.current) clearInterval(intervalRef.current)
+  }
+
+  const onPointerMove = (e) => {
+    if (!pointerActive.current) return
+    const delta = Math.abs(e.clientX - dragStart.current)
+    if (!isDragging.current) {
+      if (delta < DRAG_THRESHOLD) return
+      isDragging.current = true
+      setDragging(true)
+      e.currentTarget.setPointerCapture(e.pointerId)
+    }
+    e.preventDefault()
+    e.currentTarget.scrollLeft = scrollStart.current - (e.clientX - dragStart.current)
+  }
+
+  const onPointerUp = () => {
+    pointerActive.current = false
+    if (!isDragging.current) return
+    isDragging.current = false
+    setDragging(false)
+    resetAutoScroll()
+  }
+
   useEffect(() => {
     fetch(`${API}/api/v1/locales`)
       .then(r => r.json())
@@ -57,6 +170,14 @@ export default function StoresCarousel({ onViewAll }) {
           name: l.nombre,
           image: l.imagen ? `${API}${l.imagen}` : '',
           address: l.direccion || '',
+          categoria: l.categoria_nombre || '',
+          descripcion: l.descripcion || '',
+          telefono: l.telefono || '',
+          whatsapp: l.whatsapp || '',
+          horario: l.horario || '',
+          facebook: l.facebook || '',
+          instagram: l.instagram || '',
+          correo: l.correo || '',
         }))
         setStores(mapped)
       })
@@ -128,6 +249,11 @@ export default function StoresCarousel({ onViewAll }) {
         <div
           ref={scrollRef}
           className="flex gap-2 sm:gap-3 overflow-x-hidden scroll-smooth py-1 px-1"
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerLeave={onPointerUp}
+          style={{ cursor: dragging ? 'grabbing' : 'grab', userSelect: 'none' }}
         >
           {displayStores.map((store, i) => (
             <button

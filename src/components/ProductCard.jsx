@@ -149,8 +149,9 @@ export function ProductModal({ product, hidePrice, inStorePage, onClose, onOpenS
           </div>
 
           {/* Redes y contacto */}
-          <div className="flex items-center justify-between border-t border-slate-100 pt-2">
-            <div className="flex items-center gap-1.5">
+          <div className="flex items-center border-t border-slate-100 pt-2 gap-1">
+            {/* Izquierda: redes sociales */}
+            <div className="flex items-center gap-1.5 flex-1">
               {product.negocio_facebook && (
                 <a href={product.negocio_facebook} target="_blank" rel="noopener noreferrer" className="h-7 w-7 rounded-lg bg-[#1877F2]/10 hover:bg-[#1877F2] hover:text-white text-[#1877F2] flex items-center justify-center transition-all" title="Facebook">
                   <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
@@ -163,18 +164,23 @@ export function ProductModal({ product, hidePrice, inStorePage, onClose, onOpenS
               )}
             </div>
 
-            <div className="relative flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-              {contactPopup && (
-                <ContactPopup icon={contactPopup.icon} title={contactPopup.title} value={contactPopup.value} onClose={() => setContactPopup(null)} />
-              )}
-              {!inStorePage && product.owner_plan_id && product.owner_plan_id >= 2 && onOpenStore && (
+            {/* Centro: botón tienda (solo plan >= 2) */}
+            {!inStorePage && product.owner_plan_id && product.owner_plan_id >= 2 && onOpenStore && (
+              <div className="flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
                 <button
                   onClick={() => { const store = getStoreFromProduct(product); onClose(); onOpenStore(store, product) }}
-                  className="h-7 w-7 rounded-lg bg-primary/10 hover:bg-primary hover:text-white text-primary flex items-center justify-center transition-all"
-                  title="Tienda"
+                  className="h-10 w-10 rounded-full bg-primary text-white hover:bg-primary/80 flex items-center justify-center transition-all shadow-md hover:scale-105"
+                  title="Ver tienda"
                 >
-                  <span className="material-symbols-outlined text-sm">storefront</span>
+                  <span className="material-symbols-outlined text-xl">storefront</span>
                 </button>
+              </div>
+            )}
+
+            {/* Derecha: contacto */}
+            <div className="relative flex items-center gap-1.5 flex-1 justify-end" onClick={(e) => e.stopPropagation()}>
+              {contactPopup && (
+                <ContactPopup icon={contactPopup.icon} title={contactPopup.title} value={contactPopup.value} onClose={() => setContactPopup(null)} />
               )}
               {product.negocio_whatsapp && (
                 <button onClick={() => setContactPopup(contactPopup?.title === 'WhatsApp' ? null : { icon: 'chat', title: 'WhatsApp', value: product.negocio_whatsapp })} className="h-7 w-7 rounded-lg bg-green-500/10 hover:bg-green-500 hover:text-white text-green-600 flex items-center justify-center transition-all" title="WhatsApp">
@@ -242,10 +248,7 @@ export default function ProductCard({ product, hidePrice, isFirst, onOpenStore, 
           </div>
           <div className="mt-auto flex items-end justify-between w-full pt-1">
             {hidePrice ? (
-              <div className="flex items-center gap-1 w-full">
-                <span className="flex-1 bg-primary text-white py-1 sm:py-1.5 rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-wide text-center">
-                  Solicitar
-                </span>
+              <div className="flex items-center justify-end w-full min-h-[28px]">
                 {store && !inStorePage && product.owner_plan_id && product.owner_plan_id >= 2 && (
                   <button
                     onClick={(e) => { e.stopPropagation(); onOpenStore && onOpenStore(store, product) }}
