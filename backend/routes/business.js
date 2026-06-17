@@ -82,6 +82,11 @@ router.post('/', async (req, res) => {
       setClauses.push('header_height = ?')
       values.push(b.header_height != null ? Number(b.header_height) : null)
     }
+    if ('logo_size' in b) {
+      const v = Number(b.logo_size)
+      setClauses.push('logo_size = ?')
+      values.push(v >= 1 && v <= 5 ? v : 3)
+    }
 
     if (setClauses.length > 0) {
       setClauses.push('updated_at = CURRENT_TIMESTAMP')
