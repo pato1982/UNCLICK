@@ -17,14 +17,16 @@ async function borrarImagen(rutaRelativa) {
 }
 
 // ── GET /api/v1/eventos ───────────────────────────────────────────────────
+// Auto-vencimiento: excluye eventos cuya fecha ya pasó (al día siguiente desaparecen)
 router.get('/', async (req, res) => {
   try {
     const [eventos] = await req.pool.query(
       `SELECT e.*, c.nombre AS categoria_nombre, c.icono AS categoria_icono
        FROM tb_eventos e
-       LEFT JOIN tb_categorias c ON c.id = e.categoria_evento_id
+       LEFT JOIN tb_categorias_eventos c ON c.id = e.categoria_evento_id
        WHERE e.activo = 1
-       ORDER BY e.created_at DESC`
+         AND (e.fecha IS NULL OR e.fecha >= CURDATE())
+       ORDER BY COALESCE(e.fecha, '9999-12-31') ASC, e.created_at DESC`
     )
     res.json({ eventos })
   } catch (err) {
@@ -34,13 +36,15 @@ router.get('/', async (req, res) => {
 })
 
 // ── GET /api/v1/eventos/categorias ────────────────────────────────────────
-// Devuelve solo las categorías que tienen al menos un evento activo
+// Devuelve solo las categorías que tienen al menos un evento activo y vigente
 router.get('/categorias', async (req, res) => {
   try {
     const [categorias] = await req.pool.query(
       `SELECT DISTINCT c.id, c.nombre, c.icono
-       FROM tb_categorias c
-       INNER JOIN tb_eventos e ON e.categoria_evento_id = c.id AND e.activo = 1
+       FROM tb_categorias_eventos c
+       INNER JOIN tb_eventos e ON e.categoria_evento_id = c.id
+         AND e.activo = 1
+         AND (e.fecha IS NULL OR e.fecha >= CURDATE())
        ORDER BY c.nombre ASC`
     )
     res.json({ categorias })

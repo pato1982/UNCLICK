@@ -85,6 +85,16 @@ const POOL = {
     'photo-1441986300917-64674bd600d8', 'photo-1497366216548-37526070297c',
     'photo-1556909114-44e3e70034e2', 'photo-1506905925346-21bda4d32df4',
   ],
+  local: [
+    'photo-1555396273-367ea4eb4db5', 'photo-1528698827591-e19ccd7bc23d',
+    'photo-1604719312566-8912e9c8a213', 'photo-1542838132-92c53300491e',
+    'photo-1578662996442-48f60103fc96', 'photo-1583258292688-d0213dc5a3a8',
+  ],
+  evento: [
+    'photo-1492684223066-81342ee5ff30', 'photo-1540575467063-178a50c2df87',
+    'photo-1501281668745-f7f57925c3b4', 'photo-1516450360452-9312f5e86fc7',
+    'photo-1470229722913-7c0e2dbbafd3', 'photo-1429962714451-bb934ecdc4ec',
+  ],
 }
 
 const pick = (arr, n) => arr[((n % arr.length) + arr.length) % arr.length]
@@ -533,4 +543,258 @@ export function countsFor(p) {
     pagina: p.tipo_cuenta === 'turismo' && p.plan_id >= 3 ? 1 : 0,
     negocio: 1,
   }
+}
+
+// ---- Local de barrio ----
+export const LOCAL_CATEGORIAS = [
+  { id: 1,  nombre: 'Abarrotes / Almacén',    icono: 'local_grocery_store' },
+  { id: 2,  nombre: 'Panadería / Pastelería', icono: 'bakery_dining' },
+  { id: 3,  nombre: 'Farmacia',               icono: 'local_pharmacy' },
+  { id: 4,  nombre: 'Carnicería / Pescadería',icono: 'egg' },
+  { id: 5,  nombre: 'Frutas y Verduras',      icono: 'nutrition' },
+  { id: 6,  nombre: 'Ferretería',             icono: 'hardware' },
+  { id: 7,  nombre: 'Librería / Papelería',   icono: 'menu_book' },
+  { id: 8,  nombre: 'Ropa y Calzado',         icono: 'checkroom' },
+  { id: 9,  nombre: 'Peluquería / Barbería',  icono: 'content_cut' },
+  { id: 10, nombre: 'Botillería',             icono: 'local_bar' },
+]
+
+export function miLocalFor(p) {
+  if (!p) return null
+  const c = contacto(p)
+  return {
+    id: p.id * 10,
+    usuario_id: p.id,
+    nombre: 'Almacén El Rincón',
+    descripcion:
+      'Almacén de barrio con todos los productos de primera necesidad. ' +
+      'Atendemos de lunes a sábado con la mejor atención y precios convenientes para el vecino de siempre.',
+    direccion: c.direccion,
+    horario: 'Lunes a Viernes 09:00 - 20:00, Sábado 09:00 - 14:00',
+    telefono: c.telefono,
+    whatsapp: c.whatsapp,
+    facebook: c.facebook,
+    instagram: c.instagram,
+    correo: c.correo,
+    imagen:   img(pick(POOL.local, p._index)),
+    imagen_2: img(pick(POOL.local, p._index + 1)),
+    imagen_3: img(pick(POOL.local, p._index + 2)),
+    categoria_barrio_id: 1,
+    categoria_nombre: 'Abarrotes',
+    categoria_icono: 'local_grocery_store',
+    lat: -39.2849,
+    lng: -72.2240,
+  }
+}
+
+// ---- Organizador de eventos ----
+export const EVENTO_CATEGORIAS = [
+  { id: 1,  nombre: 'Música',        icono: 'music_note' },
+  { id: 2,  nombre: 'Gastronomía',   icono: 'restaurant' },
+  { id: 3,  nombre: 'Cultura',       icono: 'theater_comedy' },
+  { id: 4,  nombre: 'Artesanía',     icono: 'handyman' },
+  { id: 5,  nombre: 'Deporte',       icono: 'sports_soccer' },
+  { id: 6,  nombre: 'Familiar',      icono: 'family_restroom' },
+  { id: 7,  nombre: 'Nocturno',      icono: 'nightlife' },
+  { id: 8,  nombre: 'Ferias',        icono: 'storefront' },
+  { id: 9,  nombre: 'Educación',     icono: 'school' },
+  { id: 10, nombre: 'Beneficencia',  icono: 'volunteer_activism' },
+]
+
+const EVENTOS_DEMO = [
+  { titulo: 'Feria Artesanal Villarrica', fecha: '2026-07-15', ubicacion: 'Plaza Central, Villarrica', precio: 'Entrada libre', horario: '10:00 - 20:00', categoria_id: 8 },
+  { titulo: 'Festival de Música Patagonia', fecha: '2026-08-01', ubicacion: 'Anfiteatro Municipal', precio: '$5.000', horario: '20:00 - 00:00', categoria_id: 1 },
+  { titulo: 'Encuentro Gastronómico SMA', fecha: '2026-05-20', ubicacion: 'Costanera del Lago', precio: 'Entrada libre', horario: '12:00 - 22:00', categoria_id: 2 },
+]
+
+export function misEventosFor(p) {
+  if (!p) return []
+  const c = contacto(p)
+  return EVENTOS_DEMO.map((ev, j) => ({
+    id: p.id * 100 + j,
+    usuario_id: p.id,
+    titulo: ev.titulo,
+    descripcion:
+      `${ev.titulo}: un evento imperdible en la región. ` +
+      `Ven a disfrutar con toda la familia de esta experiencia única en el corazón de la Patagonia.`,
+    fecha: ev.fecha,
+    horario: ev.horario,
+    ubicacion: ev.ubicacion,
+    precio: ev.precio,
+    telefono: c.telefono,
+    whatsapp: c.whatsapp,
+    organizador: p._name,
+    imagen:   img(pick(POOL.evento, p._index + j)),
+    imagen_2: img(pick(POOL.evento, p._index + j + 1)),
+    imagen_3: img(pick(POOL.evento, p._index + j + 2)),
+    categoria_evento_id: ev.categoria_id,
+    categoria_nombre: ev.titulo.includes('Feria') ? 'Ferias' : ev.titulo.includes('Música') ? 'Música' : 'Gastronomía',
+  }))
+}
+
+// ---- Locales y Eventos públicos (StoresPage / EventsPage) ----
+const ALL_LOCALES_RAW = [
+  { nombre: 'Almacén El Rincón',      cat: 'Abarrotes',  cat_id: 1,  cat_icono: 'local_grocery_store',
+    descripcion: 'Almacén de barrio con todos los productos de primera necesidad, bebidas y lácteos frescos.',
+    direccion: 'Pasaje Los Pinos 15, Villarrica', horario: 'Lun-Sáb 08:00-20:00',
+    telefono: '+56 9 7800 0001', whatsapp: '+56 9 7800 0001',
+    facebook: 'https://facebook.com/almacenrincon', instagram: '@almacenrincon', correo: 'info@almacenrincon.cl',
+    lat: -39.2849, lng: -72.2240,
+    imgs: ['photo-1604719312566-8912e9c8a213','photo-1555396273-367ea4eb4db5','photo-1542838132-92c53300491e'] },
+  { nombre: 'Panadería La Cabaña',    cat: 'Panadería',  cat_id: 2,  cat_icono: 'bakery_dining',
+    descripcion: 'Pan artesanal horneado cada mañana. Hallullas, marraquetas y tortas especiales para toda ocasión.',
+    direccion: 'Calle Caupolican 230, Villarrica', horario: 'Lun-Dom 07:00-14:00',
+    telefono: '+56 9 7800 0002', whatsapp: '+56 9 7800 0002',
+    facebook: 'https://facebook.com/panaderiacabana', instagram: '@panaderiacabana', correo: 'pan@lacabana.cl',
+    lat: -39.2865, lng: -72.2255,
+    imgs: ['photo-1528698827591-e19ccd7bc23d','photo-1583258292688-d0213dc5a3a8','photo-1604719312566-8912e9c8a213'] },
+  { nombre: 'Farmacia del Lago',      cat: 'Farmacia',   cat_id: 3,  cat_icono: 'local_pharmacy',
+    descripcion: 'Medicamentos, vitaminas y atención farmacéutica personalizada. Delivery disponible en la ciudad.',
+    direccion: 'Av. Pedro de Valdivia 88, Villarrica', horario: 'Lun-Sáb 09:00-21:00',
+    telefono: '+56 9 7800 0003', whatsapp: '+56 9 7800 0003',
+    facebook: 'https://facebook.com/farmaciadellago', instagram: '@farmaciadellago', correo: 'info@farmaciadellago.cl',
+    lat: -39.2840, lng: -72.2270,
+    imgs: ['photo-1578662996442-48f60103fc96','photo-1555396273-367ea4eb4db5','photo-1583258292688-d0213dc5a3a8'] },
+  { nombre: 'Ferretería Andina',      cat: 'Ferretería', cat_id: 4,  cat_icono: 'hardware',
+    descripcion: 'Herramientas, materiales de construcción y todo para el hogar. Servicio técnico incluido.',
+    direccion: 'Ruta 199 km 2, Villarrica', horario: 'Lun-Vie 08:30-18:30, Sáb 09:00-13:00',
+    telefono: '+56 9 7800 0004', whatsapp: '+56 9 7800 0004',
+    facebook: 'https://facebook.com/ferreteriaandina', instagram: '@ferreteriaandina', correo: 'ventas@ferreteriaandina.cl',
+    lat: -39.2875, lng: -72.2225,
+    imgs: ['photo-1542838132-92c53300491e','photo-1604719312566-8912e9c8a213','photo-1578662996442-48f60103fc96'] },
+  { nombre: 'Restorán Los Arrayanes', cat: 'Comida',     cat_id: 5,  cat_icono: 'restaurant',
+    descripcion: 'Cocina patagónica con vista al lago. Trucha ahumada, cordero al palo y empanadas caseras.',
+    direccion: 'Costanera Koerner 400, Villarrica', horario: 'Mar-Dom 12:00-22:00',
+    telefono: '+56 9 7800 0005', whatsapp: '+56 9 7800 0005',
+    facebook: 'https://facebook.com/losarrayanes.vca', instagram: '@losarrayanesvca', correo: 'reservas@losarrayanes.cl',
+    lat: -39.2830, lng: -72.2290,
+    imgs: ['photo-1555396273-367ea4eb4db5','photo-1583258292688-d0213dc5a3a8','photo-1542838132-92c53300491e'] },
+  { nombre: 'Peluquería Andes Style', cat: 'Peluquería', cat_id: 6,  cat_icono: 'content_cut',
+    descripcion: 'Cortes, tintes y tratamientos capilares para toda la familia con productos premium.',
+    direccion: 'Calle Aldunate 155, Villarrica', horario: 'Mar-Sáb 09:00-19:00',
+    telefono: '+56 9 7800 0006', whatsapp: '+56 9 7800 0006',
+    facebook: 'https://facebook.com/andesstyle.vca', instagram: '@andesstyle.vca', correo: 'reservas@andesstyle.cl',
+    lat: -39.2855, lng: -72.2260,
+    imgs: ['photo-1583258292688-d0213dc5a3a8','photo-1578662996442-48f60103fc96','photo-1555396273-367ea4eb4db5'] },
+  { nombre: 'Floristería Primavera',  cat: 'Florería',   cat_id: 7,  cat_icono: 'local_florist',
+    descripcion: 'Ramos, coronas y arreglos florales para toda ocasión. Envíos a domicilio todos los días.',
+    direccion: 'Av. Anfión Muñoz 320, Villarrica', horario: 'Lun-Sáb 09:00-18:00',
+    telefono: '+56 9 7800 0007', whatsapp: '+56 9 7800 0007',
+    facebook: 'https://facebook.com/primaveraflores', instagram: '@primaveraflores', correo: 'floreria@primavera.cl',
+    lat: -39.2844, lng: -72.2280,
+    imgs: ['photo-1528698827591-e19ccd7bc23d','photo-1542838132-92c53300491e','photo-1604719312566-8912e9c8a213'] },
+  { nombre: 'Bazar Del Sur',          cat: 'Bazar',      cat_id: 8,  cat_icono: 'storefront',
+    descripcion: 'Artículos para el hogar, cocina, decoración y regalos. Variedad y precios accesibles.',
+    direccion: 'Calle Epulef 70, Villarrica', horario: 'Lun-Sáb 10:00-19:00',
+    telefono: '+56 9 7800 0008', whatsapp: '+56 9 7800 0008',
+    facebook: 'https://facebook.com/bazardelsur.vca', instagram: '@bazardelsur', correo: 'info@bazardelsur.cl',
+    lat: -39.2870, lng: -72.2245,
+    imgs: ['photo-1604719312566-8912e9c8a213','photo-1555396273-367ea4eb4db5','photo-1528698827591-e19ccd7bc23d'] },
+  { nombre: 'Mascotería Patagonia',   cat: 'Mascotas',   cat_id: 9,  cat_icono: 'pets',
+    descripcion: 'Alimentos balanceados, accesorios y cuidado veterinario para tus mascotas.',
+    direccion: 'Calle General Körner 210, Villarrica', horario: 'Lun-Sáb 09:30-19:30',
+    telefono: '+56 9 7800 0009', whatsapp: '+56 9 7800 0009',
+    facebook: 'https://facebook.com/mascoteriapatagonia', instagram: '@mascoteriapatagonia', correo: 'info@mascoteriapatagonia.cl',
+    lat: -39.2860, lng: -72.2235,
+    imgs: ['photo-1583258292688-d0213dc5a3a8','photo-1604719312566-8912e9c8a213','photo-1578662996442-48f60103fc96'] },
+  { nombre: 'Lavandería Express',     cat: 'Lavandería', cat_id: 10, cat_icono: 'local_laundry_service',
+    descripcion: 'Lavado y planchado al día. Retiro y entrega a domicilio disponible en toda la ciudad.',
+    direccion: 'Pasaje Raulí 8, Villarrica', horario: 'Lun-Sáb 08:00-20:00',
+    telefono: '+56 9 7800 0010', whatsapp: '+56 9 7800 0010',
+    facebook: 'https://facebook.com/lavanderiaexpress.vca', instagram: '@lavanderiaexpress', correo: 'lavanderia@express.cl',
+    lat: -39.2880, lng: -72.2265,
+    imgs: ['photo-1542838132-92c53300491e','photo-1578662996442-48f60103fc96','photo-1583258292688-d0213dc5a3a8'] },
+]
+
+export function allLocales() {
+  return ALL_LOCALES_RAW.map((l, i) => ({
+    id: 8000 + i + 1,
+    usuario_id: null,
+    nombre:      l.nombre,
+    descripcion: l.descripcion,
+    direccion:   l.direccion,
+    horario:     l.horario,
+    telefono:    l.telefono,
+    whatsapp:    l.whatsapp,
+    facebook:    l.facebook,
+    instagram:   l.instagram,
+    correo:      l.correo,
+    imagen:      img(l.imgs[0]),
+    imagen_2:    img(l.imgs[1]),
+    imagen_3:    img(l.imgs[2]),
+    categoria_barrio_id: l.cat_id,
+    categoria_nombre:    l.cat,
+    categoria_icono:     l.cat_icono,
+    lat:    l.lat,
+    lng:    l.lng,
+    activo: 1,
+  }))
+}
+
+const ALL_EVENTOS_RAW = [
+  { titulo: 'Feria Artesanal Villarrica',    cat: 'Ferias',      cat_id: 8,
+    fecha: '2026-07-15', horario: '10:00 - 20:00', ubicacion: 'Plaza Central de Villarrica',
+    precio: 'Entrada libre', organizador: 'Municipalidad de Villarrica',
+    telefono: '+56 9 7900 0001', whatsapp: '+56 9 7900 0001',
+    descripcion: 'La feria artesanal más grande de la región con más de 100 expositores de artesanía local, textiles y gastronomía.',
+    imgs: ['photo-1492684223066-81342ee5ff30','photo-1540575467063-178a50c2df87','photo-1501281668745-f7f57925c3b4'] },
+  { titulo: 'Festival de Música Patagonia',  cat: 'Música',      cat_id: 1,
+    fecha: '2026-08-01', horario: '20:00 - 00:00', ubicacion: 'Anfiteatro Municipal, Villarrica',
+    precio: '$5.000', organizador: 'Cultura SMA',
+    telefono: '+56 9 7900 0002', whatsapp: '+56 9 7900 0002',
+    descripcion: 'Música en vivo de artistas locales y nacionales en el corazón de la Patagonia. Una noche para no olvidar.',
+    imgs: ['photo-1470229722913-7c0e2dbbafd3','photo-1429962714451-bb934ecdc4ec','photo-1516450360452-9312f5e86fc7'] },
+  { titulo: 'Encuentro Gastronómico Andino', cat: 'Gastronomía', cat_id: 2,
+    fecha: '2026-07-20', horario: '12:00 - 22:00', ubicacion: 'Costanera del Lago, Villarrica',
+    precio: 'Entrada libre', organizador: 'Asociación Gastronómica Regional',
+    telefono: '+56 9 7900 0003', whatsapp: '+56 9 7900 0003',
+    descripcion: 'Degustá lo mejor de la cocina patagónica con más de 30 restaurantes y productores locales reunidos.',
+    imgs: ['photo-1501281668745-f7f57925c3b4','photo-1492684223066-81342ee5ff30','photo-1540575467063-178a50c2df87'] },
+  { titulo: 'Torneo de Fútbol Barrial',       cat: 'Deporte',    cat_id: 5,
+    fecha: '2026-07-28', horario: '09:00 - 18:00', ubicacion: 'Estadio Municipal Norte',
+    precio: 'Entrada libre', organizador: 'Club Deportivo Villarrica',
+    telefono: '+56 9 7900 0004', whatsapp: '+56 9 7900 0004',
+    descripcion: 'El torneo de fútbol más querido de la ciudad reúne a 16 equipos barriales en una jornada llena de emoción.',
+    imgs: ['photo-1516450360452-9312f5e86fc7','photo-1501281668745-f7f57925c3b4','photo-1470229722913-7c0e2dbbafd3'] },
+  { titulo: 'Muestra de Arte Local',          cat: 'Cultura',    cat_id: 3,
+    fecha: '2026-08-10', horario: '10:00 - 19:00', ubicacion: 'Centro Cultural Municipal',
+    precio: 'Entrada libre', organizador: 'Centro Cultural',
+    telefono: '+56 9 7900 0005', whatsapp: '+56 9 7900 0005',
+    descripcion: 'Pinturas, esculturas y fotografía de artistas locales que interpretan la naturaleza y vida patagónica.',
+    imgs: ['photo-1492684223066-81342ee5ff30','photo-1516450360452-9312f5e86fc7','photo-1429962714451-bb934ecdc4ec'] },
+  { titulo: 'Noche de Peñas Folclóricas',     cat: 'Nocturno',   cat_id: 7,
+    fecha: '2026-07-25', horario: '21:00 - 02:00', ubicacion: 'Club Social Villarrica',
+    precio: '$3.000', organizador: 'Peñas del Sur',
+    telefono: '+56 9 7900 0006', whatsapp: '+56 9 7900 0006',
+    descripcion: 'Una noche de música folclórica con cueca, tonadas y zamacueca. Cena incluida en el precio de la entrada.',
+    imgs: ['photo-1540575467063-178a50c2df87','photo-1470229722913-7c0e2dbbafd3','photo-1492684223066-81342ee5ff30'] },
+  { titulo: 'Feria del Libro y Familia',      cat: 'Familiar',   cat_id: 6,
+    fecha: '2026-08-05', horario: '10:00 - 18:00', ubicacion: 'Biblioteca Municipal',
+    precio: 'Entrada libre', organizador: 'Biblioteca Pública',
+    telefono: '+56 9 7900 0007', whatsapp: '+56 9 7900 0007',
+    descripcion: 'Libros, talleres, cuentacuentos y actividades para toda la familia. Entrada libre para niños y adultos.',
+    imgs: ['photo-1429962714451-bb934ecdc4ec','photo-1501281668745-f7f57925c3b4','photo-1540575467063-178a50c2df87'] },
+]
+
+export function allEventos() {
+  return ALL_EVENTOS_RAW.map((e, i) => ({
+    id: 8100 + i + 1,
+    usuario_id: null,
+    titulo:      e.titulo,
+    descripcion: e.descripcion,
+    fecha:       e.fecha,
+    horario:     e.horario,
+    ubicacion:   e.ubicacion,
+    precio:      e.precio,
+    telefono:    e.telefono,
+    whatsapp:    e.whatsapp,
+    organizador: e.organizador,
+    imagen:      img(e.imgs[0]),
+    imagen_2:    img(e.imgs[1]),
+    imagen_3:    img(e.imgs[2]),
+    categoria_evento_id: e.cat_id,
+    categoria_nombre:    e.cat,
+    categoria_icono:     null,
+    activo: 1,
+  }))
 }

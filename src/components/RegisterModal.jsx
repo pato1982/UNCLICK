@@ -124,6 +124,8 @@ export default function RegisterModal({ onClose, onSwitchToLogin, onRegisterSucc
     return null
   }
 
+  const isSimpleType = form.tipo_cuenta === 'local' || form.tipo_cuenta === 'evento'
+
   const handleNext = () => {
     if (step === 1) {
       const err = validateStep1()
@@ -132,14 +134,22 @@ export default function RegisterModal({ onClose, onSwitchToLogin, onRegisterSucc
     if (step === 2) {
       const err = validateStep2()
       if (err) { setError(err); return }
+      setError('')
+      // local y evento siempre son plan gratuito — saltar el paso 3
+      if (isSimpleType) {
+        handleSubmit({ plan_id: 1 })
+        return
+      }
     }
     setError('')
     setStep(step + 1)
   }
 
-  const handleSubmit = async () => {
+  // overrides permite pasar plan_id=1 directamente para local/evento sin pasar por step 3
+  const handleSubmit = async (overrides = {}) => {
     setError('')
     setLoading(true)
+    const f = { ...form, ...overrides }
 
     try {
       const res = await fetch(`${API}/api/v1/auth/register`, {
@@ -147,18 +157,18 @@ export default function RegisterModal({ onClose, onSwitchToLogin, onRegisterSucc
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
-          nombre: form.nombre.trim(),
-          email: form.email.trim(),
-          password: form.password,
-          dni: form.dni.trim(),
-          telefono: form.telefono.trim() || null,
-          comuna: form.comuna.trim() || null,
-          direccion: form.direccion.trim() || null,
-          tipo_cuenta: form.tipo_cuenta,
-          vende_productos: form.vende_productos,
-          ofrece_servicios: form.ofrece_servicios,
-          ofrece_arriendos: form.ofrece_arriendos,
-          plan_id: form.plan_id,
+          nombre: f.nombre.trim(),
+          email: f.email.trim(),
+          password: f.password,
+          dni: f.dni.trim(),
+          telefono: f.telefono.trim() || null,
+          comuna: f.comuna.trim() || null,
+          direccion: f.direccion.trim() || null,
+          tipo_cuenta: f.tipo_cuenta,
+          vende_productos: f.vende_productos,
+          ofrece_servicios: f.ofrece_servicios,
+          ofrece_arriendos: f.ofrece_arriendos,
+          plan_id: f.plan_id,
         })
       })
       const data = await res.json()
@@ -180,11 +190,13 @@ export default function RegisterModal({ onClose, onSwitchToLogin, onRegisterSucc
     }
   }
 
-  const stepTitles = ['Datos personales', 'Tipo de cuenta', 'Elige tu plan']
+  const stepTitles = isSimpleType
+    ? ['Datos personales', 'Tipo de cuenta']
+    : ['Datos personales', 'Tipo de cuenta', 'Elige tu plan']
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className={`bg-white rounded-2xl shadow-2xl w-full overflow-hidden ${step === 3 ? (form.tipo_cuenta === 'turismo' ? 'max-w-xl' : 'max-w-3xl') : 'max-w-md'} transition-all duration-300`} onClick={(e) => e.stopPropagation()}>
+      <div className={`bg-white rounded-2xl shadow-2xl w-full overflow-hidden ${step === 3 ? (form.tipo_cuenta === 'turismo' ? 'max-w-xl' : 'max-w-3xl') : 'max-w-lg'} transition-all duration-300`} onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="bg-primary px-3 sm:px-6 py-2.5 sm:py-4 flex items-center justify-between">
           <h2 className="text-white font-bold text-sm sm:text-lg flex items-center gap-1.5 sm:gap-2">
@@ -194,16 +206,19 @@ export default function RegisterModal({ onClose, onSwitchToLogin, onRegisterSucc
           <div className="flex items-center gap-3">
             {/* Indicador de pasos */}
             <div className="flex items-center gap-1">
-              {[1, 2, 3].map((s) => (
-                <div key={s} className="flex items-center">
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all ${
-                    s === step ? 'bg-accent text-primary' : s < step ? 'bg-white/30 text-white' : 'bg-white/10 text-white/40'
-                  }`}>
-                    {s < step ? <span className="material-symbols-outlined text-sm">check</span> : s}
+              {stepTitles.map((_, i) => {
+                const s = i + 1
+                return (
+                  <div key={s} className="flex items-center">
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all ${
+                      s === step ? 'bg-accent text-primary' : s < step ? 'bg-white/30 text-white' : 'bg-white/10 text-white/40'
+                    }`}>
+                      {s < step ? <span className="material-symbols-outlined text-sm">check</span> : s}
+                    </div>
+                    {s < stepTitles.length && <div className={`w-4 h-0.5 ${s < step ? 'bg-white/30' : 'bg-white/10'}`} />}
                   </div>
-                  {s < 3 && <div className={`w-4 h-0.5 ${s < step ? 'bg-white/30' : 'bg-white/10'}`} />}
-                </div>
-              ))}
+                )
+              })}
             </div>
             <button onClick={onClose} className="text-white/70 hover:text-white transition-colors">
               <span className="material-symbols-outlined">close</span>
@@ -356,35 +371,73 @@ export default function RegisterModal({ onClose, onSwitchToLogin, onRegisterSucc
               <div>
                 <label className="block text-[10px] sm:text-xs font-semibold text-gray-600 mb-2 sm:mb-3">¿Qué tipo de cuenta necesitas?</label>
                 <div className="grid grid-cols-2 gap-2 sm:gap-3">
+
+                  {/* General */}
                   <button
                     type="button"
                     onClick={() => setForm({ ...form, tipo_cuenta: 'general', vende_productos: false, ofrece_servicios: false, ofrece_arriendos: false })}
-                    className={`flex flex-col items-center gap-1.5 sm:gap-2 p-3 sm:p-5 rounded-xl border-2 transition-all ${
+                    className={`flex flex-col items-center gap-1.5 p-3 sm:p-4 rounded-xl border-2 transition-all ${
                       form.tipo_cuenta === 'general'
                         ? 'border-primary bg-primary/5 text-primary'
                         : 'border-gray-200 text-gray-500 hover:border-gray-300'
                     }`}
                   >
-                    <span className="material-symbols-outlined text-2xl sm:text-4xl">storefront</span>
+                    <span className="material-symbols-outlined text-2xl sm:text-3xl">storefront</span>
                     <span className="text-[12px] sm:text-sm font-bold">General</span>
-                    <span className="text-[9px] sm:text-[10px] text-center leading-tight">Venta de productos, servicios o arriendos</span>
+                    <span className="text-[9px] sm:text-[10px] text-center leading-tight">Productos, servicios o arriendos</span>
                   </button>
+
+                  {/* Turismo */}
                   <button
                     type="button"
                     onClick={() => setForm({ ...form, tipo_cuenta: 'turismo', vende_productos: false, ofrece_servicios: false, ofrece_arriendos: false })}
-                    className={`flex flex-col items-center gap-1.5 sm:gap-2 p-3 sm:p-5 rounded-xl border-2 transition-all ${
+                    className={`flex flex-col items-center gap-1.5 p-3 sm:p-4 rounded-xl border-2 transition-all ${
                       form.tipo_cuenta === 'turismo'
                         ? 'border-primary bg-primary/5 text-primary'
                         : 'border-gray-200 text-gray-500 hover:border-gray-300'
                     }`}
                   >
-                    <span className="material-symbols-outlined text-2xl sm:text-4xl">tour</span>
+                    <span className="material-symbols-outlined text-2xl sm:text-3xl">tour</span>
                     <span className="text-[12px] sm:text-sm font-bold">Turismo</span>
-                    <span className="text-[9px] sm:text-[10px] text-center leading-tight">Experiencias, tours y actividades turísticas</span>
+                    <span className="text-[9px] sm:text-[10px] text-center leading-tight">Experiencias, tours y actividades</span>
                   </button>
+
+                  {/* Local de barrio */}
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, tipo_cuenta: 'local', vende_productos: false, ofrece_servicios: false, ofrece_arriendos: false, plan_id: 1 })}
+                    className={`flex flex-col items-center gap-1.5 p-3 sm:p-4 rounded-xl border-2 transition-all relative ${
+                      form.tipo_cuenta === 'local'
+                        ? 'border-primary bg-primary/5 text-primary'
+                        : 'border-gray-200 text-gray-500 hover:border-gray-300'
+                    }`}
+                  >
+                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 bg-green-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full">GRATIS</span>
+                    <span className="material-symbols-outlined text-2xl sm:text-3xl">local_grocery_store</span>
+                    <span className="text-[12px] sm:text-sm font-bold">Local de barrio</span>
+                    <span className="text-[9px] sm:text-[10px] text-center leading-tight">Almacén, ferretería, restorán y más</span>
+                  </button>
+
+                  {/* Evento */}
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, tipo_cuenta: 'evento', vende_productos: false, ofrece_servicios: false, ofrece_arriendos: false, plan_id: 1 })}
+                    className={`flex flex-col items-center gap-1.5 p-3 sm:p-4 rounded-xl border-2 transition-all relative ${
+                      form.tipo_cuenta === 'evento'
+                        ? 'border-primary bg-primary/5 text-primary'
+                        : 'border-gray-200 text-gray-500 hover:border-gray-300'
+                    }`}
+                  >
+                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 bg-green-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full">GRATIS</span>
+                    <span className="material-symbols-outlined text-2xl sm:text-3xl">event</span>
+                    <span className="text-[12px] sm:text-sm font-bold">Evento</span>
+                    <span className="text-[9px] sm:text-[10px] text-center leading-tight">Conciertos, ferias, beneficios y más</span>
+                  </button>
+
                 </div>
               </div>
 
+              {/* Subopción: qué ofrece (solo General) */}
               {form.tipo_cuenta === 'general' && (
                 <div>
                   <label className="block text-[10px] sm:text-xs font-semibold text-gray-600 mb-2">¿Qué ofreces? (selecciona al menos una)</label>
@@ -402,12 +455,7 @@ export default function RegisterModal({ onClose, onSwitchToLogin, onRegisterSucc
                             : 'border-gray-200 hover:border-gray-300'
                         }`}
                       >
-                        <input
-                          type="checkbox"
-                          checked={form[opt.key]}
-                          onChange={(e) => update(opt.key, e.target.checked)}
-                          className="sr-only"
-                        />
+                        <input type="checkbox" checked={form[opt.key]} onChange={(e) => update(opt.key, e.target.checked)} className="sr-only" />
                         <span className={`material-symbols-outlined text-base sm:text-lg ${form[opt.key] ? 'text-primary' : 'text-gray-400'}`}>
                           {form[opt.key] ? 'check_circle' : opt.icon}
                         </span>
@@ -418,10 +466,29 @@ export default function RegisterModal({ onClose, onSwitchToLogin, onRegisterSucc
                 </div>
               )}
 
+              {/* Info boxes */}
               {form.tipo_cuenta === 'turismo' && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 flex items-start gap-2">
                   <span className="material-symbols-outlined text-xs text-blue-500 mt-0.5">info</span>
-                  <span className="text-[10px] sm:text-[11px] text-blue-700 leading-tight" style={{ textAlign: 'justify' }}>Como cuenta de turismo podrás publicar experiencias, tours y actividades turísticas en Villarrica y alrededores.</span>
+                  <span className="text-[10px] sm:text-[11px] text-blue-700 leading-tight">Podrás publicar experiencias, tours y actividades turísticas en Villarrica y alrededores.</span>
+                </div>
+              )}
+
+              {form.tipo_cuenta === 'local' && (
+                <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-2 flex items-start gap-2">
+                  <span className="material-symbols-outlined text-xs text-green-600 mt-0.5">check_circle</span>
+                  <span className="text-[10px] sm:text-[11px] text-green-700 leading-tight">
+                    <strong>Plan siempre gratuito.</strong> Podrás publicar tu local con hasta 3 imágenes, categoría, horario y datos de contacto. Aparecerás en el mapa y en el listado de locales.
+                  </span>
+                </div>
+              )}
+
+              {form.tipo_cuenta === 'evento' && (
+                <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-2 flex items-start gap-2">
+                  <span className="material-symbols-outlined text-xs text-green-600 mt-0.5">check_circle</span>
+                  <span className="text-[10px] sm:text-[11px] text-green-700 leading-tight">
+                    <strong>Plan siempre gratuito.</strong> Podrás publicar eventos con hasta 3 imágenes. Al llegar la fecha del evento, la publicación se retira automáticamente al día siguiente.
+                  </span>
                 </div>
               )}
 
@@ -436,9 +503,10 @@ export default function RegisterModal({ onClose, onSwitchToLogin, onRegisterSucc
                 <button
                   type="button"
                   onClick={handleNext}
-                  className="flex-1 bg-primary text-white font-bold py-2 sm:py-2.5 text-sm sm:text-base rounded-lg hover:bg-primary/90 transition-colors"
+                  disabled={loading}
+                  className="flex-1 bg-primary text-white font-bold py-2 sm:py-2.5 text-sm sm:text-base rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
                 >
-                  Siguiente
+                  {loading ? 'Registrando...' : isSimpleType ? 'Crear cuenta' : 'Siguiente'}
                 </button>
               </div>
             </div>

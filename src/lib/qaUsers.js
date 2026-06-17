@@ -45,6 +45,10 @@ export const QA_USERS = [
   { email: 'tur_p3_d@qa.dev',   nombre: 'Turismo Premium 4',       tipo: 'turismo', plan: 3, caps: [] },
   { email: 'tur_p1_c@qa.dev',   nombre: 'Turismo Gratis 3',        tipo: 'turismo', plan: 1, caps: [] },
   { email: 'tur_p3_e@qa.dev',   nombre: 'Turismo Premium 5',       tipo: 'turismo', plan: 3, caps: [] },
+  // Local de barrio (plan 1 = gratis)
+  { email: 'local_p1@qa.dev',   nombre: 'Local de Barrio',         tipo: 'local',   plan: 1, caps: [] },
+  // Organizador de eventos (plan 1 = gratis)
+  { email: 'evento_p1@qa.dev',  nombre: 'Org. de Eventos',         tipo: 'evento',  plan: 1, caps: [] },
 ]
 
 /** Construye el objeto `user` completo que espera la app a partir de una cuenta QA. */

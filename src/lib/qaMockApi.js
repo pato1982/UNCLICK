@@ -24,6 +24,12 @@ import {
   statsFor,
   historyFor,
   writeHeaderOverride,
+  miLocalFor,
+  misEventosFor,
+  LOCAL_CATEGORIAS,
+  EVENTO_CATEGORIAS,
+  allLocales,
+  allEventos,
 } from './qaMockData'
 
 const HEADER_KEYS = ['header_preset', 'header_color', 'header_height', 'header_bar', 'banner_color', 'services_color', 'arriendos_color', 'sidebar_color', 'sidebar_accent', 'sidebar_style', 'nav_color', 'nav_style']
@@ -167,6 +173,14 @@ export function resolveQaMock(urlStr, method = 'GET', body = null) {
   // --- Estadísticas (analytics) ---
   if (path === '/api/v1/analytics/stats') return statsFor(me)
 
+  // --- Local de barrio ---
+  if (path === '/api/v1/mi-local/categorias') return { categorias: LOCAL_CATEGORIAS }
+  if (path === '/api/v1/mi-local') return { local: miLocalFor(me) }
+
+  // --- Eventos ---
+  if (path === '/api/v1/mis-eventos/categorias') return { categorias: EVENTO_CATEGORIAS }
+  if (path === '/api/v1/mis-eventos') return { eventos: misEventosFor(me) }
+
   return null
 }
 
@@ -273,6 +287,22 @@ export function resolvePublicMock(urlStr, method = 'GET', body = null) {
       const t = qaUserById(id)
       return { portada: t ? portadaFor(t) : null }
     }
+  }
+
+  // --- Locales públicos (StoresPage) ---
+  if (path === '/api/v1/locales') return { locales: allLocales() }
+  if (path === '/api/v1/locales/categorias') {
+    const seen = new Map()
+    allLocales().forEach(l => { if (l.categoria_nombre) seen.set(l.categoria_barrio_id, { id: l.categoria_barrio_id, nombre: l.categoria_nombre, icono: l.categoria_icono }) })
+    return { categorias: [...seen.values()].sort((a, b) => a.nombre.localeCompare(b.nombre)) }
+  }
+
+  // --- Eventos públicos (EventsPage) ---
+  if (path === '/api/v1/eventos') return { eventos: allEventos() }
+  if (path === '/api/v1/eventos/categorias') {
+    const seen = new Map()
+    allEventos().forEach(e => { if (e.categoria_nombre) seen.set(e.categoria_evento_id, { id: e.categoria_evento_id, nombre: e.categoria_nombre, icono: e.categoria_icono }) })
+    return { categorias: [...seen.values()].sort((a, b) => a.nombre.localeCompare(b.nombre)) }
   }
 
   return null

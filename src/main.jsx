@@ -27,6 +27,8 @@ import ProgramadorEventos from './admin/pages/ProgramadorEventos'
 import ProgramadorServidor from './admin/pages/ProgramadorServidor'
 import ProgramadorEstadisticas from './admin/pages/ProgramadorEstadisticas'
 import AdminMonitor from './admin/pages/AdminMonitor'
+import AdminLocal from './admin/pages/AdminLocal'
+import AdminEvento from './admin/pages/AdminEvento'
 import './index.css'
 
 // Instalar interceptor de fetch para bypass en desarrollo
@@ -34,8 +36,10 @@ installDevFetchInterceptor()
 
 function AdminIndex() {
   const user = JSON.parse(localStorage.getItem('user') || '{}')
-  if (user.rol === 'programador') return <Navigate to="/admin/programador/locales" replace />
-  if (user.tipo_cuenta === 'turismo') return <Navigate to="/admin/tour" replace />
+  if (user.rol === 'programador')          return <Navigate to="/admin/programador/locales" replace />
+  if (user.tipo_cuenta === 'turismo')      return <Navigate to="/admin/tour" replace />
+  if (user.tipo_cuenta === 'local')        return <Navigate to="/admin/mi-local" replace />
+  if (user.tipo_cuenta === 'evento')       return <Navigate to="/admin/mis-eventos" replace />
   return <AdminProductos />
 }
 
@@ -53,6 +57,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="tour" element={<AdminTour />} />
           <Route path="pagina" element={<AdminPagina />} />
           <Route path="monitor" element={<AdminMonitor />} />
+          <Route path="mi-local" element={<AdminLocal />} />
+          <Route path="mis-eventos" element={<AdminEvento />} />
           <Route path="programador/locales" element={<ProgramadorLocales />} />
           <Route path="programador/eventos" element={<ProgramadorEventos />} />
           <Route path="programador/estadisticas" element={<ProgramadorEstadisticas />} />

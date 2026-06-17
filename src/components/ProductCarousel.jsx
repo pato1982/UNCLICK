@@ -9,15 +9,18 @@ export default function ProductCarousel({ title, items, sidebarOpen, hidePrice, 
   const [dragging, setDragging] = useState(false)
   const isDragging = useRef(false)
   const dragStart = useRef(0)
+  const dragEnd = useRef(0)
   const scrollStart = useRef(0)
   const pointerActive = useRef(false)
 
-  const DRAG_THRESHOLD = 6 // px antes de considerar drag real
+  const DRAG_THRESHOLD = 6
+  const SNAP_THRESHOLD = 30
 
   const onPointerDown = (e) => {
     pointerActive.current = true
     isDragging.current = false
     dragStart.current = e.clientX
+    dragEnd.current = e.clientX
     scrollStart.current = e.currentTarget.scrollLeft
     if (intervalRef.current) clearInterval(intervalRef.current)
   }
@@ -27,18 +30,38 @@ export default function ProductCarousel({ title, items, sidebarOpen, hidePrice, 
     const delta = Math.abs(e.clientX - dragStart.current)
     if (!isDragging.current) {
       if (delta < DRAG_THRESHOLD) return
-      // Supera el umbral: activar drag y capturar puntero
       isDragging.current = true
       setDragging(true)
       e.currentTarget.setPointerCapture(e.pointerId)
     }
     e.preventDefault()
+    dragEnd.current = e.clientX
     e.currentTarget.scrollLeft = scrollStart.current - (e.clientX - dragStart.current)
   }
 
-  const onPointerUp = () => {
+  const snapToCard = (el) => {
+    const dx = dragStart.current - dragEnd.current
+    const cardW = el.querySelector(':first-child')?.offsetWidth || 200
+    const gap = parseFloat(window.getComputedStyle(el).columnGap) || 8
+    const unit = cardW + gap
+    const target = Math.abs(dx) > SNAP_THRESHOLD
+      ? scrollStart.current + (dx > 0 ? unit : -unit)
+      : Math.round(scrollStart.current / unit) * unit
+    el.scrollTo({ left: Math.max(0, Math.min(el.scrollWidth - el.clientWidth, target)), behavior: 'smooth' })
+  }
+
+  const onPointerUp = (e) => {
     pointerActive.current = false
     if (!isDragging.current) return
+    isDragging.current = false
+    setDragging(false)
+    snapToCard(e.currentTarget)
+    resetAutoScroll()
+  }
+
+  const onPointerLeave = () => {
+    if (!isDragging.current) return
+    pointerActive.current = false
     isDragging.current = false
     setDragging(false)
     resetAutoScroll()
@@ -121,7 +144,7 @@ export default function ProductCarousel({ title, items, sidebarOpen, hidePrice, 
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
-          onPointerLeave={onPointerUp}
+          onPointerLeave={onPointerLeave}
           style={{ cursor: dragging ? 'grabbing' : 'grab', userSelect: 'none' }}
         >
           {items.map((product) => (
@@ -178,7 +201,7 @@ export default function ProductCarousel({ title, items, sidebarOpen, hidePrice, 
               onPointerDown={onPointerDown}
               onPointerMove={onPointerMove}
               onPointerUp={onPointerUp}
-              onPointerLeave={onPointerUp}
+              onPointerLeave={onPointerLeave}
               style={{ cursor: dragging ? 'grabbing' : 'grab', userSelect: 'none' }}
             >
               {restItems.map((product) => (
