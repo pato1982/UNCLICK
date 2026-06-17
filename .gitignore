@@ -19,8 +19,8 @@ backend/backup-*.sql
 backup-err.txt
 backend/backup-err.txt
 *.dump.sql
-unclik_dump.sql
 *_dump.sql
+unclik_dump.sql
 backend/backups/
 
 # Memoria local de Claude (no versionar)
