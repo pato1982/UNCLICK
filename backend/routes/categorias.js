@@ -42,4 +42,47 @@ router.get('/', async (req, res) => {
   }
 })
 
+// GET /api/v1/categorias/sidebar
+// Solo categorías que tienen al menos 1 listing activo publicado.
+// Formato: { categorias: [{ tipo, nombre, subcategorias: [{ nombre }] }] }
+router.get('/sidebar', async (req, res) => {
+  try {
+    const [cats] = await req.pool.query(`
+      SELECT DISTINCT l.tipo, l.categoria AS nombre
+      FROM tb_listings l
+      JOIN usuarios u ON u.id = l.usuario_id AND u.activo = 1
+      WHERE l.activo = 1
+        AND l.tipo IN ('producto','servicio','arriendo')
+        AND l.categoria IS NOT NULL AND l.categoria != ''
+      ORDER BY l.tipo, l.categoria
+    `)
+
+    if (cats.length === 0) return res.json({ categorias: [] })
+
+    const [subs] = await req.pool.query(`
+      SELECT DISTINCT l.tipo, l.categoria, l.subcategoria AS nombre
+      FROM tb_listings l
+      JOIN usuarios u ON u.id = l.usuario_id AND u.activo = 1
+      WHERE l.activo = 1
+        AND l.tipo IN ('producto','servicio','arriendo')
+        AND l.categoria IS NOT NULL AND l.categoria != ''
+        AND l.subcategoria IS NOT NULL AND l.subcategoria != ''
+      ORDER BY l.tipo, l.categoria, l.subcategoria
+    `)
+
+    const result = cats.map(c => ({
+      tipo: c.tipo,
+      nombre: c.nombre,
+      subcategorias: subs
+        .filter(s => s.tipo === c.tipo && s.categoria === c.nombre)
+        .map(s => ({ nombre: s.nombre }))
+    }))
+
+    res.json({ categorias: result })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Error al obtener categorías del sidebar' })
+  }
+})
+
 export default router
