@@ -26,7 +26,7 @@ export default function PrivacyModal({ onClose }) {
 
           <Section title="1. Introducción y Compromiso">
             <p>
-              En <strong>LocalClick SpA</strong> (en adelante, "la Empresa", "nosotros") respetamos y protegemos la
+              En <strong>LocalClick S.A.</strong> (en adelante, "la Empresa", "nosotros") respetamos y protegemos la
               privacidad de los usuarios de nuestra plataforma. La presente Política de Privacidad describe cómo
               recopilamos, utilizamos, almacenamos, comunicamos y protegemos los datos personales de quienes acceden o
               utilizan nuestros servicios, en cumplimiento de la <strong>Ley N° 19.628</strong> sobre Protección de la
@@ -45,7 +45,7 @@ export default function PrivacyModal({ onClose }) {
               El responsable del tratamiento de los datos personales recopilados a través de la Plataforma es:
             </p>
             <ul className="mt-2 space-y-0.5 text-left">
-              <li><strong>Razón social:</strong> LocalClick SpA</li>
+              <li><strong>Razón social:</strong> LocalClick S.A.</li>
               <li><strong>Domicilio:</strong> Villarrica, Región de La Araucanía, Chile</li>
               <li><strong>Correo de contacto:</strong> contacto@localclick.cl</li>
               <li><strong>Encargado de Datos Personales:</strong> datos@localclick.cl</li>
@@ -261,7 +261,7 @@ export default function PrivacyModal({ onClose }) {
               el titular puede dirigirse a:
             </p>
             <ul className="mt-2 space-y-0.5 text-left">
-              <li><strong>Encargado de Datos Personales:</strong> LocalClick SpA</li>
+              <li><strong>Encargado de Datos Personales:</strong> LocalClick S.A.</li>
               <li><strong>Correo:</strong> datos@localclick.cl</li>
               <li><strong>Domicilio:</strong> Villarrica, Región de La Araucanía, Chile</li>
             </ul>

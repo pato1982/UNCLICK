@@ -308,7 +308,7 @@ function GeneralPlanCard({ plan, hideRecommended }) {
           <div>
             <h4 className="text-[10px] font-black text-primary uppercase tracking-wider mb-1 border-b border-primary/20 pb-0.5 flex items-center gap-1">
               Pagina propia
-              {plan.highlight && <InfoTooltip text="Tu negocio tendra su propia pagina dentro de Solo a un Click con toda tu informacion, productos y contacto. Podras compartir el enlace directo con tus clientes para que accedan a tu tienda facilmente." />}
+              {plan.highlight && <InfoTooltip text="Tu negocio tendra su propia pagina dentro de LocalClick con toda tu informacion, productos y contacto. Podras compartir el enlace directo con tus clientes para que accedan a tu tienda facilmente." />}
             </h4>
             <div className="space-y-0.5">
               <div className="flex items-center justify-between">
@@ -460,7 +460,7 @@ function TurismoPlanCard({ plan, hideRecommended }) {
           <div>
             <h4 className="text-[10px] font-black text-primary uppercase tracking-wider mb-1 border-b border-primary/20 pb-0.5 flex items-center gap-1">
               Pagina propia
-              {plan.highlight && <InfoTooltip text="Tu negocio de turismo tendra su propia pagina dentro de Solo a un Click con toda tu informacion, tours y contacto. Podras compartir el enlace directo con tus clientes." />}
+              {plan.highlight && <InfoTooltip text="Tu negocio de turismo tendra su propia pagina dentro de LocalClick con toda tu informacion, tours y contacto. Podras compartir el enlace directo con tus clientes." />}
             </h4>
             <div className="space-y-0.5">
               <div className="flex items-center justify-between">

@@ -26,7 +26,7 @@ export default function TermsModal({ onClose }) {
 
           <Section title="1. Aceptación de los Términos">
             <p>
-              Al utilizar la plataforma <strong>Solo a un Click</strong> (en adelante, "la Plataforma" o "el Servicio"),
+              Al utilizar la plataforma <strong>LocalClick</strong> (en adelante, "la Plataforma" o "el Servicio"),
               el usuario (en adelante, "el Cliente", "el Usuario" o "Usted") declara haber leído, comprendido y aceptado
               íntegramente estos Términos y Condiciones, así como la Política de Privacidad. Si no está de acuerdo con
               alguno de los puntos aquí descritos, debe abstenerse de utilizar el Servicio.
@@ -35,7 +35,7 @@ export default function TermsModal({ onClose }) {
 
           <Section title="2. Identificación del Prestador">
             <p>
-              <strong>Solo a un Click SpA</strong> es una sociedad constituida bajo las leyes de la
+              <strong>LocalClick S.A.</strong> es una sociedad constituida bajo las leyes de la
               República de Chile, con domicilio en Villarrica, Región de La Araucanía. La Empresa presta servicios
               digitales de difusión y promoción comercial.
             </p>
@@ -43,7 +43,7 @@ export default function TermsModal({ onClose }) {
 
           <Section title="3. Descripción del Servicio">
             <p>
-              Solo a un Click ofrece una plataforma web que permite a comercios, prestadores de servicios, arrendadores
+              LocalClick ofrece una plataforma web que permite a comercios, prestadores de servicios, arrendadores
               y operadores turísticos publicar y promocionar sus productos, servicios, arriendos y actividades a
               visitantes y consumidores de la zona de Villarrica y alrededores. La Empresa actúa exclusivamente como
               intermediario tecnológico y <strong>no participa de las transacciones</strong> que se concreten entre los

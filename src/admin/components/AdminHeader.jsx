@@ -942,17 +942,14 @@ export default function AdminHeader({ onToggleSidebar }) {
             </button>
           )}
 
-          {/* Logo Solo a un Click a la derecha */}
+          {/* Logo LocalClick a la derecha */}
           <a href="/" className="flex items-center gap-1.5 sm:gap-2 hover:opacity-80 transition-opacity shrink-0">
             <div className={`p-1 sm:p-1.5 rounded-lg leading-none ${isProg ? 'bg-emerald-500/20 text-emerald-400' : 'bg-accent text-primary'}`}>
               <span className="material-symbols-outlined block text-xl sm:text-2xl font-bold">ads_click</span>
             </div>
-            <div className="flex flex-col leading-none">
-              <span className="text-[8px] sm:text-[10px] font-bold uppercase tracking-widest text-white/70">Solo a</span>
-              <span className="text-base sm:text-xl font-black italic tracking-tight text-white">
-                un <span className={`uppercase ${isProg ? 'text-emerald-400' : 'text-accent'}`}>CLICK</span>
-              </span>
-            </div>
+            <span className="text-base sm:text-xl font-black tracking-tight text-white">
+              Local<span className={isProg ? 'text-emerald-400' : 'text-accent'}>Click</span>
+            </span>
           </a>
         </div>
 

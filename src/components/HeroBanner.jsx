@@ -6,7 +6,7 @@ const SLIDES = [
     image: 'https://images.unsplash.com/photo-1701787432237-6abfb090dd4a?auto=format&fit=crop&w=1600&q=80',
     imageMobile: 'https://images.unsplash.com/photo-1701787432237-6abfb090dd4a?auto=format&fit=crop&w=800&h=500&q=75',
     label: 'Villarrica, Chile',
-    title: <>Todo lo que<br />necesitas está<br />a <em className="text-accent not-italic">un Click</em></>,
+    title: <>Todo lo que<br />necesitas está<br />en <em className="text-accent not-italic">LocalClick</em></>,
     sub: 'El marketplace local de Villarrica y sus alrededores',
   },
   {

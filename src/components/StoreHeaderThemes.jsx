@@ -10,9 +10,8 @@ function Brand({ light, mini, onClick }) {
         <span className="material-symbols-outlined text-base sm:text-lg">ads_click</span>
       </span>
       {!mini && (
-        <span className="flex flex-col leading-none text-left">
-          <span className={`text-[8px] font-bold uppercase tracking-widest ${sub}`}>Solo a</span>
-          <span className={`text-sm sm:text-base font-black italic tracking-tight ${main}`}>un <span className="text-accent uppercase">CLICK</span></span>
+        <span className={`text-sm sm:text-base font-black tracking-tight ${main}`}>
+          Local<span className="text-accent">Click</span>
         </span>
       )}
     </span>

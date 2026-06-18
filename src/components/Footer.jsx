@@ -252,7 +252,7 @@ export default function Footer({ onNavigate, onLoginSuccess }) {
 
       <div className="max-w-7xl mx-auto pt-2 mt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-6 md:gap-24">
         <p className="text-white/40 text-[8px] sm:text-[10px] font-bold tracking-widest">
-          &copy; 2026 Solo a un Click. Todos los derechos reservados.
+          &copy; 2026 LocalClick. Todos los derechos reservados.
         </p>
         <p className="text-white/40 text-[8px] sm:text-[10px] font-bold tracking-widest">
           Desarrollado por <span className="text-accent">CH</span>system
