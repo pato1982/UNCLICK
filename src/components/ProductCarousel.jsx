@@ -44,9 +44,15 @@ export default function ProductCarousel({ title, items, sidebarOpen, hidePrice, 
     const cardW = el.querySelector(':first-child')?.offsetWidth || 200
     const gap = parseFloat(window.getComputedStyle(el).columnGap) || 8
     const unit = cardW + gap
-    const target = Math.abs(dx) > SNAP_THRESHOLD
-      ? scrollStart.current + (dx > 0 ? unit : -unit)
-      : Math.round(scrollStart.current / unit) * unit
+    const current = el.scrollLeft
+    let target
+    if (Math.abs(dx) > SNAP_THRESHOLD) {
+      const direction = dx > 0 ? 1 : -1
+      const currentCard = Math.round(current / unit)
+      target = (currentCard + direction) * unit
+    } else {
+      target = Math.round(current / unit) * unit
+    }
     el.scrollTo({ left: Math.max(0, Math.min(el.scrollWidth - el.clientWidth, target)), behavior: 'smooth' })
   }
 
@@ -137,20 +143,17 @@ export default function ProductCarousel({ title, items, sidebarOpen, hidePrice, 
       )}
       <>
       {/* ===== MOBILE: todas las tarjetas en carrusel, 2 por fila, sin destacada fija ===== */}
-      <div className="sm:hidden relative group/carousel">
+      <div className="sm:hidden">
         <div
           ref={mobileScrollRef}
-          className="flex gap-2 overflow-x-hidden scroll-smooth py-1 px-1"
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onPointerLeave={onPointerLeave}
-          style={{ cursor: dragging ? 'grabbing' : 'grab', userSelect: 'none' }}
+          className="flex gap-2 overflow-x-scroll hide-scrollbar py-1 px-1"
+          style={{ scrollSnapType: 'x mandatory' }}
         >
           {items.map((product) => (
             <div
               key={product.id}
               className="shrink-0 w-[calc(50%-4px)] transition-all duration-300"
+              style={{ scrollSnapAlign: 'start' }}
             >
               <ProductCard product={product} hidePrice={hidePrice} onOpenStore={onOpenStore} />
             </div>
@@ -197,17 +200,18 @@ export default function ProductCarousel({ title, items, sidebarOpen, hidePrice, 
 
             <div
               ref={desktopScrollRef}
-              className="flex gap-3 md:gap-4 overflow-x-hidden scroll-smooth"
+              className="flex gap-3 md:gap-4 overflow-x-scroll hide-scrollbar"
               onPointerDown={onPointerDown}
               onPointerMove={onPointerMove}
               onPointerUp={onPointerUp}
               onPointerLeave={onPointerLeave}
-              style={{ cursor: dragging ? 'grabbing' : 'grab', userSelect: 'none' }}
+              style={{ cursor: dragging ? 'grabbing' : 'grab', userSelect: 'none', scrollSnapType: 'x mandatory' }}
             >
               {restItems.map((product) => (
                 <div
                   key={product.id}
                   className={`shrink-0 ${carouselCardWidth} transition-all duration-300`}
+                  style={{ scrollSnapAlign: 'start' }}
                 >
                   <ProductCard product={product} hidePrice={hidePrice} onOpenStore={onOpenStore} />
                 </div>
