@@ -666,7 +666,7 @@ function ProfileModal({ onClose }) {
           <p className="text-[10px] font-bold text-slate-400 uppercase">Gestión de cuenta</p>
         </div>
         <p className="text-xs text-slate-600 leading-relaxed">
-          Desde aquí puedes solicitar la eliminación permanente de tu cuenta y todos sus datos en Aunclick.
+          Desde aquí puedes solicitar la eliminación permanente de tu cuenta y todos sus datos en LocalClick.
         </p>
       </div>
 
