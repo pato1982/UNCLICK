@@ -32,20 +32,6 @@ function isGratis(precio) {
   return lower === 'entrada libre' || lower === 'gratis' || lower === '' || lower === '$0' || lower === '0'
 }
 
-const PLACEHOLDER_EVENTS = [
-  { id: 'ph-e1', title: 'Festival de Verano Villarrica', image: 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=300&q=80', date: '15 Abril', location: 'Plaza de Armas', price: 'Entrada libre', badge: 'Música', badgeColor: 'bg-primary-light text-white' },
-  { id: 'ph-e2', title: 'Feria Gastronómica del Lago', image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=300&q=80', date: '20 Abril', location: 'Costanera', price: '$5.000', badge: 'Gastronomía', badgeColor: 'bg-accent text-primary font-black' },
-  { id: 'ph-e3', title: 'Carrera Trail Volcán 2026', image: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=300&q=80', date: '3 Mayo', location: 'Volcán Lanín', price: '$15.000', badge: 'Deporte', badgeColor: 'bg-red-500 text-white' },
-  { id: 'ph-e4', title: 'Expo Arte Mapuche Local', image: 'https://images.unsplash.com/photo-1541417904950-b855846fe074?w=300&q=80', date: '8 Mayo', location: 'Centro Cultural', price: 'Gratis', badge: 'Cultura', badgeColor: 'bg-primary text-white' },
-  { id: 'ph-e5', title: 'Feria Artesanal de Otoño', image: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=300&q=80', date: '10 Mayo', location: 'Mercado Local', price: 'Gratis', badge: 'Artesanía', badgeColor: 'bg-amber-500 text-white' },
-  { id: 'ph-e6', title: 'Concierto de Folclore', image: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=300&q=80', date: '15 Mayo', location: 'Anfiteatro', price: '$8.000', badge: 'Música', badgeColor: 'bg-primary-light text-white' },
-  { id: 'ph-e7', title: 'Torneo de Pesca Deportiva', image: 'https://images.unsplash.com/photo-1504309092620-4d0ec726efa4?w=300&q=80', date: '18 Mayo', location: 'Lago Villarrica', price: '$10.000', badge: 'Deporte', badgeColor: 'bg-red-500 text-white' },
-  { id: 'ph-e8', title: 'Noche de Cine al Aire Libre', image: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=300&q=80', date: '22 Mayo', location: 'Parque Municipal', price: 'Gratis', badge: 'Familiar', badgeColor: 'bg-blue-400 text-white' },
-  { id: 'ph-e9', title: 'Taller de Cerámica Mapuche', image: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=300&q=80', date: '25 Mayo', location: 'Casa de la Cultura', price: '$3.000', badge: 'Cultura', badgeColor: 'bg-primary text-white' },
-  { id: 'ph-e10', title: 'Festival Cerveza Artesanal', image: 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?w=300&q=80', date: '1 Junio', location: 'Recinto Ferial', price: '$7.000', badge: 'Gastronomía', badgeColor: 'bg-accent text-primary font-black' },
-  { id: 'ph-e11', title: 'Yoga al Amanecer', image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=300&q=80', date: '5 Junio', location: 'Playa Grande', price: 'Gratis', badge: 'Deporte', badgeColor: 'bg-red-500 text-white' },
-  { id: 'ph-e12', title: 'Mercado Navideño Anticipado', image: 'https://images.unsplash.com/photo-1543589077-47d81606c1bf?w=300&q=80', date: '8 Junio', location: 'Plaza Cívica', price: 'Entrada libre', badge: 'Ferias', badgeColor: 'bg-teal-500 text-white' },
-]
 
 function shuffle(arr) {
   const result = [...arr]
@@ -85,18 +71,17 @@ export default function EventsSection({ onViewAll }) {
           horario: e.horario || '',
         }))
         setAllEvents(mapped)
-        const source = mapped.length > 0 ? mapped : PLACEHOLDER_EVENTS
-        setDisplayEvents(shuffle(source).slice(0, 6))
+        setDisplayEvents(shuffle(mapped).slice(0, 6))
       })
       .catch(() => {
         setAllEvents([])
-        setDisplayEvents(shuffle(PLACEHOLDER_EVENTS).slice(0, 6))
+        setDisplayEvents([])
       })
   }, [])
 
   // Rotar cada 10 segundos
   const rotate = useCallback(() => {
-    const source = allEvents.length > 0 ? allEvents : PLACEHOLDER_EVENTS
+    const source = allEvents
     setFading(true)
     setTimeout(() => {
       setDisplayEvents(shuffle(source).slice(0, 6))

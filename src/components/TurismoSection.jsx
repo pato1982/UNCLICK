@@ -2,18 +2,6 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 
 const API = import.meta.env.VITE_API || ''
 
-const PLACEHOLDER_TOURS = [
-  { id: 'ph-t1', nombre: 'Cerro Chapelco', categoria: 'Aventura', ubicacion: 'Villarrica', detalle: 'Día completo en el centro de montaña a 19 km de la ciudad. Vistas panorámicas a los lagos y el Volcán Lanín, con traslados incluidos.', precio: 45000, empresa_nombre: 'Ejemplo', imagenes: ['https://images.unsplash.com/photo-1551632811-561732d1e306?w=400&q=80','https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=400&q=80','https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80'], _isPlaceholder: true },
-  { id: 'ph-t2', nombre: 'Kayak en Lago Lácar', categoria: 'Agua', ubicacion: 'Villarrica', detalle: 'Travesía en kayak por las aguas turquesas del Lago Lácar desde la costanera. Apto para principiantes, con guía y equipo.', precio: 35000, empresa_nombre: 'Ejemplo', imagenes: ['https://images.unsplash.com/photo-1472745942893-4b9f730c7668?w=400&q=80','https://images.unsplash.com/photo-1530866707318-0761c37bc3be?w=400&q=80','https://images.unsplash.com/photo-1526188717906-ab4a2f949f57?w=400&q=80'], _isPlaceholder: true },
-  { id: 'ph-t3', nombre: 'Mirador Bandurrias', categoria: 'Naturaleza', ubicacion: 'Villarrica', detalle: 'Trekking guiado al mirador con la mejor vista panorámica del Lago Lácar y la ciudad. Pasa por comunidad mapuche Curruhuinca.', precio: 18000, empresa_nombre: 'Ejemplo', imagenes: ['https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&q=80','https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=400&q=80','https://images.unsplash.com/photo-1519331379826-f10be5486c6f?w=400&q=80'], _isPlaceholder: true },
-  { id: 'ph-t4', nombre: 'Cascada Chachín', categoria: 'Naturaleza', ubicacion: 'Villarrica', detalle: 'Excursión a la cascada en plena selva valdiviana, vía Lago Hua Hum. Sendero entre bosque nativo y arrayanes.', precio: 30000, empresa_nombre: 'Ejemplo', imagenes: ['https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=400&q=80','https://images.unsplash.com/photo-1551632811-561732d1e306?w=400&q=80','https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=400&q=80'], _isPlaceholder: true },
-  { id: 'ph-t5', nombre: 'Canopy Bosque Andino', categoria: 'Aventura', ubicacion: 'Villarrica', detalle: 'Tirolesas entre las copas de los árboles del bosque andino patagónico. Adrenalina y naturaleza a minutos del centro.', precio: 25000, empresa_nombre: 'Ejemplo', imagenes: ['https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=400&q=80','https://images.unsplash.com/photo-1504309092620-4d0ec726efa4?w=400&q=80','https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?w=400&q=80'], _isPlaceholder: true },
-  { id: 'ph-t6', nombre: 'Playa Catritre', categoria: 'Naturaleza', ubicacion: 'Villarrica', detalle: 'Jornada en la playa de arena volcánica sobre el Lago Lácar, a 4 km de la ciudad. Aguas cristalinas y bosque nativo.', precio: 20000, empresa_nombre: 'Ejemplo', imagenes: ['https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80','https://images.unsplash.com/photo-1472745942893-4b9f730c7668?w=400&q=80','https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&q=80'], _isPlaceholder: true },
-  { id: 'ph-t7', nombre: 'Rafting Río Hua Hum', categoria: 'Agua', ubicacion: 'Villarrica', detalle: 'Descenso por los rápidos del Río Hua Hum rumbo al límite con Chile. Guías profesionales y equipo completo.', precio: 40000, empresa_nombre: 'Ejemplo', imagenes: ['https://images.unsplash.com/photo-1530866707318-0761c37bc3be?w=400&q=80','https://images.unsplash.com/photo-1472745942893-4b9f730c7668?w=400&q=80','https://images.unsplash.com/photo-1526188717906-ab4a2f949f57?w=400&q=80'], _isPlaceholder: true },
-  { id: 'ph-t8', nombre: 'Bosque de Arrayanes Quila Quina', categoria: 'Naturaleza', ubicacion: 'Villarrica', detalle: 'Caminata por la villa lacustre de Quila Quina, sendero del arroyo y playas escondidas del Lago Lácar.', precio: 22000, empresa_nombre: 'Ejemplo', imagenes: ['https://images.unsplash.com/photo-1504309092620-4d0ec726efa4?w=400&q=80','https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=400&q=80','https://images.unsplash.com/photo-1519331379826-f10be5486c6f?w=400&q=80'], _isPlaceholder: true },
-  { id: 'ph-t9', nombre: 'Pesca con Mosca Lago Lolog', categoria: 'Pesca', ubicacion: 'Villarrica', detalle: 'Jornada de pesca deportiva de truchas en el Lago Lolog y ríos cercanos. Equipo, embarcación y guía incluidos.', precio: 55000, empresa_nombre: 'Ejemplo', imagenes: ['https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?w=400&q=80','https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80','https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=400&q=80'], _isPlaceholder: true },
-  { id: 'ph-t10', nombre: 'Cabalgata Cerro Curruhuinca', categoria: 'Aventura', ubicacion: 'Villarrica', detalle: 'Recorrido a caballo por senderos cordilleranos con vistas al Lago Lácar y el Volcán Lanín. Guía baqueano local.', precio: 38000, empresa_nombre: 'Ejemplo', imagenes: ['https://images.unsplash.com/photo-1519331379826-f10be5486c6f?w=400&q=80','https://images.unsplash.com/photo-1551632811-561732d1e306?w=400&q=80','https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?w=400&q=80'], _isPlaceholder: true },
-]
 
 // Mosaic layout: 8 columns × 2 rows
 const LAYOUT = [
@@ -268,18 +256,18 @@ export default function TurismoSection({ onViewAll, onOpenTour }) {
       .then(data => {
         const tours = data.tours || []
         setAllTours(tours)
-        const shuffled = shuffleWithCompanyBalance(tours.length > 0 ? tours : PLACEHOLDER_TOURS)
+        const shuffled = shuffleWithCompanyBalance(tours)
         setDisplayTours(shuffled.slice(0, LAYOUT.length))
       })
       .catch(() => {
         setAllTours([])
-        setDisplayTours(PLACEHOLDER_TOURS.slice(0, LAYOUT.length))
+        setDisplayTours([])
       })
   }, [])
 
   // Rotate collage every 10 seconds
   const rotateTours = useCallback(() => {
-    const source = allTours.length > 0 ? allTours : PLACEHOLDER_TOURS
+    const source = allTours
     setFading(true)
     setTimeout(() => {
       const shuffled = shuffleWithCompanyBalance(source)

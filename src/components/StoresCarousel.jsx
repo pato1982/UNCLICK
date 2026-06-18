@@ -4,14 +4,6 @@ import LocalModal from './LocalModal'
 const API = import.meta.env.VITE_API || ''
 
 
-const PLACEHOLDER_STORES = [
-  { id: 'ph-s1', name: 'Centro Gastronómico', image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=300&q=80', address: 'Costanera, Villarrica', _isPlaceholder: true },
-  { id: 'ph-s2', name: 'Mall y Tiendas', image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=300&q=80', address: 'Centro, Villarrica', _isPlaceholder: true },
-  { id: 'ph-s3', name: 'Barrio Costanera', image: 'https://images.unsplash.com/photo-1580274455191-1c62238fa333?w=300&q=80', address: 'Costanera Norte', _isPlaceholder: true },
-  { id: 'ph-s4', name: 'Servicios Profesionales', image: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=300&q=80', address: 'Centro, Villarrica', _isPlaceholder: true },
-  { id: 'ph-s5', name: 'Oficinas y Cowork', image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=300&q=80', address: 'Av. San Martín', _isPlaceholder: true },
-  { id: 'ph-s6', name: 'Mercado Local', image: 'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=300&q=80', address: 'Feria Municipal', _isPlaceholder: true },
-]
 
 export default function StoresCarousel({ onViewAll }) {
   const [stores, setStores] = useState([])
@@ -105,10 +97,7 @@ export default function StoresCarousel({ onViewAll }) {
       .catch(() => setStores([]))
   }, [])
 
-  const MIN_STORES = 6
-  const displayStores = stores.length >= MIN_STORES
-    ? stores
-    : [...stores, ...PLACEHOLDER_STORES.slice(0, MIN_STORES - stores.length)]
+  const displayStores = stores
 
   const scrollOne = useCallback((direction) => {
     const el = scrollRef.current
