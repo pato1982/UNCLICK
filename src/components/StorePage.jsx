@@ -444,49 +444,46 @@ export function StoreBanner({ store, products, bannerItems, phone, storeUserId }
         </div>
       </div>
 
-      {/* ESCRITORIO/TABLET: mosaico (sin cambios) */}
-      <div className="hidden sm:block relative w-full sm:h-80 md:h-96 overflow-hidden mb-2 rounded-xl" style={{ background: bannerBg }}>
-        {slides.map((slide, i) => {
-          const hasSmall = slide.length > 1
-          return (
-            <div
-              key={i}
-              className={`absolute inset-0 gap-2 p-2 transition-opacity duration-1000 ${hasSmall ? 'grid grid-cols-2 grid-rows-1' : 'flex'}`}
-              style={{ opacity: activeSlide === i ? 1 : 0 }}
-            >
-              {/* Imagen principal izquierda */}
-              {slide[0] && (
-                <div className={`rounded-xl overflow-hidden flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity ${hasSmall ? '' : 'flex-1'}`} style={{ background: bannerBg }} onClick={() => { trackClick(storeUserId, slide[0]?.id); setSelectedProduct(slide[0]) }}>
-                  <img src={slide[0].image} alt={slide[0].alt || slide[0].name} className="w-full h-full object-contain" />
-                </div>
-              )}
-              {/* 4 imágenes derecha en grid 2x2 */}
-              {hasSmall && (
-                <div className="grid grid-cols-2 grid-rows-2 gap-2">
-                  {[1, 2, 3, 4].map((idx) => (
-                    <div key={idx} className="rounded-xl overflow-hidden flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity" style={{ background: bannerBg }} onClick={() => { if (slide[idx]) { trackClick(storeUserId, slide[idx]?.id); setSelectedProduct(slide[idx]) } }}>
-                      {slide[idx] ? (
-                        <img src={slide[idx].image} alt={slide[idx].alt || slide[idx].name} className="w-full h-full object-contain" />
-                      ) : (
-                        <span className="material-symbols-outlined text-xl text-slate-300">image</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )
-        })}
-        {/* Indicadores */}
+      {/* ESCRITORIO/TABLET: 5 tarjetas iguales centradas, fade cada 7s */}
+      <div className="hidden sm:block relative rounded-xl overflow-hidden mb-2" style={{ background: bannerBg }}>
+        {/* Spacer invisible: fija la altura del contenedor según el primer slide */}
+        <div className="invisible flex justify-center gap-3 p-3" aria-hidden>
+          {(slides[0] || []).map((_, i) => (
+            <div key={i} className="shrink-0 w-24 md:w-32 lg:w-40" style={{ aspectRatio: '1' }} />
+          ))}
+        </div>
+        {/* Slides superpuestos con transición de opacidad */}
+        {slides.map((slide, i) => (
+          <div
+            key={i}
+            className="absolute inset-0 flex justify-center items-center gap-3 p-3 transition-opacity duration-1000"
+            style={{ opacity: activeSlide === i ? 1 : 0 }}
+          >
+            {slide.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => { trackClick(storeUserId, item.id); setSelectedProduct(item) }}
+                className="shrink-0 w-24 md:w-32 lg:w-40 rounded-xl overflow-hidden hover:brightness-110 transition-all bg-black/10 cursor-pointer"
+                style={{ aspectRatio: '1' }}
+              >
+                {item.image
+                  ? <img src={item.image} alt={item.alt || item.name} className="w-full h-full object-contain" />
+                  : <div className="w-full h-full flex items-center justify-center">
+                      <span className="material-symbols-outlined text-xl text-slate-300">image</span>
+                    </div>}
+              </button>
+            ))}
+          </div>
+        ))}
+        {/* Indicadores de slide */}
         {slides.length > 1 && (
-          <div className="absolute bottom-2 right-3 flex gap-1.5 z-10">
+          <div className="absolute bottom-1.5 left-0 right-0 flex justify-center gap-1.5 z-10">
             {slides.map((_, i) => (
               <button
                 key={i}
                 onClick={() => { setActiveSlide(i); clearInterval(intervalRef.current) }}
-                className={`h-1.5 rounded-full transition-all ${
-                  activeSlide === i ? 'w-5 bg-accent' : 'w-1.5 bg-white/50'
-                }`}
+                className={`h-1.5 rounded-full transition-all ${activeSlide === i ? 'w-5 bg-accent' : 'w-1.5 bg-white/50'}`}
               />
             ))}
           </div>
