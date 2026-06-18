@@ -872,51 +872,39 @@ export default function App() {
             (() => {
               // Group sections by mockup layout (using sections directly, not shuffledRows)
               const getSection = (id) => sections.find(s => s.id === id)
-              // Home: solo mostrar items de planes pagados (Normal y Premium); páginas filtradas muestran todos
-              const onlyPaid = (items) => items.filter(p => (p.owner_plan_id || 1) >= 1)
-              // Productos: combinar destacados + novedades + tecnología + tendencia, aleatorio sin repetir
-              const productosSections = ['destacados', 'novedades', 'tecnologia', 'tendencia']
-              const realProductos = onlyPaid(productosSections.flatMap(id => (getSection(id)?.items || [])))
-              const allProductos = realProductos
-              // Mezclar aleatoriamente (Fisher-Yates)
-              const shuffled = [...allProductos]
-              for (let i = shuffled.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1))
-                ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+              // Ordenar por prioridad de plan: Premium (3) → Normal (2) → Gratuito (1), aleatorio dentro de cada tier
+              const byPriority = (items) => {
+                const shuffle = (arr) => {
+                  for (let i = arr.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1))
+                    ;[arr[i], arr[j]] = [arr[j], arr[i]]
+                  }
+                  return arr
+                }
+                const p3 = shuffle(items.filter(p => (p.owner_plan_id || 1) >= 3))
+                const p2 = shuffle(items.filter(p => (p.owner_plan_id || 1) === 2))
+                const p1 = shuffle(items.filter(p => (p.owner_plan_id || 1) < 2))
+                return [...p3, ...p2, ...p1]
               }
+              // Productos: combinar destacados + novedades + tecnología + tendencia
+              const productosSections = ['destacados', 'novedades', 'tecnologia', 'tendencia']
+              const realProductos = productosSections.flatMap(id => (getSection(id)?.items || []))
+              const shuffled = byPriority(realProductos)
               // Dividir en 2 filas
               const half = Math.ceil(shuffled.length / 2)
               const prodRow1Items = shuffled.slice(0, half)
               const prodRow2Items = shuffled.slice(half)
-              // Ofertas: combinar ofertas + liquidacion, aleatorio sin repetir
+              // Ofertas: combinar ofertas + liquidacion
               const ofertasSections = ['ofertas', 'liquidacion']
-              const realOfertas = onlyPaid(ofertasSections.flatMap(id => (getSection(id)?.items || [])))
-              const allOfertas = realOfertas
-              const shuffledOfertas = [...allOfertas]
-              for (let i = shuffledOfertas.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1))
-                ;[shuffledOfertas[i], shuffledOfertas[j]] = [shuffledOfertas[j], shuffledOfertas[i]]
-              }
+              const realOfertas = ofertasSections.flatMap(id => (getSection(id)?.items || []))
+              const shuffledOfertas = byPriority(realOfertas)
               const halfOfertas = Math.ceil(shuffledOfertas.length / 2)
               const ofertaRow1Items = shuffledOfertas.slice(0, halfOfertas)
               const ofertaRow2Items = shuffledOfertas.slice(halfOfertas)
-              // Arriendos: aleatorio sin repetir
-              const realArriendos = onlyPaid(getSection('arriendos')?.items || [])
-              const allArriendos = realArriendos
-              const shuffledArriendos = [...allArriendos]
-              for (let i = shuffledArriendos.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1))
-                ;[shuffledArriendos[i], shuffledArriendos[j]] = [shuffledArriendos[j], shuffledArriendos[i]]
-              }
-
-              // Servicios: aleatorio sin repetir
-              const realServicios = onlyPaid(getSection('servicios')?.items || [])
-              const allServicios = realServicios
-              const shuffledServicios = [...allServicios]
-              for (let i = shuffledServicios.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1))
-                ;[shuffledServicios[i], shuffledServicios[j]] = [shuffledServicios[j], shuffledServicios[i]]
-              }
+              // Arriendos
+              const shuffledArriendos = byPriority(getSection('arriendos')?.items || [])
+              // Servicios
+              const shuffledServicios = byPriority(getSection('servicios')?.items || [])
 
               return (
                 <>

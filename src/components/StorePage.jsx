@@ -670,6 +670,31 @@ export default function StorePage({ store, onBack, onOpenStore, mobileCatKey }) 
     )
   }
 
+  // Plan Gratuito General (1): sin página propia
+  const effectivePlan = storeInfo?.plan_id || store.plan_id || 1
+  if (effectivePlan === 1) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-6 py-20 text-center">
+        <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center">
+          <span className="material-symbols-outlined text-3xl text-slate-400">storefront</span>
+        </div>
+        <div className="flex flex-col gap-2">
+          <h3 className="text-sm font-bold text-slate-700">{storeName || 'Esta tienda'}</h3>
+          <p className="text-xs text-slate-400 max-w-xs leading-relaxed">
+            Esta tienda aún no tiene página propia activada. Para contactar, busca sus productos en el marketplace.
+          </p>
+        </div>
+        <button
+          onClick={onBack}
+          className="flex items-center gap-1.5 bg-primary text-white px-5 py-2 rounded-lg text-xs font-bold hover:bg-primary/90 transition-colors"
+        >
+          <span className="material-symbols-outlined text-sm">arrow_back</span>
+          Volver
+        </button>
+      </div>
+    )
+  }
+
   return (
     <>
       {/* Sidebar con categorías y subcategorías (oculto en modo modal) */}
