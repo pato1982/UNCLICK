@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react'
-import DevQuickLogin from './DevQuickLogin'
-import { QA_PASSWORD, resolveQaUser, loginAsQaUser } from '../lib/qaUsers'
 
 const API = import.meta.env.VITE_API || ''
 
@@ -382,26 +380,10 @@ export default function LoginModal({ onClose, onSwitchToRegister, onLoginSuccess
     }
   }, [])
 
-  // Inicia sesión local (mock) con una cuenta de prueba QA, sin backend.
-  const loginLocalQa = (user) => {
-    loginAsQaUser(user)
-    onLoginSuccess(user)
-    onClose()
-  }
-
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setLoading(true)
-
-    // En desarrollo, las cuentas de prueba QA inician sesión en local sin backend.
-    if (import.meta.env.DEV) {
-      const qaUser = resolveQaUser(form.email, form.password)
-      if (qaUser) {
-        loginLocalQa(qaUser)
-        return
-      }
-    }
 
     try {
       const res = await fetch(`${API}/api/v1/auth/login`, {
@@ -571,36 +553,6 @@ export default function LoginModal({ onClose, onSwitchToRegister, onLoginSuccess
                 </button>
               </p>
 
-              {(import.meta.env.DEV || window.location.hostname.includes('stage')) && (
-                <DevQuickLogin
-                  onSelect={(email, password) => setForm({ email, password })}
-                  onLogin={async (email, password) => {
-                    const pwd = password || QA_PASSWORD
-                    // Intentar login real contra el backend primero
-                    try {
-                      const res = await fetch(`${API}/api/v1/auth/login`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        credentials: 'include',
-                        body: JSON.stringify({ email, password: pwd }),
-                      })
-                      const data = await res.json()
-                      if (res.ok && (data.usuario || data.user)) {
-                        const u = data.usuario || data.user
-                        localStorage.removeItem('dev_user_id')
-                        localStorage.setItem('auth_mode', 'real')
-                        localStorage.setItem('user', JSON.stringify(u))
-                        onLoginSuccess(u)
-                        onClose()
-                        return
-                      }
-                    } catch {}
-                    // Fallback: login mock si el backend no está disponible
-                    const qaUser = resolveQaUser(email, QA_PASSWORD)
-                    if (qaUser) loginLocalQa(qaUser)
-                  }}
-                />
-              )}
             </form>
           </>
         )}

@@ -9,7 +9,6 @@
  */
 
 import { addEntry, updateEntry } from './devApiLog'
-import { resolveQaMock, resolvePublicMock } from './qaMockApi'
 
 function toHeadersObject(init) {
   if (!init) return {}
@@ -103,26 +102,6 @@ export function installDevFetchInterceptor() {
       requestHeaders: toHeadersObject(finalConfig.headers),
       requestBody: parseRequestBody(finalConfig.body),
     })
-
-    // Sesión de cuenta de prueba (QA): responder con datos de muestra locales.
-    // Si no hay sesión QA, intentar el mock de endpoints PÚBLICOS (turismo/home),
-    // para ver el sitio lleno de ejemplos en local aunque no se haya iniciado sesión.
-    const reqBody = parseRequestBody(finalConfig.body)
-    const mock = resolveQaMock(urlStr, method, reqBody) ?? resolvePublicMock(urlStr, method, reqBody)
-    if (mock !== null && mock !== undefined) {
-      const body = JSON.stringify(mock)
-      updateEntry(entryId, {
-        status: 200,
-        ok: true,
-        durationMs: Date.now() - startedAt,
-        responseHeaders: { 'content-type': 'application/json', 'x-qa-mock': '1' },
-        responseBody: mock,
-      })
-      return new Response(body, {
-        status: 200,
-        headers: { 'content-type': 'application/json', 'x-qa-mock': '1' },
-      })
-    }
 
     try {
       const res = await originalFetch(input, finalConfig)

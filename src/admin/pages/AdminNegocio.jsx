@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
 import StoreHeaderThemed from '../../components/StoreHeaderThemes'
-import { writeHeaderOverride } from '../../lib/qaMockData'
 
 const API = import.meta.env.VITE_API || ''
 const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
@@ -122,8 +121,6 @@ export default function AdminNegocio() {
 
   const handleLogoSizeChange = (newSize) => {
     setLogoSize(newSize)
-    // Actualizar mock local para que la página del negocio refleje el cambio en modo dev
-    if (user.id) writeHeaderOverride(user.id, { logo_size: newSize })
     clearTimeout(sizeTimerRef.current)
     sizeTimerRef.current = setTimeout(async () => {
       setSavingSize(true)

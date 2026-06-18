@@ -35,7 +35,7 @@ function diagnoseCause(entry) {
     return {
       level: 'warn',
       icon: '👤',
-      text: 'Sin autenticación — seleccionar un usuario en el DevUserSwitcher (esquina superior izq.) o verificar que dev_user_id esté en localStorage',
+      text: 'Sin autenticación — verificar que dev_user_id esté en localStorage o iniciar sesión',
     }
   }
 
