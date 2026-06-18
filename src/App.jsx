@@ -873,7 +873,7 @@ export default function App() {
               // Group sections by mockup layout (using sections directly, not shuffledRows)
               const getSection = (id) => sections.find(s => s.id === id)
               // Home: solo mostrar items de planes pagados (Normal y Premium); páginas filtradas muestran todos
-              const onlyPaid = (items) => items.filter(p => (p.owner_plan_id || 1) >= 2)
+              const onlyPaid = (items) => items.filter(p => (p.owner_plan_id || 1) >= 1)
               // Productos: combinar destacados + novedades + tecnología + tendencia, aleatorio sin repetir
               const productosSections = ['destacados', 'novedades', 'tecnologia', 'tendencia']
               const realProductos = onlyPaid(productosSections.flatMap(id => (getSection(id)?.items || [])))
