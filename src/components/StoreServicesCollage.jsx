@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 
 const ROTATION_MS = 6000
-const VISIBLE_DESKTOP = 4
+const VISIBLE_DESKTOP = 5
 const VISIBLE_TABLET = 2
 const VISIBLE_MOBILE = 2
 
