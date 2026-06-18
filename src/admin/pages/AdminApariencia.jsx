@@ -322,7 +322,7 @@ export default function AdminApariencia() {
     setSaving(false)
   }
 
-  const cfgFull = { ...form, logo, logo_size: logoSize }
+  const cfgFull = { ...form, logo, logo_size: logoSize, plan_id: user.plan_id }
 
   if (!isPremium) {
     return (
