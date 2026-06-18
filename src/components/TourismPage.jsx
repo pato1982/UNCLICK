@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+﻿import { useState, useEffect, useRef } from 'react'
 
 const API = import.meta.env.VITE_API || ''
 
@@ -192,7 +192,7 @@ function TourModal({ tour, onClose }) {
             {/* Mobile: carrusel de 1 imagen con flechas */}
             <div className="sm:hidden relative">
               <div className="rounded-lg overflow-hidden">
-                <img src={imgs[currentImg]} alt={`${tour.nombre} ${currentImg + 1}`} className="w-full h-48 object-cover"
+                <img src={imgs[currentImg]} alt={`${tour.nombre} ${currentImg + 1}`} className="w-full h-48 object-contain"
                   style={crops[currentImg] && (crops[currentImg].zoom > 1 || crops[currentImg].x || crops[currentImg].y) ? {
                     transform: `scale(${crops[currentImg].zoom}) translate(${crops[currentImg].x / crops[currentImg].zoom}px, ${crops[currentImg].y / crops[currentImg].zoom}px)`,
                     transformOrigin: 'center center',
@@ -221,7 +221,7 @@ function TourModal({ tour, onClose }) {
                 const c = crops[i]
                 return (
                   <div key={i} className="rounded-lg overflow-hidden">
-                    <img src={src} alt={`${tour.nombre} ${i + 1}`} className="w-full h-36 object-cover"
+                    <img src={src} alt={`${tour.nombre} ${i + 1}`} className="w-full h-36 object-contain"
                       style={c && (c.zoom > 1 || c.x || c.y) ? {
                         transform: `scale(${c.zoom}) translate(${c.x / c.zoom}px, ${c.y / c.zoom}px)`,
                         transformOrigin: 'center center',
@@ -406,7 +406,7 @@ function CompanyDetail({ company, onBack, activeFilter, onClearFilter, initialTo
                     className="cursor-pointer group rounded-xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-md transition-shadow"
                   >
                     {imagen ? (
-                      <img src={imagen} alt={tour.nombre} className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
+                      <img src={imagen} alt={tour.nombre} className="w-full h-32 object-contain"
                         style={imgCrop && (imgCrop.zoom > 1 || imgCrop.x || imgCrop.y) ? {
                           transform: `scale(${imgCrop.zoom}) translate(${imgCrop.x / imgCrop.zoom}px, ${imgCrop.y / imgCrop.zoom}px)`,
                           transformOrigin: 'center center',
@@ -861,3 +861,4 @@ export default function TourismPage({ activeFilter, onClearFilter, onEmpresaCate
     </div>
   )
 }
+

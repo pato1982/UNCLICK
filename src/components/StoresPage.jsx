@@ -42,7 +42,7 @@ function StoreCard({ store }) {
           <img
             src={store.image}
             alt={store.name}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            className="w-full h-full object-contain"
           />
           {store.type && (
             <span className="absolute top-1 right-1 sm:top-2 sm:right-2 bg-primary/80 backdrop-blur text-white px-1.5 sm:px-2 py-0.5 rounded-full text-[7px] sm:text-[8px] font-bold uppercase tracking-wider">

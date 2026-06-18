@@ -12,7 +12,7 @@ function ServiceModal({ service, onClose }) {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden" onClick={(e) => e.stopPropagation()}>
         <div className="relative w-full" style={{ aspectRatio: '4 / 3' }}>
           {service.image ? (
-            <img src={service.image} alt={service.name} className="w-full h-full object-cover" />
+            <img src={service.image} alt={service.name} className="w-full h-full object-contain" />
           ) : (
             <div className="w-full h-full bg-slate-200 flex items-center justify-center">
               <span className="material-symbols-outlined text-5xl text-slate-400">work</span>

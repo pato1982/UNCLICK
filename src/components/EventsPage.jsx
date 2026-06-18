@@ -44,7 +44,7 @@ function EventCard({ event }) {
           <img
             src={event.image}
             alt={event.title}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            className="w-full h-full object-contain"
           />
           <span className={`absolute top-1 left-1 sm:top-2 sm:left-2 ${event.badgeColor} px-1 sm:px-2 py-0.5 rounded-full text-[6px] sm:text-[8px] font-black uppercase tracking-wider shadow`}>
             {event.badge}

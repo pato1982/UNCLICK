@@ -62,7 +62,7 @@ export function ProductModal({ product, hidePrice, inStorePage, onClose, onOpenS
           <img
             src={product.image}
             alt={product.alt}
-            className="w-full h-full object-cover bg-slate-100"
+            className="w-full h-full object-contain bg-slate-100"
           />
           {product.badge && (
             <span className="absolute top-2 left-2 px-2 py-0.5 bg-primary text-white rounded-full text-[8px] font-bold shadow">{product.badge}</span>
@@ -223,7 +223,7 @@ export default function ProductCard({ product, hidePrice, isFirst, onOpenStore, 
         <div className="relative w-full bg-slate-50 overflow-hidden" style={{ aspectRatio: '4/3' }}>
           <img
             alt={product.alt}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            className="w-full h-full object-contain"
             src={product.image}
           />
           {isFirst && (

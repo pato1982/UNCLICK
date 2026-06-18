@@ -172,7 +172,7 @@ export default function StoresCarousel({ onViewAll }) {
                 <img
                   src={store.image}
                   alt={store.name}
-                  className="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-500"
+                  className="w-full h-full object-contain"
                 />
               </div>
               <div className="px-2 py-2 sm:px-3 sm:py-2.5">

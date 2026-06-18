@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+﻿import { useState, useEffect, useRef, useCallback } from 'react'
 import ProductCard from './ProductCard'
 import StoreServicesCollage from './StoreServicesCollage'
 import { softenColor, menuAccent, getStoreHeaderStyle } from '../lib/storeHeaderPresets'
@@ -196,7 +196,7 @@ function MarqueeModal({ product, phone, onClose }) {
         </button>
         <div className="flex flex-col md:flex-row md:min-h-[220px]">
           <div className="md:w-[50%] h-64 md:h-auto shrink-0 p-1">
-            <img src={product.image} alt={product.alt || product.name} className="w-full h-full object-cover rounded-tr-xl bg-slate-100" />
+            <img src={product.image} alt={product.alt || product.name} className="w-full h-full object-contain rounded-tr-xl bg-slate-100" />
           </div>
           <div className="md:w-[50%] p-3 flex flex-col flex-1">
             <h3 className="text-sm font-black text-primary text-center mb-2 shrink-0 line-clamp-2">
@@ -437,7 +437,7 @@ export function StoreBanner({ store, products, bannerItems, phone, storeUserId }
               className="shrink-0 w-[calc((100%-0.75rem)/3)] aspect-square rounded-lg overflow-hidden snap-start bg-black/10"
             >
               {item.image
-                ? <img src={item.image} alt={item.alt || item.name} className="w-full h-full object-cover" />
+                ? <img src={item.image} alt={item.alt || item.name} className="w-full h-full object-contain" />
                 : <span className="material-symbols-outlined text-xl text-slate-300 flex items-center justify-center h-full">image</span>}
             </button>
           ))}
@@ -457,7 +457,7 @@ export function StoreBanner({ store, products, bannerItems, phone, storeUserId }
               {/* Imagen principal izquierda */}
               {slide[0] && (
                 <div className={`rounded-xl overflow-hidden flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity ${hasSmall ? '' : 'flex-1'}`} style={{ background: bannerBg }} onClick={() => { trackClick(storeUserId, slide[0]?.id); setSelectedProduct(slide[0]) }}>
-                  <img src={slide[0].image} alt={slide[0].alt || slide[0].name} className="w-full h-full object-cover" />
+                  <img src={slide[0].image} alt={slide[0].alt || slide[0].name} className="w-full h-full object-contain" />
                 </div>
               )}
               {/* 4 imágenes derecha en grid 2x2 */}
@@ -466,7 +466,7 @@ export function StoreBanner({ store, products, bannerItems, phone, storeUserId }
                   {[1, 2, 3, 4].map((idx) => (
                     <div key={idx} className="rounded-xl overflow-hidden flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity" style={{ background: bannerBg }} onClick={() => { if (slide[idx]) { trackClick(storeUserId, slide[idx]?.id); setSelectedProduct(slide[idx]) } }}>
                       {slide[idx] ? (
-                        <img src={slide[idx].image} alt={slide[idx].alt || slide[idx].name} className="w-full h-full object-cover" />
+                        <img src={slide[idx].image} alt={slide[idx].alt || slide[idx].name} className="w-full h-full object-contain" />
                       ) : (
                         <span className="material-symbols-outlined text-xl text-slate-300">image</span>
                       )}
@@ -1023,3 +1023,4 @@ export default function StorePage({ store, onBack, onOpenStore, mobileCatKey }) 
     </>
   )
 }
+

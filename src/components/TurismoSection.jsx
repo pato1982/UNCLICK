@@ -93,7 +93,7 @@ function TourModal({ tour, onClose, onOpenTour }) {
             <img
               src={imgs[currentImg]}
               alt={`${tour.nombre} ${currentImg + 1}`}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
               style={crops[currentImg] && (crops[currentImg].zoom > 1 || crops[currentImg].x || crops[currentImg].y) ? {
                 transform: `scale(${crops[currentImg].zoom}) translate(${crops[currentImg].x / crops[currentImg].zoom}px, ${crops[currentImg].y / crops[currentImg].zoom}px)`,
                 transformOrigin: 'center center',
