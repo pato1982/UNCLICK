@@ -74,12 +74,12 @@ export default function ImageGallery({ images = [], alt = '', height = 'h-52 sm:
       </button>
 
       {/* Dots */}
-      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-10">
         {imgs.map((_, i) => (
           <button
             key={i}
             onClick={() => setCurrent(i)}
-            className={`h-1.5 rounded-full transition-all duration-300 ${i === current ? 'bg-white w-4' : 'bg-white/50 w-1.5'}`}
+            className={`rounded-full transition-all duration-300 shadow-md ${i === current ? 'w-6 h-3 bg-accent' : 'w-3 h-3 bg-white/70'}`}
           />
         ))}
       </div>
