@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import {
   STORE_HEADER_PRESETS,
   NAV_STYLES,
@@ -194,10 +194,7 @@ export default function AdminApariencia() {
   const [serviceItems, setServiceItems] = useState([])
   const [arriendoItems, setArriendoItems] = useState([])
   const [logo, setLogo] = useState('')
-  const [logoSize, setLogoSize] = useState(3)
   const [uploadingLogo, setUploadingLogo] = useState(false)
-  const [savingSize, setSavingSize] = useState(false)
-  const sizeTimerRef = useRef(null)
 
   useEffect(() => {
     fetch(`${API}/api/v1/business`, { credentials: 'include' })
@@ -216,9 +213,9 @@ export default function AdminApariencia() {
           sidebar_style: b.sidebar_style || DEFAULT_HEADER.sidebar_style,
           nav_color: b.nav_color || DEFAULT_HEADER.nav_color,
           nav_style: b.nav_style || DEFAULT_HEADER.nav_style,
+          logo_size: b.logo_size ?? 3,
         })
         setLogo(b.logo_url || '')
-        setLogoSize(b.logo_size ?? 3)
       })
       .catch(() => {})
       .finally(() => setLoading(false))
@@ -282,23 +279,6 @@ export default function AdminApariencia() {
     e.target.value = ''
   }
 
-  const handleLogoSizeChange = (newSize) => {
-    setLogoSize(newSize)
-    clearTimeout(sizeTimerRef.current)
-    sizeTimerRef.current = setTimeout(async () => {
-      setSavingSize(true)
-      try {
-        await fetch(`${API}/api/v1/business`, {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ logo_size: newSize }),
-        })
-      } catch {}
-      setSavingSize(false)
-    }, 600)
-  }
-
   const handleSave = async () => {
     setSaving(true)
     setError('')
@@ -322,7 +302,7 @@ export default function AdminApariencia() {
     setSaving(false)
   }
 
-  const cfgFull = { ...form, logo, logo_size: logoSize, plan_id: user.plan_id }
+  const cfgFull = { ...form, logo, plan_id: user.plan_id }
 
   if (!isPremium) {
     return (
@@ -542,8 +522,8 @@ export default function AdminApariencia() {
                       <div className="flex items-center gap-3">
                         <button
                           type="button"
-                          onClick={() => handleLogoSizeChange(Math.max(1, logoSize - 1))}
-                          disabled={logoSize <= 1 || savingSize}
+                          onClick={() => update('logo_size', Math.max(1, (form.logo_size ?? 3) - 1))}
+                          disabled={(form.logo_size ?? 3) <= 1}
                           className="w-7 h-7 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary disabled:opacity-30 transition-colors font-bold text-base leading-none"
                         >−</button>
                         <div className="flex items-center gap-1.5">
@@ -551,24 +531,22 @@ export default function AdminApariencia() {
                             <button
                               key={n}
                               type="button"
-                              onClick={() => handleLogoSizeChange(n)}
-                              className={`w-2.5 h-2.5 rounded-full transition-all ${n <= logoSize ? 'bg-primary scale-110' : 'bg-gray-200 hover:bg-gray-300'}`}
+                              onClick={() => update('logo_size', n)}
+                              className={`w-2.5 h-2.5 rounded-full transition-all ${n <= (form.logo_size ?? 3) ? 'bg-primary scale-110' : 'bg-gray-200 hover:bg-gray-300'}`}
                             />
                           ))}
                         </div>
                         <button
                           type="button"
-                          onClick={() => handleLogoSizeChange(Math.min(5, logoSize + 1))}
-                          disabled={logoSize >= 5 || savingSize}
+                          onClick={() => update('logo_size', Math.min(5, (form.logo_size ?? 3) + 1))}
+                          disabled={(form.logo_size ?? 3) >= 5}
                           className="w-7 h-7 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary disabled:opacity-30 transition-colors font-bold text-base leading-none"
                         >+</button>
                         <span className="text-xs font-semibold text-gray-400 w-4">
-                          {['', 'XS', 'S', 'M', 'L', 'XL'][logoSize]}
+                          {['', 'XS', 'S', 'M', 'L', 'XL'][form.logo_size ?? 3]}
                         </span>
-                        {savingSize && (
-                          <span className="material-symbols-outlined text-xs text-primary animate-spin">progress_activity</span>
-                        )}
                       </div>
+                      <p className="text-[10px] text-slate-400 mt-1.5">El cambio se guarda al presionar "Guardar cambios".</p>
                     </div>
                   )}
                 </div>
