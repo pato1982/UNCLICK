@@ -158,71 +158,101 @@ export default function StoreServicesCollage({ items, bgColor }) {
     restartTimer()
   }
 
-  return (
-    <div className="relative overflow-hidden rounded-2xl mb-4" style={{ background: transparent ? 'transparent' : color }}>
-      {!transparent && visibleItems[0] && visibleItems[0].image && (
-        <>
-          <img
-            src={visibleItems[0].image}
-            alt=""
-            aria-hidden
-            className="absolute inset-0 w-full h-full object-cover opacity-20"
-            style={{ filter: 'blur(4px)', transform: 'scale(1.05)' }}
-          />
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(0,0,0,0.8) 35%, rgba(0,0,0,0.5) 100%)' }} />
-        </>
-      )}
+  // Cuando hay menos ítems que columnas disponibles, centrar con fondo ajustado a las tarjetas
+  const fewItems = total < visibleCount
 
-      <div className="relative z-10 p-3 sm:p-4">
-        <div className="relative">
-          <div
-            className="grid gap-3"
-            style={{ gridTemplateColumns: `repeat(${Math.min(visibleCount, total)}, minmax(0, 1fr))` }}
-          >
-            {visibleItems.map((service, i) => (
-              <ServiceCard
-                key={`${service.id}-${index}-${i}`}
-                service={service}
-                onClick={() => setSelected(service)}
-              />
-            ))}
+  // Ancho fijo por tarjeta para el modo centrado (fewItems)
+  // Desktop (visibleCount=4): 200px → 2 tarjetas = ~436px centradas en pantalla amplia
+  // Tablet/móvil (visibleCount=2): 44vw capped a 200px → se adapta al viewport
+  const cardStyle = fewItems
+    ? { width: visibleCount >= 4 ? '200px' : '44vw', maxWidth: '210px', minWidth: '130px' }
+    : {}
+
+  const bgContent = !transparent && visibleItems[0] && visibleItems[0].image && (
+    <>
+      <img
+        src={visibleItems[0].image}
+        alt=""
+        aria-hidden
+        className="absolute inset-0 w-full h-full object-cover opacity-20"
+        style={{ filter: 'blur(4px)', transform: 'scale(1.05)' }}
+      />
+      <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(0,0,0,0.8) 35%, rgba(0,0,0,0.5) 100%)' }} />
+    </>
+  )
+
+  return (
+    <div className={`mb-4 ${fewItems ? 'flex justify-center' : ''}`}>
+      <div
+        className="relative overflow-hidden rounded-2xl"
+        style={{
+          background: transparent ? 'transparent' : color,
+          width: fewItems ? 'auto' : '100%'
+        }}
+      >
+        {bgContent}
+
+        <div className="relative z-10 p-3 sm:p-4">
+          <div className="relative">
+            {fewItems ? (
+              <div className="flex gap-3">
+                {visibleItems.map((service, i) => (
+                  <div key={`${service.id}-${index}-${i}`} style={cardStyle}>
+                    <ServiceCard service={service} onClick={() => setSelected(service)} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div
+                className="grid gap-3"
+                style={{ gridTemplateColumns: `repeat(${Math.min(visibleCount, total)}, minmax(0, 1fr))` }}
+              >
+                {visibleItems.map((service, i) => (
+                  <ServiceCard
+                    key={`${service.id}-${index}-${i}`}
+                    service={service}
+                    onClick={() => setSelected(service)}
+                  />
+                ))}
+              </div>
+            )}
+
+            {canRotate && (
+              <>
+                <button
+                  onClick={handlePrev}
+                  className="absolute left-1 sm:-left-2 top-1/2 -translate-y-1/2 h-9 w-9 sm:h-10 sm:w-10 bg-white/90 hover:bg-white text-primary rounded-full shadow-xl flex items-center justify-center transition-colors z-10"
+                  aria-label="Anterior"
+                >
+                  <span className="material-symbols-outlined text-xl">chevron_left</span>
+                </button>
+                <button
+                  onClick={handleNext}
+                  className="absolute right-1 sm:-right-2 top-1/2 -translate-y-1/2 h-9 w-9 sm:h-10 sm:w-10 bg-white/90 hover:bg-white text-primary rounded-full shadow-xl flex items-center justify-center transition-colors z-10"
+                  aria-label="Siguiente"
+                >
+                  <span className="material-symbols-outlined text-xl">chevron_right</span>
+                </button>
+              </>
+            )}
           </div>
 
           {canRotate && (
-            <>
-              <button
-                onClick={handlePrev}
-                className="absolute left-1 sm:-left-2 top-1/2 -translate-y-1/2 h-9 w-9 sm:h-10 sm:w-10 bg-white/90 hover:bg-white text-primary rounded-full shadow-xl flex items-center justify-center transition-colors z-10"
-                aria-label="Anterior"
-              >
-                <span className="material-symbols-outlined text-xl">chevron_left</span>
-              </button>
-              <button
-                onClick={handleNext}
-                className="absolute right-1 sm:-right-2 top-1/2 -translate-y-1/2 h-9 w-9 sm:h-10 sm:w-10 bg-white/90 hover:bg-white text-primary rounded-full shadow-xl flex items-center justify-center transition-colors z-10"
-                aria-label="Siguiente"
-              >
-                <span className="material-symbols-outlined text-xl">chevron_right</span>
-              </button>
-            </>
+            <div className="flex justify-center gap-1.5 mt-3">
+              {items.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => { setIndex(i); restartTimer() }}
+                  className={`h-1.5 rounded-full transition-all ${i === index ? 'w-5 bg-accent' : 'w-1.5 bg-white/30 hover:bg-white/50'}`}
+                  aria-label={`Ir al servicio ${i + 1}`}
+                />
+              ))}
+            </div>
           )}
         </div>
 
-        {canRotate && (
-          <div className="flex justify-center gap-1.5 mt-3">
-            {items.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => { setIndex(i); restartTimer() }}
-                className={`h-1.5 rounded-full transition-all ${i === index ? 'w-5 bg-accent' : 'w-1.5 bg-white/30 hover:bg-white/50'}`}
-                aria-label={`Ir al servicio ${i + 1}`}
-              />
-            ))}
-          </div>
-        )}
+        {selected && <ServiceModal service={selected} onClose={() => setSelected(null)} />}
       </div>
-
-      {selected && <ServiceModal service={selected} onClose={() => setSelected(null)} />}
     </div>
   )
 }
