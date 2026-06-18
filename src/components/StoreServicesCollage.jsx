@@ -58,7 +58,7 @@ function ServiceCard({ service, onClick }) {
     <div
       onClick={onClick}
       className="relative rounded-xl overflow-hidden cursor-pointer group bg-slate-800 shadow-lg"
-      style={{ aspectRatio: '3 / 4' }}
+      style={{ aspectRatio: '3 / 4', maxHeight: '300px' }}
     >
       {service.image ? (
         <img
