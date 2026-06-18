@@ -696,6 +696,16 @@ export default function App() {
 
               return (
                 <div>
+                  {scrolled && (
+                    <button
+                      onClick={goHome}
+                      aria-label="Inicio"
+                      className="sm:hidden fixed right-3 z-50 flex items-center justify-center h-11 w-11 rounded-full bg-accent text-primary shadow-lg hover:brightness-110 active:scale-95 transition-all"
+                      style={{ top: headerH + 10 }}
+                    >
+                      <span className="material-symbols-outlined text-xl">home</span>
+                    </button>
+                  )}
                   <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
                     <button onClick={goHome} className="hidden sm:flex items-center gap-1 text-primary hover:text-accent transition-colors text-[10px] sm:text-xs font-bold">
                       <span className="material-symbols-outlined text-sm">arrow_back</span>
