@@ -518,6 +518,7 @@ export default function App() {
 
 
   const handleViewAll = (section) => {
+    setCurrentPage(null)
     setActiveSection(section)
     setActiveFilter(null)
     window.scrollTo({ top: 0, behavior: 'smooth' })
