@@ -987,8 +987,9 @@ export default function StorePage({ store, onBack, onOpenStore, mobileCatKey }) 
                   }
 
                   // Servicios y arriendos en planes pagados (Normal/Premium): collage rotativo en lugar de grid
-                  const useServicesCollage = tipo === 'servicio' && ownerPlan >= 2
-                  const useArriendosCollage = tipo === 'arriendo' && ownerPlan >= 2
+                  // Solo si hay 2+ ítems; con 1 solo ítem el collage queda gigante (ocupa todo el ancho en portrait)
+                  const useServicesCollage = tipo === 'servicio' && ownerPlan >= 2 && items.length >= 2
+                  const useArriendosCollage = tipo === 'arriendo' && ownerPlan >= 2 && items.length >= 2
                   const useCollage = useServicesCollage || useArriendosCollage
                   const collageColor = tipo === 'arriendo' ? store.arriendos_color : store.services_color
 
