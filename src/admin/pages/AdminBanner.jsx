@@ -1,7 +1,7 @@
 ﻿import { useState, useEffect, useRef, useCallback } from 'react'
 
 const API = import.meta.env.VITE_API || ''
-const MAX_PER_SLIDE = 5
+const MAX_PER_SLIDE = 8
 
 const TALLAS_CALZADO = ['20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35','36','37','38','39','40','41','42','43','44','45','46']
 const TALLAS_ROPA = ['2','4','6','8','10','12','14','16','XS','S','M','L','XL','XXL','XXXL']
@@ -92,8 +92,8 @@ function ImageCropper({ src, pos, onPosChange, naturalW, naturalH, scale, onScal
 function BannerPreview({ items }) {
   const [previewSlide, setPreviewSlide] = useState(0)
 
-  const slide1 = items.filter(i => i.orden >= 1 && i.orden <= 5).sort((a, b) => a.orden - b.orden)
-  const slide2 = items.filter(i => i.orden >= 6 && i.orden <= 10).sort((a, b) => a.orden - b.orden)
+  const slide1 = items.filter(i => i.orden >= 1 && i.orden <= 8).sort((a, b) => a.orden - b.orden)
+  const slide2 = items.filter(i => i.orden >= 9 && i.orden <= 16).sort((a, b) => a.orden - b.orden)
   const slides = [slide1, slide2].filter(s => s.length >= 1)
 
   useEffect(() => {
@@ -103,61 +103,51 @@ function BannerPreview({ items }) {
   }, [slides.length])
 
   if (slides.length === 0) return (
-    <div className="w-full h-48 sm:h-72 rounded-lg border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-2 bg-gray-50">
+    <div className="w-full rounded-lg border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-2 bg-gray-50 py-10">
       <span className="material-symbols-outlined text-3xl text-gray-300">photo_library</span>
       <p className="text-xs text-gray-400">Agrega productos para ver la vista previa del banner</p>
     </div>
   )
 
   return (
-    <div className="relative w-full h-64 sm:h-80 overflow-hidden rounded-xl shadow-sm" style={{ background: '#1a1220' }}>
-      {slides.map((slide, i) => {
-        const hasSmall = slide.length > 1
-        return (
-          <div
-            key={i}
-            className={`absolute inset-0 gap-2 p-2 transition-opacity duration-1000 ${hasSmall ? 'grid grid-cols-2 grid-rows-1' : 'flex'}`}
-            style={{ opacity: previewSlide === i ? 1 : 0 }}
-          >
-            {/* Imagen principal izquierda */}
-            {slide[0] && (
-              <div className={`rounded-xl overflow-hidden flex items-center justify-center ${hasSmall ? '' : 'flex-1'}`} style={{ background: '#1a1220' }}>
-                {slide[0].imagenPreview ? (
-                  <img src={slide[0].imagenPreview} alt={slide[0].nombre} className="w-full h-full object-cover"
-                    style={{
-                      objectPosition: `${slide[0].posX ?? 50}% ${slide[0].posY ?? 50}%`,
-                      transform: `scale(${slide[0].scale ?? 1})`,
-                      transformOrigin: 'center center',
-                    }} />
-                ) : (
-                  <span className="material-symbols-outlined text-3xl text-white/30">image</span>
-                )}
-              </div>
-            )}
-            {/* 4 imágenes derecha en grid 2x2 */}
-            {hasSmall && (
-              <div className="grid grid-cols-2 grid-rows-2 gap-2">
-                {[1, 2, 3, 4].map(idx => (
-                  <div key={idx} className="rounded-xl overflow-hidden flex items-center justify-center" style={{ background: '#1a1220' }}>
-                    {slide[idx]?.imagenPreview ? (
-                      <img src={slide[idx].imagenPreview} alt={slide[idx].nombre} className="w-full h-full object-cover"
-                        style={{
-                          objectPosition: `${slide[idx].posX ?? 50}% ${slide[idx].posY ?? 50}%`,
-                          transform: `scale(${slide[idx].scale ?? 1})`,
-                          transformOrigin: 'center center',
-                        }} />
-                    ) : (
-                      <span className="material-symbols-outlined text-xl text-white/20">image</span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )
-      })}
+    <div className="relative w-full overflow-hidden rounded-xl shadow-sm" style={{ background: '#1a1220' }}>
+      {/* Spacer invisible: fija la altura según el primer slide */}
+      <div className="invisible flex gap-2 p-3" aria-hidden>
+        {(slides[0] || []).map((_, i) => (
+          <div key={i} style={{ flex: '1 1 0', aspectRatio: '1' }} />
+        ))}
+      </div>
+      {/* Slides superpuestos con fade */}
+      {slides.map((slide, i) => (
+        <div
+          key={i}
+          className="absolute inset-0 flex items-center gap-2 p-3 transition-opacity duration-1000"
+          style={{ opacity: previewSlide === i ? 1 : 0 }}
+        >
+          {slide.map((item) => (
+            <div
+              key={item.id}
+              className="rounded-lg overflow-hidden bg-black/20"
+              style={{ flex: '1 1 0', aspectRatio: '1' }}
+            >
+              {item.imagenPreview ? (
+                <img src={item.imagenPreview} alt={item.nombre} className="w-full h-full object-cover"
+                  style={{
+                    objectPosition: `${item.posX ?? 50}% ${item.posY ?? 50}%`,
+                    transform: `scale(${item.scale ?? 1})`,
+                    transformOrigin: 'center center',
+                  }} />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <span className="material-symbols-outlined text-white/20 text-sm">image</span>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      ))}
       {slides.length > 1 && (
-        <div className="absolute bottom-2 right-3 flex gap-1.5 z-10">
+        <div className="absolute bottom-1.5 left-0 right-0 flex justify-center gap-1.5 z-10">
           {slides.map((_, i) => (
             <button key={i} onClick={() => setPreviewSlide(i)}
               className={`h-1.5 rounded-full transition-all ${previewSlide === i ? 'w-5 bg-accent' : 'w-1.5 bg-white/50'}`} />
@@ -495,7 +485,7 @@ export default function AdminBanner() {
           </div>
 
           {/* Grid de productos */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-2 sm:gap-3">
             {/* Tarjeta agregar */}
             {slideItems.length < MAX_PER_SLIDE && (
               <button onClick={openModal}

@@ -13,7 +13,7 @@ const ALL_SECCIONES = [
 ]
 
 const PLAN_LIMITS = { 1: 5, 2: 25, 3: 100 }
-const PLAN_BANNER = { 1: 0, 2: 0, 3: 10 }
+const PLAN_BANNER = { 1: 0, 2: 0, 3: 16 }
 const PLAN_NAMES = { 1: 'Gratuito', 2: 'Normal', 3: 'Premium' }
 
 const COLOR_MAP = {
