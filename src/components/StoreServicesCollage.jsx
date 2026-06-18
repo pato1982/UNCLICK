@@ -57,39 +57,39 @@ function ServiceCard({ service, onClick }) {
   return (
     <div
       onClick={onClick}
-      className="relative rounded-xl overflow-hidden cursor-pointer group bg-slate-800 shadow-lg"
-      style={{ aspectRatio: '3 / 4', maxHeight: '300px' }}
+      className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all flex flex-col cursor-pointer group border border-slate-100"
     >
-      {service.image ? (
-        <img
-          src={service.image}
-          alt={service.name}
-          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-        />
-      ) : (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="material-symbols-outlined text-4xl text-slate-500">work</span>
-        </div>
-      )}
-      <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 50%, transparent 100%)' }} />
-      <div className="absolute bottom-0 left-0 right-0 p-3">
+      <div className="w-full bg-slate-50" style={{ aspectRatio: '4 / 3' }}>
+        {service.image ? (
+          <img
+            src={service.image}
+            alt={service.name}
+            className="w-full h-full object-contain"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <span className="material-symbols-outlined text-4xl text-slate-300">work</span>
+          </div>
+        )}
+      </div>
+      <div className="px-2 py-2 flex flex-col flex-1">
         {service.category && (
-          <span className="inline-block bg-accent/90 text-primary text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wider mb-1.5">
+          <span className="text-[9px] font-bold text-primary uppercase tracking-wider leading-none">
             {service.category}
           </span>
         )}
-        <p className="text-white font-bold leading-tight line-clamp-2 text-xs sm:text-sm">
+        <p className="font-bold text-xs text-slate-900 line-clamp-2 mt-0.5 leading-tight">
           {service.name}
         </p>
         {(service.price || service.originalPrice) && (
-          <div className="flex items-center gap-2 mt-1.5">
+          <div className="mt-auto pt-1 flex items-center gap-1.5 flex-wrap">
             {service.originalPrice && (
-              <span className="text-[10px] text-white/50 line-through">
+              <span className="text-[9px] text-slate-400 line-through">
                 ${Number(service.originalPrice).toLocaleString('es-CL')}
               </span>
             )}
             {service.price && (
-              <span className="text-xs sm:text-sm font-black text-accent">
+              <span className="text-xs font-semibold text-primary">
                 ${Number(service.price).toLocaleString('es-CL')}
               </span>
             )}
