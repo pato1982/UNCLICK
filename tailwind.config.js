@@ -9,6 +9,7 @@ export default {
     screens: {
       'sm': '700px',
       'md': '1101px',
+      'lg': '1440px',
     },
     extend: {
       colors: {

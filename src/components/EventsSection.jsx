@@ -145,7 +145,7 @@ export default function EventsSection({ onViewAll }) {
         </div>
 
         {/* TABLET/DESKTOP: grid */}
-        <div className="hidden sm:grid sm:grid-cols-4 md:grid-cols-6 gap-2">
+        <div className="hidden sm:grid sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
           {displayEvents.map(event => renderCard(event))}
         </div>
       </>

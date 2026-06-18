@@ -220,7 +220,7 @@ export default function ProductCard({ product, hidePrice, isFirst, onOpenStore, 
         onClick={() => { trackProductClick(product); setShowModal(true) }}
         className={`bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all flex flex-col group cursor-pointer ${isFirst ? 'border-2 border-amber-400 outline outline-2 outline-amber-400 outline-offset-2' : 'border border-slate-100'}`}
       >
-        <div className="relative h-44 sm:h-44 md:h-52 bg-slate-50 overflow-hidden">
+        <div className="relative w-full bg-slate-50 overflow-hidden" style={{ aspectRatio: '4/3' }}>
           <img
             alt={product.alt}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"

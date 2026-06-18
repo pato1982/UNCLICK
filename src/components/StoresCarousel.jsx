@@ -165,7 +165,7 @@ export default function StoresCarousel({ onViewAll }) {
             <button
               key={`${store.id}-${i}`}
               onClick={() => setSelected(store)}
-              className="shrink-0 w-[calc(50%-4px)] sm:w-[calc(33.33%-8px)] md:w-[calc(20%-10px)] bg-white/10 rounded-xl overflow-hidden border border-white/10 hover:border-accent hover:shadow-lg transition-all group/item cursor-pointer text-left"
+              className="shrink-0 w-[calc(50%-4px)] sm:w-[calc(33.33%-8px)] md:w-[calc(20%-10px)] lg:w-[calc(16.67%-10px)] bg-white/10 rounded-xl overflow-hidden border border-white/10 hover:border-accent hover:shadow-lg transition-all group/item cursor-pointer text-left"
               style={{ scrollSnapAlign: 'start' }}
             >
               <div className="w-full overflow-hidden" style={{ aspectRatio: '4/3' }}>

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+﻿import { useState, useRef, useEffect, useCallback } from 'react'
 import ProductCard from './ProductCard'
 
 export default function ProductCarousel({ title, items, sidebarOpen, hidePrice, onViewAll, onOpenStore, hideHeader }) {
@@ -123,13 +123,14 @@ export default function ProductCarousel({ title, items, sidebarOpen, hidePrice, 
   }, [resetAutoScroll, items.length])
 
   // Ancho de la tarjeta destacada (fija) — un poco más ancha en escritorio
-  const featuredWidth = 'w-[calc(33.33%-6px)] sm:w-[calc(28%-12px)] md:w-[calc(26%-14px)]'
+  const featuredWidth = 'w-[calc(33.33%-6px)] sm:w-[calc(28%-12px)] md:w-[calc(26%-14px)] lg:w-[calc(20%-14px)]'
   // Ancho de tarjetas del carrusel: relativo a su propio contenedor (flex-1), por lo que
   // siempre se ven 4 en escritorio aunque la destacada sea más ancha. La compensación evita
   // que la 4ª quede cortada por el overflow-hidden.
   const carouselCardTablet = sidebarOpen ? 'sm:w-[calc(33.33%-13px)]' : 'sm:w-[calc(33.33%-14px)]'
   const carouselCardDesktop = sidebarOpen ? 'md:w-[calc(25%-15px)]' : 'md:w-[calc(25%-16px)]'
-  const carouselCardWidth = `w-[calc(50%-4px)] ${carouselCardTablet} ${carouselCardDesktop}`
+  const carouselCardLg = sidebarOpen ? 'lg:w-[calc(20%-15px)]' : 'lg:w-[calc(20%-16px)]'
+  const carouselCardWidth = `w-[calc(50%-4px)] ${carouselCardTablet} ${carouselCardDesktop} ${carouselCardLg}`
 
   return (
     <div>
@@ -224,3 +225,4 @@ export default function ProductCarousel({ title, items, sidebarOpen, hidePrice, 
     </div>
   )
 }
+
