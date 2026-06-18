@@ -708,9 +708,8 @@ export default function StorePage({ store, onBack, onOpenStore, mobileCatKey }) 
                 <button
                   onClick={() => { setActiveCat(null); setActiveSub(null) }}
                   className={`flex items-center gap-2 px-2 py-1.5 mb-1 rounded-md text-[11px] font-bold w-full transition-colors ${
-                    !activeCat && !activeSub ? 'bg-white/15' : 'text-white/60 hover:bg-white/10 hover:text-white'
+                    !activeCat && !activeSub ? 'bg-white/20 text-white' : 'text-white/60 hover:bg-white/10 hover:text-white'
                   }`}
-                  style={!activeCat && !activeSub ? { color: 'var(--side-accent)' } : undefined}
                 >
                   <span className="material-symbols-outlined text-xs">grid_view</span>
                   Ver todos
@@ -817,8 +816,7 @@ export default function StorePage({ store, onBack, onOpenStore, mobileCatKey }) 
                 <div className="flex-1 min-h-0 flex flex-col gap-1 px-3 py-3 overflow-y-auto sidebar-scroll">
                   <button
                     onClick={() => { setActiveCat(null); setActiveSub(null); setMobileCatOpen(false) }}
-                    className={`flex items-center gap-2 w-full px-3 py-2 mb-1 rounded-lg text-xs font-bold transition-colors ${!activeCat && !activeSub ? 'bg-white/15' : 'bg-white/10 hover:bg-white/20'}`}
-                    style={{ color: 'var(--side-accent)' }}
+                    className={`flex items-center gap-2 w-full px-3 py-2 mb-1 rounded-lg text-xs font-bold transition-colors text-white ${!activeCat && !activeSub ? 'bg-white/20' : 'bg-white/10 hover:bg-white/20'}`}
                   >
                     <span className="material-symbols-outlined text-base">grid_view</span>
                     <span>Ver todos</span>
@@ -912,8 +910,7 @@ export default function StorePage({ store, onBack, onOpenStore, mobileCatKey }) 
                 <div className="flex-1 min-h-0 flex flex-col gap-0.5 px-2 pb-2 overflow-y-auto sidebar-scroll">
                   <button
                     onClick={() => { setActiveCat(null); setActiveSub(null); setMobileCatOpen(false) }}
-                    className={`flex items-center gap-1.5 w-full px-2 py-1 rounded-md text-[11px] font-bold transition-colors ${!activeCat && !activeSub ? 'bg-white/15' : 'hover:bg-white/10'}`}
-                    style={{ color: 'var(--side-accent)' }}
+                    className={`flex items-center gap-1.5 w-full px-2 py-1 rounded-md text-[11px] font-bold transition-colors text-white ${!activeCat && !activeSub ? 'bg-white/20' : 'hover:bg-white/10'}`}
                   >
                     <span className="material-symbols-outlined text-xs">grid_view</span>
                     <span>Ver todos</span>
