@@ -537,12 +537,30 @@ function CompanyDetail({ company, onBack, activeFilter, onClearFilter, initialTo
 /* =========================================
    Página principal de turismo
    ========================================= */
-export default function TourismPage({ activeFilter, onClearFilter, onEmpresaCategorias, initialUserId, onInitialUserConsumed, initialTour, onInitialTourConsumed, resetKey, scrollToUserId, onScrollConsumed }) {
+export default function TourismPage({ activeFilter, onClearFilter, onEmpresaCategorias, initialUserId, onInitialUserConsumed, initialTour, onInitialTourConsumed, resetKey, scrollToUserId, onScrollConsumed, onBack }) {
   const [empresas, setEmpresas] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedCompany, setSelectedCompany] = useState(null)
   const [popup, setPopup] = useState(null)
   const [errorMsg, setErrorMsg] = useState('')
+  const [scrolled, setScrolled] = useState(false)
+  const [headerH, setHeaderH] = useState(116)
+
+  useEffect(() => {
+    const measure = () => {
+      const el = document.getElementById('main-header')
+      if (el) setHeaderH(el.offsetHeight)
+    }
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [])
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 60)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
 
   useEffect(() => {
@@ -715,6 +733,16 @@ export default function TourismPage({ activeFilter, onClearFilter, onEmpresaCate
 
   return (
     <div className="flex flex-col gap-6">
+      {scrolled && onBack && (
+        <button
+          onClick={onBack}
+          aria-label="Inicio"
+          className="sm:hidden fixed right-3 z-50 flex items-center justify-center h-11 w-11 rounded-full bg-accent text-primary shadow-lg hover:brightness-110 active:scale-95 transition-all"
+          style={{ top: headerH + 10 }}
+        >
+          <span className="material-symbols-outlined text-xl">home</span>
+        </button>
+      )}
       {errorMsg && (
         <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-4 py-2 flex items-center gap-2">
           <span className="material-symbols-outlined text-base">error</span>

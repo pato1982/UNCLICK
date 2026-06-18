@@ -1,10 +1,28 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import ProductCard from './ProductCard'
 
 const ROWS_PER_PAGE = 10
 
 export default function SectionPage({ section, sidebarOpen, onBack, onOpenStore }) {
   const [currentPage, setCurrentPage] = useState(0)
+  const [scrolled, setScrolled] = useState(false)
+  const [headerH, setHeaderH] = useState(116)
+
+  useEffect(() => {
+    const measure = () => {
+      const el = document.getElementById('main-header')
+      if (el) setHeaderH(el.offsetHeight)
+    }
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [])
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 60)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   // Columnas según sidebar (coincide con las clases de la grilla)
   const cols = sidebarOpen ? 5 : 6
@@ -19,6 +37,16 @@ export default function SectionPage({ section, sidebarOpen, onBack, onOpenStore 
 
   return (
     <div>
+      {scrolled && (
+        <button
+          onClick={onBack}
+          aria-label="Inicio"
+          className="sm:hidden fixed right-3 z-50 flex items-center justify-center h-11 w-11 rounded-full bg-accent text-primary shadow-lg hover:brightness-110 active:scale-95 transition-all"
+          style={{ top: headerH + 10 }}
+        >
+          <span className="material-symbols-outlined text-xl">home</span>
+        </button>
+      )}
       <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
         <button
           onClick={onBack}

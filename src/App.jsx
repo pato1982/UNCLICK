@@ -756,6 +756,7 @@ export default function App() {
               resetKey={turismoResetKey}
               scrollToUserId={turismoScrollTo}
               onScrollConsumed={() => setTurismoScrollTo(null)}
+              onBack={goHome}
             />
           ) : activeFilter ? (
             /* Filtro activo: mostrar secciones (filas) que tengan productos de esa subcategoría o categoría */
