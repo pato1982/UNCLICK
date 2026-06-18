@@ -705,6 +705,16 @@ export default function StorePage({ store, onBack, onOpenStore, mobileCatKey }) 
                 <h3 className="text-sm font-black uppercase tracking-tight">Categorías</h3>
               </div>
               <div className="flex flex-col gap-0 flex-1 min-h-0 overflow-y-auto sidebar-scroll pr-1">
+                {(activeCat || activeSub) && (
+                  <button
+                    onClick={() => { setActiveCat(null); setActiveSub(null) }}
+                    className="flex items-center gap-1.5 w-full px-2 py-1.5 mb-1 rounded-md text-[11px] font-bold hover:bg-white/10 transition-colors"
+                    style={{ color: 'var(--side-accent)' }}
+                  >
+                    <span className="material-symbols-outlined text-xs">filter_alt_off</span>
+                    Ver todos
+                  </button>
+                )}
                 {storeCategoryGroups.map((group, gIdx) => (
                   <div key={group.tipo} className={gIdx > 0 ? 'mt-2 pt-2 border-t border-white/10' : ''}>
                     <h4 className="text-[10px] font-black uppercase tracking-wider px-2 mb-1" style={{ color: 'var(--side-accent)' }}>
