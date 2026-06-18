@@ -182,6 +182,14 @@ export default function Sidebar({ activeNav, open = false, onClose, onGoHome, sh
   // Contenido de categorías (compartido entre mobile y desktop)
   const categoryList = (
     <>
+      {/* Ver todos — resaltado cuando no hay filtro activo */}
+      <button
+        className={`${catBtnClass} mb-1 ${!activeFilter ? 'bg-white/10 text-accent' : ''}`}
+        onClick={() => { onFilterSelect && onFilterSelect(null); setExpandedCat(null) }}
+      >
+        <span className="material-symbols-outlined text-sm">grid_view</span>
+        <span className="flex-1 text-left">Ver todos</span>
+      </button>
       {panel.categories ? (
         panel.categories.map((cat) => {
           const isExpanded = expandedCat === cat.label
@@ -251,6 +259,16 @@ export default function Sidebar({ activeNav, open = false, onClose, onGoHome, sh
 
         {/* Categorías en lista vertical con scroll */}
         <div className="flex-1 min-h-0 flex flex-col gap-0.5 px-2 pb-2 overflow-y-auto sidebar-scroll">
+          {/* Ver todos — resaltado cuando no hay filtro activo */}
+          <button
+            onClick={() => { onFilterSelect && onFilterSelect(null); setExpandedCat(null); handleMobileClose() }}
+            className={`flex items-center gap-1.5 w-full px-2 py-1 rounded-md text-[11px] font-medium transition-colors mb-1 ${
+              !activeFilter ? 'bg-white/10 text-accent' : 'text-white/60 hover:text-accent'
+            }`}
+          >
+            <span className="material-symbols-outlined text-xs">grid_view</span>
+            <span className="whitespace-nowrap">Ver todos</span>
+          </button>
           {panel.categories ? (
             panel.categories.map((cat) => {
               const isExpanded = expandedCat === cat.label
@@ -314,9 +332,12 @@ export default function Sidebar({ activeNav, open = false, onClose, onGoHome, sh
           <button
             onClick={() => {
               onFilterSelect && onFilterSelect(null)
+              setExpandedCat(null)
               handleMobileClose && handleMobileClose()
             }}
-            className="w-full bg-accent text-primary py-1 rounded-md text-[9px] font-black uppercase tracking-wide hover:brightness-110 transition-all text-center"
+            className={`w-full py-1 rounded-md text-[9px] font-black uppercase tracking-wide transition-all text-center ${
+              !activeFilter ? 'bg-accent text-primary ring-2 ring-accent/50' : 'bg-accent/70 text-primary hover:bg-accent'
+            }`}
           >
             Todas
           </button>
@@ -347,8 +368,10 @@ export default function Sidebar({ activeNav, open = false, onClose, onGoHome, sh
             </div>
             <div className="mt-3 pt-3 border-t border-white/20 flex flex-col gap-1.5">
               <button
-                onClick={() => onFilterSelect && onFilterSelect(null)}
-                className="w-full bg-accent text-primary py-1.5 rounded-md text-[10px] font-black uppercase tracking-wide hover:brightness-110 transition-all text-center leading-tight"
+                onClick={() => { onFilterSelect && onFilterSelect(null); setExpandedCat(null) }}
+                className={`w-full py-1.5 rounded-md text-[10px] font-black uppercase tracking-wide transition-all text-center leading-tight ${
+                  !activeFilter ? 'bg-accent text-primary ring-2 ring-accent/50' : 'bg-accent/70 text-primary hover:bg-accent'
+                }`}
               >
                 Todas
               </button>
