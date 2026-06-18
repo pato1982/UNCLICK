@@ -759,6 +759,15 @@ export default function TourismPage({ activeFilter, onClearFilter, onEmpresaCate
           <span className="text-[10px] text-slate-400">{filteredCompanies.length} {filteredCompanies.length === 1 ? 'empresa' : 'empresas'}</span>
         )}
         <div className="flex-1 h-px bg-slate-200"></div>
+        {onBack && (
+          <button
+            onClick={onBack}
+            aria-label="Inicio"
+            className="sm:hidden shrink-0 flex items-center justify-center h-7 w-7 rounded-full bg-accent text-primary shadow hover:brightness-110 active:scale-95 transition-all"
+          >
+            <span className="material-symbols-outlined text-base">home</span>
+          </button>
+        )}
       </div>
 
       {filteredCompanies.length === 0 && (
