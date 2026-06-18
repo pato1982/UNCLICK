@@ -18,6 +18,7 @@ const emptyForm = {
   descripcion: '',
   precio: '',
   precioOriginal: '',
+  seccion: '',
   categoria: '',
   categoria_id: null,
   subcategoria: '',
@@ -349,7 +350,7 @@ export default function AdminProductos() {
 
       const body = {
         tipo,
-        seccion: overrideSeccion || (editingId ? productos.find(p => p.id === editingId)?.seccion || activeTab : activeTab),
+        seccion: overrideSeccion || formData.seccion || activeTab,
         nombre: formData.nombre,
         descripcion: formData.descripcion,
         precio: Math.round(Number(formData.precio)) || 0,
@@ -464,6 +465,7 @@ export default function AdminProductos() {
       subcategoria_id: prod.subcategoria_id || null,
       badge: prod.badge || '',
       tipo: prod.tipo || '',
+      seccion: prod.seccion || 'destacados',
       attrMedidas: !!prod.medidas,
       tallasTipo: prod.tallas?.tipo || '',
       tallasSeleccion: prod.tallas?.seleccion || [],
@@ -751,7 +753,7 @@ export default function AdminProductos() {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-[10px] sm:text-[11px] font-semibold text-gray-600 mb-0.5">Tipo *</label>
-                    <select name="tipo" value={formData.tipo} onChange={(e) => setFormData(prev => ({ ...prev, tipo: e.target.value, categoria: '', categoria_id: null, subcategoria: '', subcategoria_id: null }))} required className="w-full rounded-md border-gray-300 text-gray-800 bg-white text-[11px] sm:text-xs py-1 sm:py-1.5 focus:ring-primary focus:border-primary">
+                    <select name="tipo" value={formData.tipo} onChange={(e) => { const t = e.target.value; const s = t === 'servicio' ? 'servicios' : t === 'arriendo' ? 'arriendos' : (['servicios','arriendos'].includes(formData.seccion) ? activeTab : formData.seccion) || activeTab; setFormData(prev => ({ ...prev, tipo: t, seccion: s, categoria: '', categoria_id: null, subcategoria: '', subcategoria_id: null })) }} required className="w-full rounded-md border-gray-300 text-gray-800 bg-white text-[11px] sm:text-xs py-1 sm:py-1.5 focus:ring-primary focus:border-primary">
                       <option value="">Seleccionar</option>
                       {user.vende_productos && <option value="producto">Productos</option>}
                       {user.ofrece_servicios && <option value="servicio">Servicios</option>}
@@ -763,6 +765,20 @@ export default function AdminProductos() {
                     <input type="text" name="badge" value={formData.badge} onChange={handleInputChange} className="w-full rounded-md border-gray-300 text-[11px] sm:text-xs py-1 sm:py-1.5 focus:ring-primary focus:border-primary" placeholder="Ej: Top Ventas" />
                   </div>
                 </div>
+                {formData.tipo === 'producto' && (
+                  <div>
+                    <label className="block text-[10px] sm:text-[11px] font-semibold text-gray-600 mb-0.5">Sección</label>
+                    <select name="seccion" value={formData.seccion} onChange={(e) => setFormData(prev => ({ ...prev, seccion: e.target.value }))} className="w-full rounded-md border-gray-300 text-gray-800 bg-white text-[11px] sm:text-xs py-1 sm:py-1.5 focus:ring-primary focus:border-primary">
+                      <option value="destacados">Destacados</option>
+                      <option value="ofertas">Ofertas</option>
+                      <option value="novedades">Novedades</option>
+                      <option value="liquidacion">Liquidación</option>
+                      <option value="tecnologia">Tecnología</option>
+                      <option value="tendencia">Tendencia</option>
+                    </select>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-[10px] sm:text-[11px] font-semibold text-gray-600 mb-0.5">Categoría *</label>
