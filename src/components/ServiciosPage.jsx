@@ -27,7 +27,7 @@ export default function ServiciosPage({ sidebarOpen, onBack, activeFilter, onOpe
   }, [])
 
   useEffect(() => {
-    fetch(`${API}/api/v1/listings`)
+    fetch(`${API}/api/v1/public/listings`)
       .then(r => r.json())
       .then(data => {
         const servicios = (data.listings || [])
