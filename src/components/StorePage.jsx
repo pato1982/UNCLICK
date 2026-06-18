@@ -705,16 +705,16 @@ export default function StorePage({ store, onBack, onOpenStore, mobileCatKey }) 
                 <h3 className="text-sm font-black uppercase tracking-tight">Categorías</h3>
               </div>
               <div className="flex flex-col gap-0 flex-1 min-h-0 overflow-y-auto sidebar-scroll pr-1">
-                {(activeCat || activeSub) && (
-                  <button
-                    onClick={() => { setActiveCat(null); setActiveSub(null) }}
-                    className="flex items-center gap-1.5 w-full px-2 py-1.5 mb-1 rounded-md text-[11px] font-bold hover:bg-white/10 transition-colors"
-                    style={{ color: 'var(--side-accent)' }}
-                  >
-                    <span className="material-symbols-outlined text-xs">filter_alt_off</span>
-                    Ver todos
-                  </button>
-                )}
+                <button
+                  onClick={() => { setActiveCat(null); setActiveSub(null) }}
+                  className={`flex items-center gap-2 px-2 py-1.5 mb-1 rounded-md text-[11px] font-bold w-full transition-colors ${
+                    !activeCat && !activeSub ? 'bg-white/15' : 'text-white/60 hover:bg-white/10 hover:text-white'
+                  }`}
+                  style={!activeCat && !activeSub ? { color: 'var(--side-accent)' } : undefined}
+                >
+                  <span className="material-symbols-outlined text-xs">grid_view</span>
+                  Ver todos
+                </button>
                 {storeCategoryGroups.map((group, gIdx) => (
                   <div key={group.tipo} className={gIdx > 0 ? 'mt-2 pt-2 border-t border-white/10' : ''}>
                     <h4 className="text-[10px] font-black uppercase tracking-wider px-2 mb-1" style={{ color: 'var(--side-accent)' }}>
@@ -815,6 +815,14 @@ export default function StorePage({ store, onBack, onOpenStore, mobileCatKey }) 
 
                 {/* Lista de categorías */}
                 <div className="flex-1 min-h-0 flex flex-col gap-1 px-3 py-3 overflow-y-auto sidebar-scroll">
+                  <button
+                    onClick={() => { setActiveCat(null); setActiveSub(null); setMobileCatOpen(false) }}
+                    className={`flex items-center gap-2 w-full px-3 py-2 mb-1 rounded-lg text-xs font-bold transition-colors ${!activeCat && !activeSub ? 'bg-white/15' : 'bg-white/10 hover:bg-white/20'}`}
+                    style={{ color: 'var(--side-accent)' }}
+                  >
+                    <span className="material-symbols-outlined text-base">grid_view</span>
+                    <span>Ver todos</span>
+                  </button>
                   {(activeCat || activeSub) && (
                     <button
                       onClick={() => { setActiveCat(null); setActiveSub(null); setMobileCatOpen(false) }}
@@ -902,6 +910,14 @@ export default function StorePage({ store, onBack, onOpenStore, mobileCatKey }) 
                   </button>
                 </div>
                 <div className="flex-1 min-h-0 flex flex-col gap-0.5 px-2 pb-2 overflow-y-auto sidebar-scroll">
+                  <button
+                    onClick={() => { setActiveCat(null); setActiveSub(null); setMobileCatOpen(false) }}
+                    className={`flex items-center gap-1.5 w-full px-2 py-1 rounded-md text-[11px] font-bold transition-colors ${!activeCat && !activeSub ? 'bg-white/15' : 'hover:bg-white/10'}`}
+                    style={{ color: 'var(--side-accent)' }}
+                  >
+                    <span className="material-symbols-outlined text-xs">grid_view</span>
+                    <span>Ver todos</span>
+                  </button>
                   {(activeCat || activeSub) && (
                     <button
                       onClick={() => { setActiveCat(null); setActiveSub(null); setMobileCatOpen(false) }}
