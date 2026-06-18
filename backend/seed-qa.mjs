@@ -216,7 +216,10 @@ async function main() {
     const turIdx = isTur ? turUsers.indexOf(qa) : 0
     const negName = isTur ? TURISMO_NAMES[turIdx % TURISMO_NAMES.length] : NAMES[i % NAMES.length]
     const slogan  = SLOGANS[i % SLOGANS.length]
-    const uid = 9001 + i   // ID explícito: 9001-9028
+    // IDs 9001-9029 para gen_*/tur_*, 9100+ para local/evento (evita conflictos con usuarios reales)
+    const uid = (qa.tipo === 'local' || qa.tipo === 'evento')
+      ? 9100 + QA_USERS.filter((u, j) => j < i && (u.tipo === 'local' || u.tipo === 'evento')).length
+      : 9001 + i
 
     // ── Insertar usuario con ID explícito ──────────────────────────────────
     await pool.query(
@@ -230,7 +233,7 @@ async function main() {
         negName,
         qa.email,
         hash,
-        qa.tipo,
+        qa.tipo === 'turismo' ? 'turismo' : 'general',
         qa.plan,
         qa.caps.includes('P') ? 1 : 0,
         qa.caps.includes('S') ? 1 : 0,

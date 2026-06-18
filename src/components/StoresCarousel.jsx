@@ -169,18 +169,15 @@ export default function StoresCarousel({ onViewAll }) {
 
         <div
           ref={scrollRef}
-          className="flex gap-2 sm:gap-3 overflow-x-hidden scroll-smooth py-1 px-1"
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onPointerLeave={onPointerLeave}
-          style={{ cursor: dragging ? 'grabbing' : 'grab', userSelect: 'none' }}
+          className="flex gap-2 sm:gap-3 overflow-x-scroll hide-scrollbar py-1 px-1"
+          style={{ scrollSnapType: 'x mandatory' }}
         >
           {displayStores.map((store, i) => (
             <button
               key={`${store.id}-${i}`}
               onClick={() => setSelected(store)}
               className="shrink-0 w-[calc(50%-4px)] sm:w-[calc(33.33%-8px)] md:w-[calc(20%-10px)] bg-white/10 rounded-xl overflow-hidden border border-white/10 hover:border-accent hover:shadow-lg transition-all group/item cursor-pointer text-left"
+              style={{ scrollSnapAlign: 'start' }}
             >
               <div className="w-full overflow-hidden" style={{ aspectRatio: '4/3' }}>
                 <img
