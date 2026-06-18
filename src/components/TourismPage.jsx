@@ -701,9 +701,9 @@ export default function TourismPage({ activeFilter, onClearFilter, onEmpresaCate
     ? empresas.filter((c) => c.subcategories.includes(activeFilter))
     : empresas
   )
-    // Las empresas con página premium (plan 3) siempre primero; orden estable dentro de cada grupo
+    // Las empresas Premium turismo (plan 5) siempre primero; Gratuito turismo (plan 4) al final
     .slice()
-    .sort((a, b) => (b.planId >= 3 ? 1 : 0) - (a.planId >= 3 ? 1 : 0))
+    .sort((a, b) => (b.planId >= 5 ? 1 : 0) - (a.planId >= 5 ? 1 : 0))
 
   if (loading || (initialUserId && !selectedCompany)) {
     return (
@@ -713,8 +713,31 @@ export default function TourismPage({ activeFilter, onClearFilter, onEmpresaCate
     )
   }
 
-  // Vista premium de empresa seleccionada
+  // Vista de empresa seleccionada
   if (selectedCompany) {
+    // Plan 4 = Gratuito turismo: no tienen página de detalle activa
+    if (selectedCompany.planId < 5) {
+      return (
+        <div className="flex flex-col items-center justify-center gap-6 py-20 text-center">
+          <div className="w-16 h-16 rounded-full bg-amber-50 flex items-center justify-center">
+            <span className="material-symbols-outlined text-3xl text-amber-400">lock</span>
+          </div>
+          <div className="flex flex-col gap-2">
+            <h3 className="text-sm font-bold text-slate-700">{selectedCompany.name}</h3>
+            <p className="text-xs text-slate-400 max-w-xs leading-relaxed">
+              Esta empresa aún no tiene su página de turismo activada. Próximamente podrás ver sus tours y experiencias aquí.
+            </p>
+          </div>
+          <button
+            onClick={() => { setSelectedCompany(null); if (onClearFilter) onClearFilter(); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+            className="flex items-center gap-1.5 bg-primary text-white px-5 py-2 rounded-lg text-xs font-bold hover:bg-primary/90 transition-colors"
+          >
+            <span className="material-symbols-outlined text-sm">arrow_back</span>
+            Volver a Turismo
+          </button>
+        </div>
+      )
+    }
     return (
       <CompanyDetail
         company={selectedCompany}
@@ -801,7 +824,7 @@ export default function TourismPage({ activeFilter, onClearFilter, onEmpresaCate
               )}
               <p className="text-[10px] sm:text-xs text-slate-500 leading-relaxed mb-2 sm:mb-3 line-clamp-5 sm:line-clamp-3">{company.description}</p>
               <div className="mt-auto flex items-center gap-2 sm:gap-3">
-                {company.planId >= 3 && (
+                {company.planId >= 5 && (
                   <button
                     onClick={() => {
                       trackCardClick(company.userId)
