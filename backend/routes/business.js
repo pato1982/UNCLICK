@@ -1,44 +1,6 @@
-import { Router }        from 'express'
-import { unlink }        from 'fs/promises'
-import { fileURLToPath } from 'url'
-import { dirname, join } from 'path'
-import { uploadImagen }  from '../middleware/upload.js'
+import { Router } from 'express'
 
-const router    = Router()
-const __dirname = dirname(fileURLToPath(import.meta.url))
-
-// Auto-migración: agrega logo_size y siembra placeholder de logo (corre una sola vez)
-let _migrated = false
-async function ensureLogoSize(pool) {
-  if (_migrated) return
-  _migrated = true
-  try {
-    // 1. Agregar columna logo_size si no existe
-    const [cols] = await pool.query(
-      "SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='negocios' AND COLUMN_NAME='logo_size'"
-    )
-    if (!cols.length) {
-      await pool.query("ALTER TABLE negocios ADD COLUMN logo_size TINYINT UNSIGNED DEFAULT 3 AFTER logo_url")
-      await pool.query("UPDATE negocios SET logo_size=3 WHERE logo_size IS NULL")
-      console.log('[migrate] logo_size column added to negocios')
-    }
-    // 2. Sembrar placeholder de logo para negocios pagados sin logo
-    const PLACEHOLDER = '/uploads/negocios/logo-demo-placeholder.webp'
-    await pool.query(
-      `UPDATE negocios n
-       JOIN usuarios u ON u.id = n.usuario_id
-       SET n.logo_url = ?, n.logo_size = COALESCE(n.logo_size, 3)
-       WHERE u.plan_id >= 2
-         AND u.tipo_cuenta != 'turismo'
-         AND (n.logo_url IS NULL OR n.logo_url = '')`,
-      [PLACEHOLDER]
-    )
-    console.log('[migrate] logo placeholder seeded for paid negocios')
-  } catch (e) {
-    console.error('[migrate] error:', e.message)
-    _migrated = false
-  }
-}
+const router = Router()
 
 function log(pool, usuario_id, accion) {
   pool.query(
@@ -57,7 +19,6 @@ function parseHorarios(row) {
 
 // ── GET /api/v1/business ───────────────────────────────────────────────────
 router.get('/', async (req, res) => {
-  await ensureLogoSize(req.pool)
   try {
     const [[business]] = await req.pool.query(
       'SELECT * FROM negocios WHERE usuario_id = ?',
@@ -116,12 +77,6 @@ router.post('/', async (req, res) => {
       setClauses.push('header_height = ?')
       values.push(b.header_height != null ? Number(b.header_height) : null)
     }
-    if ('logo_size' in b) {
-      const v = Number(b.logo_size)
-      setClauses.push('logo_size = ?')
-      values.push(v >= 1 && v <= 5 ? v : 3)
-    }
-
     if (setClauses.length > 0) {
       setClauses.push('updated_at = CURRENT_TIMESTAMP')
       values.push(req.usuario.id)
@@ -141,39 +96,6 @@ router.post('/', async (req, res) => {
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Error al guardar negocio' })
-  }
-})
-
-// ── PATCH /api/v1/business/logo ────────────────────────────────────────────
-router.patch('/logo', ...uploadImagen('negocios'), async (req, res) => {
-  if (!req.file?.url) return res.status(400).json({ error: 'No se recibió imagen válida' })
-
-  try {
-    // Obtener logo anterior para borrarlo del disco
-    const [[actual]] = await req.pool.query(
-      'SELECT logo_url FROM negocios WHERE usuario_id = ?',
-      [req.usuario.id]
-    )
-
-    // Upsert solo el campo logo_url
-    await req.pool.query(
-      `INSERT INTO negocios (usuario_id, logo_url)
-       VALUES (?, ?)
-       ON DUPLICATE KEY UPDATE logo_url = VALUES(logo_url), updated_at = CURRENT_TIMESTAMP`,
-      [req.usuario.id, req.file.url]
-    )
-
-    // Eliminar archivo anterior si existe
-    if (actual?.logo_url) {
-      const filePath = join(__dirname, '..', actual.logo_url.replace(/^\//, ''))
-      unlink(filePath).catch(() => {}) // no bloquea si ya no existe
-    }
-
-    log(req.pool, req.usuario.id, 'actualizar_logo')
-    res.json({ logo_url: req.file.url })
-  } catch (err) {
-    console.error(err)
-    res.status(500).json({ error: 'Error al guardar logo' })
   }
 })
 

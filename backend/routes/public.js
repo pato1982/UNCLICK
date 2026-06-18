@@ -33,7 +33,6 @@ router.get('/listings', async (req, res) => {
              l.usuario_id            AS user_id,
              u.plan_id               AS owner_plan_id,
              n.nombre_negocio,
-             n.logo_url,
              n.whatsapp              AS negocio_whatsapp,
              n.telefono              AS negocio_telefono,
              n.direccion             AS negocio_direccion,
@@ -95,7 +94,6 @@ router.get('/listings/:userId', async (req, res) => {
              l.usuario_id            AS user_id,
              u.plan_id               AS owner_plan_id,
              n.nombre_negocio,
-             n.logo_url,
              n.whatsapp              AS negocio_whatsapp,
              n.telefono              AS negocio_telefono,
              n.direccion             AS negocio_direccion,
@@ -210,8 +208,7 @@ router.get('/tours', async (req, res) => {
       SELECT t.*,
              t.usuario_id  AS user_id,
              u.plan_id     AS owner_plan_id,
-             n.nombre_negocio,
-             n.logo_url
+             n.nombre_negocio
       FROM tb_tours t
       JOIN usuarios u ON u.id = t.usuario_id AND u.activo = 1 AND u.tipo_cuenta = 'turismo'
       LEFT JOIN negocios n ON n.usuario_id = t.usuario_id
