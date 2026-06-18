@@ -447,16 +447,16 @@ export function StoreBanner({ store, products, bannerItems, phone, storeUserId }
       {/* ESCRITORIO/TABLET: 5 tarjetas iguales centradas, fade cada 7s */}
       <div className="hidden sm:block relative rounded-xl overflow-hidden mb-2" style={{ background: bannerBg }}>
         {/* Spacer invisible: fija la altura del contenedor según el primer slide */}
-        <div className="invisible flex justify-center gap-2 p-3" aria-hidden>
+        <div className="invisible flex gap-3 p-3" aria-hidden>
           {(slides[0] || []).map((_, i) => (
-            <div key={i} className="shrink-0 w-16 md:w-20 lg:w-28" style={{ aspectRatio: '1' }} />
+            <div key={i} style={{ flex: '1 1 0', aspectRatio: '1' }} />
           ))}
         </div>
         {/* Slides superpuestos con transición de opacidad */}
         {slides.map((slide, i) => (
           <div
             key={i}
-            className="absolute inset-0 flex justify-center items-center gap-2 p-3 transition-opacity duration-1000"
+            className="absolute inset-0 flex items-center gap-3 p-3 transition-opacity duration-1000"
             style={{ opacity: activeSlide === i ? 1 : 0 }}
           >
             {slide.map((item) => (
@@ -464,8 +464,8 @@ export function StoreBanner({ store, products, bannerItems, phone, storeUserId }
                 key={item.id}
                 type="button"
                 onClick={() => { trackClick(storeUserId, item.id); setSelectedProduct(item) }}
-                className="shrink-0 w-16 md:w-20 lg:w-28 rounded-xl overflow-hidden hover:brightness-110 transition-all bg-black/10 cursor-pointer"
-                style={{ aspectRatio: '1' }}
+                className="rounded-xl overflow-hidden hover:brightness-110 transition-all bg-black/10 cursor-pointer"
+                style={{ flex: '1 1 0', aspectRatio: '1' }}
               >
                 {item.image
                   ? <img src={item.image} alt={item.alt || item.name} className="w-full h-full object-contain" />
