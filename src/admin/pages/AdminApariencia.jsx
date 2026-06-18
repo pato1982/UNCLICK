@@ -178,7 +178,6 @@ function SidebarPreview({ bg, accent, border, style = 'izquierda' }) {
 export default function AdminApariencia() {
   const user = JSON.parse(localStorage.getItem('user') || '{}')
   const isPremium = (user.plan_id || 1) >= 3
-  const esTurismo = user.tipo_cuenta === 'turismo'
   // Capacidades del plan: definen qué pestañas de estilo se muestran
   const ofreceServicios = !!user.ofrece_servicios
   const ofreceArriendos = !!user.ofrece_arriendos
@@ -193,9 +192,6 @@ export default function AdminApariencia() {
   const [bannerItems, setBannerItems] = useState([])
   const [serviceItems, setServiceItems] = useState([])
   const [arriendoItems, setArriendoItems] = useState([])
-  const [logo, setLogo] = useState('')
-  const [uploadingLogo, setUploadingLogo] = useState(false)
-
   useEffect(() => {
     fetch(`${API}/api/v1/business`, { credentials: 'include' })
       .then(r => r.json())
@@ -213,9 +209,7 @@ export default function AdminApariencia() {
           sidebar_style: b.sidebar_style || DEFAULT_HEADER.sidebar_style,
           nav_color: b.nav_color || DEFAULT_HEADER.nav_color,
           nav_style: b.nav_style || DEFAULT_HEADER.nav_style,
-          logo_size: b.logo_size ?? 3,
         })
-        setLogo(b.logo_url || '')
       })
       .catch(() => {})
       .finally(() => setLoading(false))
@@ -260,25 +254,6 @@ export default function AdminApariencia() {
     setSaved(false)
   }
 
-  const handleLogoChange = async (e) => {
-    const file = e.target.files[0]
-    if (!file) return
-    setUploadingLogo(true)
-    try {
-      const fd = new FormData()
-      fd.append('imagen', file)
-      const res = await fetch(`${API}/api/v1/business/logo`, {
-        method: 'PATCH',
-        credentials: 'include',
-        body: fd,
-      })
-      const data = await res.json().catch(() => ({}))
-      if (res.ok) setLogo(data.logo_url)
-    } catch {}
-    setUploadingLogo(false)
-    e.target.value = ''
-  }
-
   const handleSave = async () => {
     setSaving(true)
     setError('')
@@ -302,7 +277,7 @@ export default function AdminApariencia() {
     setSaving(false)
   }
 
-  const cfgFull = { ...form, logo, plan_id: user.plan_id }
+  const cfgFull = { ...form, plan_id: user.plan_id }
 
   if (!isPremium) {
     return (
@@ -491,68 +466,6 @@ export default function AdminApariencia() {
             </div>
           )}
 
-          {/* Logo del negocio — planes pagados (plan 2+), no turismo */}
-          {!esTurismo && (user.plan_id || 1) >= 2 && (
-            <div className="pt-3 border-t border-gray-100">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Logo del negocio</span>
-              <div className="mt-2 flex items-start gap-4">
-                <div className="relative flex-shrink-0">
-                  <div className="w-16 h-16 rounded-full border-2 border-dashed border-gray-300 overflow-hidden flex items-center justify-center bg-gray-50">
-                    {logo
-                      ? <img src={logo} alt="Logo" className="w-full h-full object-cover" />
-                      : <span className="material-symbols-outlined text-gray-300 text-2xl">store</span>
-                    }
-                  </div>
-                  {uploadingLogo && (
-                    <div className="absolute inset-0 rounded-full bg-white/80 flex items-center justify-center">
-                      <span className="material-symbols-outlined text-primary text-lg animate-spin">progress_activity</span>
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-gray-400 mb-2">Se mostrará en el header de tu tienda. El cambio se refleja en la vista previa de arriba.</p>
-                  <label className={`cursor-pointer inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors ${uploadingLogo ? 'opacity-50 pointer-events-none' : 'text-primary bg-primary/10 hover:bg-primary/20'}`}>
-                    <span className="material-symbols-outlined text-sm">upload</span>
-                    {uploadingLogo ? 'Subiendo...' : logo ? 'Cambiar logo' : 'Subir logo'}
-                    <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleLogoChange} disabled={uploadingLogo} />
-                  </label>
-                  {logo && (
-                    <div className="mt-3 pt-3 border-t border-gray-100">
-                      <p className="text-xs font-semibold text-gray-500 mb-2">Tamaño en el header</p>
-                      <div className="flex items-center gap-3">
-                        <button
-                          type="button"
-                          onClick={() => update('logo_size', Math.max(1, (form.logo_size ?? 3) - 1))}
-                          disabled={(form.logo_size ?? 3) <= 1}
-                          className="w-7 h-7 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary disabled:opacity-30 transition-colors font-bold text-base leading-none"
-                        >−</button>
-                        <div className="flex items-center gap-1.5">
-                          {[1, 2, 3, 4, 5].map(n => (
-                            <button
-                              key={n}
-                              type="button"
-                              onClick={() => update('logo_size', n)}
-                              className={`w-2.5 h-2.5 rounded-full transition-all ${n <= (form.logo_size ?? 3) ? 'bg-primary scale-110' : 'bg-gray-200 hover:bg-gray-300'}`}
-                            />
-                          ))}
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => update('logo_size', Math.min(5, (form.logo_size ?? 3) + 1))}
-                          disabled={(form.logo_size ?? 3) >= 5}
-                          className="w-7 h-7 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-primary hover:text-primary disabled:opacity-30 transition-colors font-bold text-base leading-none"
-                        >+</button>
-                        <span className="text-xs font-semibold text-gray-400 w-4">
-                          {['', 'XS', 'S', 'M', 'L', 'XL'][form.logo_size ?? 3]}
-                        </span>
-                      </div>
-                      <p className="text-[10px] text-slate-400 mt-1.5">El cambio se guarda al presionar "Guardar cambios".</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 

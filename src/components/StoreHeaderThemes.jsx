@@ -22,38 +22,6 @@ function Brand({ light, mini, onClick }) {
     : <div className="shrink-0">{inner}</div>
 }
 
-const LOGO_SIZES = {
-  1: 'h-8 w-8',
-  2: 'h-10 w-10 sm:h-12 sm:w-12',
-  3: 'h-12 w-12 sm:h-16 sm:w-16',
-  4: 'h-16 w-16 sm:h-20 sm:w-20',
-  5: 'h-20 w-20 sm:h-24 sm:w-24',
-}
-
-/* Logo propio del negocio — planes pagados (plan_id >= 2) con logo subido */
-function BusinessLogo({ store, light, mini, onClick }) {
-  const hasPaidPlan = store?.plan_id >= 2
-  const logoUrl = store?.logo
-
-  if (!hasPaidPlan || !logoUrl) {
-    return <Brand light={light} mini={mini} onClick={onClick} />
-  }
-
-  const sizeKey = mini ? 1 : Math.min(5, Math.max(1, store?.logo_size || 3))
-  const size = LOGO_SIZES[sizeKey]
-  const img = (
-    <img
-      src={logoUrl}
-      alt="Logo"
-      className={`${size} rounded-lg object-contain bg-white/10 shrink-0`}
-      onError={e => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling?.style && (e.currentTarget.nextSibling.style.display = '') }}
-    />
-  )
-  return onClick
-    ? <button type="button" onClick={onClick} className="shrink-0 hover:opacity-80 transition-opacity">{img}</button>
-    : <div className="shrink-0">{img}</div>
-}
-
 /* Buscador (decorativo) */
 function Search({ name, mini }) {
   if (mini) return <div className="shrink-0 h-4 w-12 rounded-full bg-white/85 border border-black/5" />
@@ -95,7 +63,7 @@ export default function StoreHeaderThemed({ store, name, slogan, mini, onBrandCl
     return (
       <Shell style={{ backgroundColor: hdr.colorPale }} extra="border-b border-slate-200 !shadow-sm">
         <div className="relative z-10 max-w-7xl mx-auto flex items-center gap-3">
-          <BusinessLogo store={store} mini={mini} onClick={onBrandClick} />
+          <Brand mini={mini} onClick={onBrandClick} />
           <div className="flex-1 min-w-0 flex flex-col items-center justify-center text-center">
             {slogan && <span className={`${eyebrow} uppercase tracking-[0.3em] text-slate-400 mb-0.5 truncate max-w-full`}>{slogan}</span>}
             <span className={`${nameBig} font-semibold tracking-tight truncate max-w-full`} style={{ color: hdr.color }}>{name}</span>
@@ -111,7 +79,7 @@ export default function StoreHeaderThemed({ store, name, slogan, mini, onBrandCl
     return (
       <Shell style={{ backgroundColor: hdr.color }}>
         <div className="relative z-10 max-w-7xl mx-auto flex items-center gap-3 sm:gap-4">
-          <BusinessLogo store={store} light mini={mini} onClick={onBrandClick} />
+          <Brand light mini={mini} onClick={onBrandClick} />
           <span className="h-7 sm:h-9 w-px bg-white/25 shrink-0" />
           <div className="flex flex-col leading-none min-w-0">
             <span className={`${nameMd} font-bold tracking-tight text-white truncate`}>{name}</span>
@@ -129,7 +97,7 @@ export default function StoreHeaderThemed({ store, name, slogan, mini, onBrandCl
     return (
       <Shell style={{ backgroundColor: hdr.colorDeep }}>
         <div className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-10">
-          <BusinessLogo store={store} light mini onClick={onBrandClick} />
+          <Brand light mini onClick={onBrandClick} />
         </div>
         {actions && (
           <div className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-10">{actions}</div>
@@ -148,7 +116,7 @@ export default function StoreHeaderThemed({ store, name, slogan, mini, onBrandCl
     return (
       <Shell style={{ background: `linear-gradient(120deg, ${hdr.colorLight} 0%, ${hdr.color} 55%, ${hdr.colorDark} 100%)` }}>
         <div className="relative z-10 max-w-7xl mx-auto flex items-center gap-3">
-          <BusinessLogo store={store} light mini={mini} onClick={onBrandClick} />
+          <Brand light mini={mini} onClick={onBrandClick} />
           <div className="flex-1 min-w-0 flex flex-col items-center justify-center text-center">
             {slogan && <span className={`${eyebrow} uppercase tracking-[0.3em] text-white/70 mb-0.5 truncate max-w-full`}>{slogan}</span>}
             <span className={`${nameBig} font-extrabold tracking-tight text-white truncate max-w-full`}>{name}</span>
@@ -164,7 +132,7 @@ export default function StoreHeaderThemed({ store, name, slogan, mini, onBrandCl
     <Shell style={{ backgroundColor: '#f1f5f9' }} extra="!px-0 !shadow-sm" vpad={false}>
       <div className="relative z-10 flex items-stretch">
         <div className={`flex items-center gap-2 sm:gap-3 ${px} rounded-r-[1.75rem]`} style={{ backgroundColor: hdr.color, ...padStyle }}>
-          <BusinessLogo store={store} light mini={mini} onClick={onBrandClick} />
+          <Brand light mini={mini} onClick={onBrandClick} />
           <span className="h-7 sm:h-9 w-px bg-white/25 shrink-0 hidden sm:block" />
           <div className="flex flex-col leading-none min-w-0">
             <span className={`${nameMd} font-bold tracking-tight text-white truncate`}>{name}</span>
