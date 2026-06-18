@@ -412,7 +412,6 @@ export default function RegisterModal({ onClose, onSwitchToLogin, onRegisterSucc
                         : 'border-gray-200 text-gray-500 hover:border-gray-300'
                     }`}
                   >
-                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 bg-green-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full">GRATIS</span>
                     <span className="material-symbols-outlined text-2xl sm:text-3xl">local_grocery_store</span>
                     <span className="text-[12px] sm:text-sm font-bold">Local de barrio</span>
                     <span className="text-[9px] sm:text-[10px] text-center leading-tight">Almacén, ferretería, restorán y más</span>
@@ -428,7 +427,6 @@ export default function RegisterModal({ onClose, onSwitchToLogin, onRegisterSucc
                         : 'border-gray-200 text-gray-500 hover:border-gray-300'
                     }`}
                   >
-                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 bg-green-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full">GRATIS</span>
                     <span className="material-symbols-outlined text-2xl sm:text-3xl">event</span>
                     <span className="text-[12px] sm:text-sm font-bold">Evento</span>
                     <span className="text-[9px] sm:text-[10px] text-center leading-tight">Conciertos, ferias, beneficios y más</span>
