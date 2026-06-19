@@ -58,18 +58,20 @@ export function ProductModal({ product, hidePrice, inStorePage, onClose, onOpenS
         </button>
 
         {/* Imagen grande arriba */}
-        <div className="relative w-full overflow-hidden rounded-t-2xl" style={{ aspectRatio: '4/3' }}>
-          <img
-            src={product.image}
-            alt={product.alt}
-            className="w-full h-full object-contain bg-slate-100"
-          />
-          {product.badge && (
-            <span className="absolute top-2 left-2 px-2 py-0.5 bg-primary text-white rounded-full text-[8px] font-bold shadow">{product.badge}</span>
-          )}
-          {product.genero && (
-            <span className="absolute top-2 right-10 px-2 py-0.5 bg-white/90 backdrop-blur-sm rounded-full text-[8px] font-bold text-slate-700 shadow">{product.genero}</span>
-          )}
+        <div className="px-3 pt-3">
+          <div className="relative w-full overflow-hidden rounded-xl" style={{ aspectRatio: '4/3' }}>
+            <img
+              src={product.image}
+              alt={product.alt}
+              className="w-full h-full object-contain bg-slate-100"
+            />
+            {product.badge && (
+              <span className="absolute top-2 left-2 px-2 py-0.5 bg-primary text-white rounded-full text-[8px] font-bold shadow">{product.badge}</span>
+            )}
+            {product.genero && (
+              <span className="absolute top-2 right-2 px-2 py-0.5 bg-white/90 backdrop-blur-sm rounded-full text-[8px] font-bold text-slate-700 shadow">{product.genero}</span>
+            )}
+          </div>
         </div>
 
         {/* Info debajo */}
