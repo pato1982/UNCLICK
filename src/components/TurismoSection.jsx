@@ -2,19 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 
 const API = import.meta.env.VITE_API || ''
 
-const LAYOUT = [
-  { colSpan: 2, rowSpan: 2 },
-  { colSpan: 1, rowSpan: 1 },
-  { colSpan: 1, rowSpan: 1 },
-  { colSpan: 2, rowSpan: 2 },
-  { colSpan: 1, rowSpan: 1 },
-  { colSpan: 1, rowSpan: 1 },
-  { colSpan: 1, rowSpan: 1 },
-  { colSpan: 1, rowSpan: 1 },
-  { colSpan: 1, rowSpan: 1 },
-  { colSpan: 1, rowSpan: 1 },
-]
-
+const MAX_CARDS = 8
 const FEW_THRESHOLD = 4
 
 function parseJSON(val) {
@@ -163,46 +151,68 @@ function TourModal({ tour, onClose, onOpenTour }) {
   )
 }
 
-function MosaicTile({ tour, colSpan, rowSpan, onClick, onOpenTour, fading, aspect = '1 / 1' }) {
-  const isBig = colSpan >= 2 && rowSpan >= 2
+function TourCard({ tour, onClick, onOpenTour, fading }) {
   const imageSrc = getTourImage(tour)
   const isPaid = tour.user_id && !tour._isPlaceholder && tour.owner_plan_id >= 2
 
   return (
     <div
       onClick={onClick}
-      className={`relative overflow-hidden rounded-xl cursor-pointer group transition-opacity duration-700 ${fading ? 'opacity-0' : 'opacity-100'}`}
-      style={{ gridColumn: `span ${colSpan}`, gridRow: `span ${rowSpan}`, aspectRatio: aspect }}
+      className={`bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md cursor-pointer flex flex-col transition-all duration-200 ${fading ? 'opacity-0' : 'opacity-100'}`}
     >
-      {imageSrc ? (
-        <img src={imageSrc} alt={tour.nombre} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-      ) : (
-        <div className="absolute inset-0 bg-slate-700 flex items-center justify-center">
-          <span className="material-symbols-outlined text-4xl text-slate-500">landscape</span>
-        </div>
-      )}
-      <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.1) 55%, transparent 100%)' }} />
-      <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-3">
+      {/* Imagen arriba */}
+      <div className="relative w-full bg-slate-100 overflow-hidden" style={{ aspectRatio: '4/3' }}>
+        {imageSrc ? (
+          <img src={imageSrc} alt={tour.nombre} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <span className="material-symbols-outlined text-4xl text-slate-400">landscape</span>
+          </div>
+        )}
         {tour.categoria && (
-          <span className="inline-block bg-accent/90 text-primary text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wider mb-1">
+          <span className="absolute top-1.5 left-1.5 bg-accent/90 text-primary text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
             {tour.categoria}
           </span>
         )}
-        <p className={`text-white font-bold leading-tight line-clamp-2 ${isBig ? 'text-sm sm:text-base' : 'text-[10px] sm:text-xs'}`}>
-          {tour.nombre}
-        </p>
-        {isBig && tour.ubicacion && (
-          <p className="text-white/60 text-[10px] mt-0.5 line-clamp-1">{tour.ubicacion}</p>
-        )}
       </div>
-      {isPaid && (
-        <button
-          onClick={(e) => { e.stopPropagation(); onOpenTour && onOpenTour(tour.user_id, tour) }}
-          className="absolute bottom-1.5 right-1.5 z-10 h-7 w-7 sm:h-8 sm:w-8 rounded-md sm:rounded-lg bg-accent text-primary hover:bg-accent/80 flex items-center justify-center shadow-md transition-all hover:scale-110"
-        >
-          <span className="material-symbols-outlined text-sm sm:text-base font-bold">storefront</span>
-        </button>
-      )}
+
+      {/* Info abajo */}
+      <div className="px-2 py-1.5 flex flex-col gap-1 flex-1">
+        <h3 className="font-bold text-xs text-slate-900 leading-tight line-clamp-2">{tour.nombre}</h3>
+
+        {tour.ubicacion && (
+          <div className="flex items-center gap-0.5">
+            <span className="material-symbols-outlined text-accent shrink-0" style={{ fontSize: '11px' }}>location_on</span>
+            <span className="text-[10px] text-slate-500 line-clamp-1">{tour.ubicacion}</span>
+          </div>
+        )}
+
+        <div className="mt-auto flex items-end justify-between pt-1">
+          <div>
+            {tour.precio_antes && (
+              <p className="text-[9px] text-slate-400 line-through leading-none">
+                ${Number(tour.precio_antes).toLocaleString('es-CL', { maximumFractionDigits: 0 })}
+              </p>
+            )}
+            {tour.precio && (
+              <div className="flex items-center gap-0.5">
+                <span className="material-symbols-outlined text-primary" style={{ fontSize: '11px' }}>sell</span>
+                <span className="text-xs font-bold text-primary leading-none">
+                  ${Number(tour.precio).toLocaleString('es-CL', { maximumFractionDigits: 0 })}
+                </span>
+              </div>
+            )}
+          </div>
+          {isPaid && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onOpenTour && onOpenTour(tour.user_id, tour) }}
+              className="h-7 w-7 bg-accent text-primary rounded-lg flex items-center justify-center hover:bg-accent/80 transition-colors shadow-sm shrink-0"
+            >
+              <span className="material-symbols-outlined font-bold" style={{ fontSize: '16px' }}>storefront</span>
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   )
 }
@@ -281,7 +291,6 @@ export default function TurismoSection({ onViewAll, onOpenTour }) {
   const [fading, setFading] = useState(false)
   const [selectedTour, setSelectedTour] = useState(null)
   const [loaded, setLoaded] = useState(false)
-  const gridRef = useRef(null)
   const rotationRef = useRef(null)
 
   useEffect(() => {
@@ -291,7 +300,7 @@ export default function TurismoSection({ onViewAll, onOpenTour }) {
         const tours = data.tours || []
         setAllTours(tours)
         const shuffled = shuffleWithCompanyBalance(tours)
-        setDisplayTours(shuffled.slice(0, LAYOUT.length))
+        setDisplayTours(shuffled.slice(0, MAX_CARDS))
         setLoaded(true)
       })
       .catch(() => { setLoaded(true) })
@@ -301,7 +310,7 @@ export default function TurismoSection({ onViewAll, onOpenTour }) {
     setFading(true)
     setTimeout(() => {
       const shuffled = shuffleWithCompanyBalance(allTours)
-      setDisplayTours(shuffled.slice(0, LAYOUT.length))
+      setDisplayTours(shuffled.slice(0, MAX_CARDS))
       setFading(false)
     }, 700)
   }, [allTours])
@@ -311,115 +320,40 @@ export default function TurismoSection({ onViewAll, onOpenTour }) {
     return () => clearInterval(rotationRef.current)
   }, [rotateTours])
 
-  useEffect(() => {
-    function equalize() {
-      const grid = gridRef.current
-      if (!grid) return
-      const cols = 8
-      const gap = 6
-      const cellSize = Math.floor((grid.clientWidth - (cols - 1) * gap) / cols)
-      grid.style.gridTemplateRows = `${cellSize}px ${cellSize}px`
-    }
-    equalize()
-    window.addEventListener('resize', equalize)
-    return () => window.removeEventListener('resize', equalize)
-  }, [displayTours])
-
   if (loaded && allTours.length === 0) {
     return <TurismoPromo onViewAll={onViewAll} />
   }
 
   const fewItems = allTours.length > 0 && allTours.length <= FEW_THRESHOLD
 
-  const tiles = LAYOUT.map((slot, i) => ({ ...slot, tour: displayTours[i] })).filter(t => t.tour)
-
   const handleTileClick = (tour) => setSelectedTour(tour)
 
-  // Pocos tours: fondo a lo ancho, tarjetas centradas
-  if (fewItems) {
-    return (
-      <div className="relative overflow-hidden" style={{ background: '#1a1220' }}>
-        <div className="relative z-10 py-4 sm:py-6 px-3 sm:px-0">
-          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
-            <div className="w-1 h-5 sm:h-6 bg-accent rounded-full" />
-            <h2 className="text-sm sm:text-base font-black text-white tracking-wide">Turismo</h2>
-            <span className="text-[9px] sm:text-[10px] font-bold text-accent/70 uppercase tracking-wider">Villarrica</span>
-            <div className="flex-1 h-px bg-white/10" />
-            <button onClick={onViewAll} className="text-[9px] sm:text-[10px] font-bold text-accent hover:text-white transition-colors uppercase tracking-wider">
-              Ver todo
-            </button>
-          </div>
-          <div className="flex justify-center gap-2">
-            {displayTours.map((tour) => (
-              <div key={`few-${tour.id}`} style={{ width: '180px', flexShrink: 0 }}>
-                <MosaicTile
-                  tour={tour}
-                  colSpan={1}
-                  rowSpan={1}
-                  aspect="1 / 1"
-                  onClick={() => handleTileClick(tour)}
-                  onOpenTour={onOpenTour}
-                  fading={fading}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-        {selectedTour && (
-          <TourModal tour={selectedTour} onClose={() => setSelectedTour(null)} onOpenTour={onOpenTour} />
-        )}
-      </div>
-    )
-  }
+  const header = (
+    <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+      <div className="w-1 h-5 sm:h-6 bg-accent rounded-full" />
+      <h2 className="text-sm sm:text-base font-black text-white tracking-wide">Turismo</h2>
+      <span className="text-[9px] sm:text-[10px] font-bold text-accent/70 uppercase tracking-wider">Villarrica</span>
+      <div className="flex-1 h-px bg-white/10" />
+      <button onClick={onViewAll} className="text-[9px] sm:text-[10px] font-bold text-accent hover:text-white transition-colors uppercase tracking-wider">
+        Ver todo
+      </button>
+    </div>
+  )
 
-  // Muchos tours: layout full-width con imagen borroneada de fondo
   return (
     <div className="relative overflow-hidden" style={{ background: '#1a1220' }}>
-      {displayTours.length > 0 && getTourImage(displayTours[0]) && (
-        <>
-          <img src={getTourImage(displayTours[0])} alt="" aria-hidden
-            className="absolute inset-0 w-full h-full object-cover opacity-20"
-            style={{ filter: 'blur(4px)', transform: 'scale(1.05)' }}
-          />
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(26,18,32,0.95) 35%, rgba(26,18,32,0.6) 100%)' }} />
-        </>
-      )}
-      <div className="relative z-10 py-4 sm:py-6 px-3 sm:px-0">
-        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
-          <div className="w-1 h-5 sm:h-6 bg-accent rounded-full" />
-          <h2 className="text-sm sm:text-base font-black text-white tracking-wide">Turismo</h2>
-          <span className="text-[9px] sm:text-[10px] font-bold text-accent/70 uppercase tracking-wider">Villarrica</span>
-          <div className="flex-1 h-px bg-white/10" />
-          <button onClick={onViewAll} className="text-[9px] sm:text-[10px] font-bold text-accent hover:text-white transition-colors uppercase tracking-wider">
-            Ver todo
-          </button>
-        </div>
-
-        {/* Movil: 2x2 */}
-        <div className="grid sm:hidden grid-cols-2 gap-1.5">
-          {displayTours.slice(0, 4).map((tour, i) => (
-            <MosaicTile key={`m-${tour.id}-${i}`} tour={tour} colSpan={1} rowSpan={1} aspect="1 / 1"
-              onClick={() => handleTileClick(tour)} onOpenTour={onOpenTour} fading={fading} />
-          ))}
-        </div>
-
-        {/* Rango 800-900px: fila de 4 */}
-        <div className="hidden min-[800px]:max-[900px]:flex gap-1.5 px-6">
-          {displayTours.slice(0, 4).map((tour, i) => (
-            <div key={`mid-${tour.id}-${i}`} className="flex-1">
-              <MosaicTile tour={tour} colSpan={1} rowSpan={1} aspect="1 / 1"
-                onClick={() => handleTileClick(tour)} onOpenTour={onOpenTour} fading={fading} />
+      <div className="relative z-10 py-4 sm:py-5 px-3 sm:px-4">
+        {header}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3" style={fewItems ? { justifyItems: 'center' } : {}}>
+          {displayTours.map((tour, i) => (
+            <div key={`${tour.id}-${i}`} className={fewItems ? 'w-full max-w-[200px]' : 'w-full'}>
+              <TourCard
+                tour={tour}
+                onClick={() => handleTileClick(tour)}
+                onOpenTour={onOpenTour}
+                fading={fading}
+              />
             </div>
-          ))}
-        </div>
-
-        {/* Escritorio: mosaico */}
-        <div ref={gridRef} className="hidden min-[640px]:max-[799px]:grid min-[901px]:grid gap-1.5"
-          style={{ gridTemplateColumns: 'repeat(8, 1fr)', gridAutoRows: 'auto' }}>
-          {tiles.map((tile, i) => (
-            <MosaicTile key={`${tile.tour.id}-${i}`} tour={tile.tour}
-              colSpan={tile.colSpan} rowSpan={tile.rowSpan}
-              onClick={() => handleTileClick(tile.tour)} onOpenTour={onOpenTour} fading={fading} />
           ))}
         </div>
       </div>
