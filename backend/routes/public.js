@@ -210,7 +210,7 @@ router.get('/tours', async (req, res) => {
              u.plan_id     AS owner_plan_id,
              n.nombre_negocio
       FROM tb_tours t
-      JOIN usuarios u ON u.id = t.usuario_id AND u.activo = 1 AND u.tipo_cuenta = 'turismo'
+      JOIN usuarios u ON u.id = t.usuario_id AND u.activo = 1 AND u.tipo_cuenta = 'turismo' AND u.plan_id = 5
       LEFT JOIN negocios n ON n.usuario_id = t.usuario_id
       ORDER BY t.created_at DESC`)
 
