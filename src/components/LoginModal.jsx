@@ -371,6 +371,16 @@ export default function LoginModal({ onClose, onSwitchToRegister, onLoginSuccess
   const [showPassword, setShowPassword] = useState(false)
   const [mfaToken, setMfaToken] = useState(null)
   const [deletionPending, setDeletionPending] = useState(null)
+  const [intentosRestantes, setIntentosRestantes] = useState(null)
+  const [bloqueadoSegundos, setBloqueadoSegundos] = useState(null)
+
+  // Contador regresivo cuando la cuenta está bloqueada
+  useEffect(() => {
+    if (!bloqueadoSegundos) return
+    if (bloqueadoSegundos <= 0) { setBloqueadoSegundos(null); return }
+    const t = setTimeout(() => setBloqueadoSegundos(s => s - 1), 1000)
+    return () => clearTimeout(t)
+  }, [bloqueadoSegundos])
 
   // Si hay ?reset= en la URL, abrir directamente el formulario de reset
   useEffect(() => {
@@ -395,16 +405,30 @@ export default function LoginModal({ onClose, onSwitchToRegister, onLoginSuccess
       const data = await res.json()
 
       if (!res.ok) {
+        // Cuenta bloqueada por intentos fallidos
+        if (data.bloqueado) {
+          setBloqueadoSegundos(data.segundos_restantes || 900)
+          setIntentosRestantes(null)
+          setLoading(false)
+          return
+        }
         // Cuenta con eliminación programada — mostrar pantalla de recuperación
         if (data.cuenta_en_eliminacion) {
           setDeletionPending({ dias_restantes: data.dias_restantes, email: form.email, password: form.password })
           setLoading(false)
           return
         }
+        // Mostrar aviso de intentos restantes desde el 5° intento
+        if (data.mostrar_aviso && data.intentos_restantes != null) {
+          setIntentosRestantes(data.intentos_restantes)
+        } else {
+          setIntentosRestantes(null)
+        }
         setError(data.error || 'Error al iniciar sesión')
         setLoading(false)
         return
       }
+      setIntentosRestantes(null)
 
       // Segundo factor requerido
       if (data.mfa_required) {
@@ -475,10 +499,47 @@ export default function LoginModal({ onClose, onSwitchToRegister, onLoginSuccess
 
             {/* Formulario */}
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
+
+              {/* Pantalla de bloqueo */}
+              {bloqueadoSegundos > 0 ? (
+                <div className="flex flex-col items-center gap-4 py-4">
+                  <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
+                    <span className="material-symbols-outlined text-red-500 text-4xl">lock</span>
+                  </div>
+                  <div className="text-center">
+                    <p className="font-bold text-slate-800 text-sm">Cuenta bloqueada temporalmente</p>
+                    <p className="text-xs text-slate-500 mt-1">Demasiados intentos fallidos. Vuelve a intentar en:</p>
+                  </div>
+                  <div className="text-3xl font-black text-red-500 tabular-nums">
+                    {String(Math.floor(bloqueadoSegundos / 60)).padStart(2, '0')}:{String(bloqueadoSegundos % 60).padStart(2, '0')}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowForgot(true)}
+                    className="flex items-center gap-2 bg-primary text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-primary/90 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-base">lock_reset</span>
+                    Recuperar contraseña
+                  </button>
+                </div>
+              ) : (
+              <>
               {error && (
                 <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-4 py-2 flex items-center gap-2">
                   <span className="material-symbols-outlined text-base">error</span>
                   {error}
+                </div>
+              )}
+
+              {/* Aviso de intentos restantes */}
+              {intentosRestantes != null && (
+                <div className={`rounded-lg px-4 py-2.5 flex items-center gap-2 text-sm border ${intentosRestantes <= 2 ? 'bg-red-50 border-red-200 text-red-700' : 'bg-amber-50 border-amber-200 text-amber-700'}`}>
+                  <span className="material-symbols-outlined text-base shrink-0">warning</span>
+                  <span>
+                    {intentosRestantes === 1
+                      ? 'Último intento antes de bloquear tu cuenta por 15 minutos.'
+                      : `Te ${intentosRestantes === 2 ? 'quedan' : 'quedan'} ${intentosRestantes} intentos antes de bloquear tu cuenta.`}
+                  </span>
                 </div>
               )}
 
@@ -552,6 +613,8 @@ export default function LoginModal({ onClose, onSwitchToRegister, onLoginSuccess
                   Regístrate
                 </button>
               </p>
+              </>
+              )}
 
             </form>
           </>

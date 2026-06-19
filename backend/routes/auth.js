@@ -173,6 +173,19 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Email o contraseña incorrectos' })
     }
 
+    // Verificar bloqueo por intentos fallidos
+    if (usuario.login_bloqueado_hasta && new Date(usuario.login_bloqueado_hasta) > new Date()) {
+      const segundosRestantes = Math.ceil((new Date(usuario.login_bloqueado_hasta) - new Date()) / 1000)
+      const minutosRestantes = Math.ceil(segundosRestantes / 60)
+      logSeguridad(req.pool, { usuario_id: usuario.id, accion: 'login_bloqueado', ip })
+      return res.status(429).json({
+        error: `Cuenta bloqueada por demasiados intentos fallidos.`,
+        bloqueado: true,
+        segundos_restantes: segundosRestantes,
+        minutos_restantes: minutosRestantes,
+      })
+    }
+
     if (!usuario.activo) {
       // Cuenta con eliminación programada: verificar si está dentro del período de gracia
       if (usuario.eliminacion_programada_at) {
@@ -203,9 +216,46 @@ router.post('/login', async (req, res) => {
 
     const valido = await bcrypt.compare(password, usuario.password_hash)
     if (!valido) {
+      const MAX_INTENTOS = 8
+      const AVISO_DESDE = 5
+      const nuevosIntentos = (usuario.login_intentos || 0) + 1
+      const bloqueado = nuevosIntentos >= MAX_INTENTOS
+      const bloqueadoHasta = bloqueado
+        ? new Date(Date.now() + 15 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
+        : null
+
+      await req.pool.query(
+        `UPDATE usuarios SET
+           login_intentos = ?,
+           login_bloqueado_hasta = ?
+         WHERE id = ?`,
+        [bloqueado ? 0 : nuevosIntentos, bloqueadoHasta, usuario.id]
+      )
+
       logSeguridad(req.pool, { usuario_id: usuario.id, accion: 'login_fallido', detalle: 'contraseña incorrecta', ip })
-      return res.status(401).json({ error: 'Email o contraseña incorrectos' })
+
+      if (bloqueado) {
+        return res.status(429).json({
+          error: 'Cuenta bloqueada por 15 minutos por demasiados intentos fallidos.',
+          bloqueado: true,
+          segundos_restantes: 15 * 60,
+          minutos_restantes: 15,
+        })
+      }
+
+      const intentosRestantes = MAX_INTENTOS - nuevosIntentos
+      return res.status(401).json({
+        error: 'Email o contraseña incorrectos',
+        intentos_restantes: intentosRestantes,
+        mostrar_aviso: nuevosIntentos >= AVISO_DESDE,
+      })
     }
+
+    // Login exitoso — resetear contador de intentos
+    await req.pool.query(
+      'UPDATE usuarios SET login_intentos = 0, login_bloqueado_hasta = NULL WHERE id = ?',
+      [usuario.id]
+    )
 
     // Crear sesión
     const token     = randomBytes(32).toString('hex')
