@@ -163,7 +163,7 @@ function TourCard({ tour, onClick, onOpenTour, fading }) {
       {/* Imagen arriba */}
       <div className="relative w-full bg-slate-100 overflow-hidden" style={{ aspectRatio: '4/3' }}>
         {imageSrc ? (
-          <img src={imageSrc} alt={tour.nombre} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+          <img src={imageSrc} alt={tour.nombre} className="w-full h-full object-contain" />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <span className="material-symbols-outlined text-4xl text-slate-400">landscape</span>
