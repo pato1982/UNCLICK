@@ -236,12 +236,6 @@ function TourModal({ tour, onClose }) {
 
         {/* Info */}
         <div className="p-4 flex flex-col gap-3">
-          {tour.ubicacion && (
-            <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-accent text-sm">location_on</span>
-              <span className="text-xs text-slate-500">{tour.ubicacion}</span>
-            </div>
-          )}
           {tour.detalle && (
             <p className="text-xs text-slate-500 leading-relaxed">{tour.detalle}</p>
           )}
