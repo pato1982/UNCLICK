@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { deleteUpload } from '../lib/files.js'
+import { deleteUpload, extractUploadUrls } from '../lib/files.js'
 
 const router = Router()
 
@@ -31,6 +31,12 @@ function imagenPrincipalDe(imagenes) {
 
 // Reemplaza (replace-all) las imágenes de un listing dentro de una conexión transaccional.
 async function reemplazarImagenes(conn, listing_id, imagenes) {
+  // Borrar del disco las imágenes que ya no están en el nuevo set
+  const [oldRows] = await conn.query('SELECT url FROM tb_listing_imagenes WHERE listing_id = ?', [listing_id])
+  const newUrls = new Set((imagenes || []).map(i => i?.url).filter(Boolean))
+  for (const { url } of oldRows) {
+    if (url && !newUrls.has(url)) deleteUpload(url)
+  }
   await conn.query('DELETE FROM tb_listing_imagenes WHERE listing_id = ?', [listing_id])
   if (!Array.isArray(imagenes) || imagenes.length === 0) return
   const principalUrl = imagenPrincipalDe(imagenes)

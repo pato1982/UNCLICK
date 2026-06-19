@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import { CARPETAS_VALIDAS, multerMemoria, guardarImagen, handleUploadError } from './middleware/upload.js'
 import { requireAuth } from './middleware/requireAuth.js'
+import { cleanupOrphanUploads } from './lib/cleanupOrphans.js'
 import authRouter          from './routes/auth.js'
 import passwordResetRouter from './routes/password-reset.js'
 import categoriasRouter from './routes/categorias.js'
@@ -96,6 +97,8 @@ pool.getConnection()
   .then(conn => {
     console.log(`âœ…  MySQL conectado â†’ ${process.env.DB_NAME}@${process.env.DB_HOST}:${process.env.DB_PORT}`)
     conn.release()
+    cleanupOrphanUploads(pool).catch(() => {})
+    setInterval(() => cleanupOrphanUploads(pool).catch(() => {}), 6 * 60 * 60 * 1000)
   })
   .catch(err => {
     console.error('âŒ  Error al conectar con MySQL:', err.message)
@@ -168,3 +171,4 @@ app.use(handleUploadError)
 app.listen(PORT, () => {
   console.log(`ðŸš€  Backend corriendo en http://localhost:${PORT}`)
 })
+
