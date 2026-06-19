@@ -540,6 +540,7 @@ export default function StorePage({ store, onBack, onOpenStore, mobileCatKey }) 
   const [activeCat, setActiveCat] = useState(null)
   const [activeSub, setActiveSub] = useState(null)
   const [mobileCatOpen, setMobileCatOpen] = useState(false)
+  const [verTodosTipo, setVerTodosTipo] = useState(null)
 
   // Abrir sidebar mobile cuando cambia mobileCatKey
   useEffect(() => {
@@ -992,6 +993,32 @@ export default function StorePage({ store, onBack, onOpenStore, mobileCatKey }) 
               const TIPO_ICONS = { producto: 'inventory_2', servicio: 'work', arriendo: 'home' }
 
               if (hasMixedTypes && !activeCat && !activeSub) {
+                // Ver todos un tipo específico
+                if (verTodosTipo && tipos[verTodosTipo]) {
+                  const items = tipos[verTodosTipo]
+                  return (
+                    <div>
+                      <div className="flex items-center gap-2 mb-4">
+                        <button
+                          onClick={() => setVerTodosTipo(null)}
+                          className="flex items-center gap-1 text-xs font-bold text-primary/60 hover:text-primary transition-colors"
+                        >
+                          <span className="material-symbols-outlined text-sm">arrow_back</span>
+                          Volver
+                        </button>
+                        <span className="material-symbols-outlined text-primary text-base">{TIPO_ICONS[verTodosTipo] || 'category'}</span>
+                        <h3 className="text-xs sm:text-sm font-black text-primary uppercase tracking-wide">{TIPO_LABELS[verTodosTipo] || verTodosTipo}</h3>
+                        <span className="text-[9px] text-slate-400">({items.length})</span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                        {items.map(product => (
+                          <ProductCard key={product.id} product={product} onOpenStore={onOpenStore} inStorePage />
+                        ))}
+                      </div>
+                    </div>
+                  )
+                }
+
                 // Múltiples tipos · Orden fijo: productos → servicios → arriendos
                 const TIPO_ORDER = { producto: 0, servicio: 1, arriendo: 2 }
                 const sortedKeys = [...tipoKeys].sort((a, b) => (TIPO_ORDER[a] ?? 99) - (TIPO_ORDER[b] ?? 99))
@@ -1007,7 +1034,6 @@ export default function StorePage({ store, onBack, onOpenStore, mobileCatKey }) 
                   }
 
                   // Servicios y arriendos en planes pagados (Normal/Premium): collage rotativo en lugar de grid
-                  // Solo si hay 2+ ítems; con 1 solo ítem el collage queda gigante (ocupa todo el ancho en portrait)
                   const useServicesCollage = tipo === 'servicio' && ownerPlan >= 2 && items.length >= 2
                   const useArriendosCollage = tipo === 'arriendo' && ownerPlan >= 2 && items.length >= 2
                   const useCollage = useServicesCollage || useArriendosCollage
@@ -1021,6 +1047,12 @@ export default function StorePage({ store, onBack, onOpenStore, mobileCatKey }) 
                         <h3 className="text-xs sm:text-sm font-black text-primary uppercase tracking-wide">{TIPO_LABELS[tipo] || tipo}</h3>
                         <span className="text-[9px] text-slate-400">({items.length})</span>
                         <div className="flex-1 h-px bg-slate-200"></div>
+                        <button
+                          onClick={() => setVerTodosTipo(tipo)}
+                          className="text-[9px] sm:text-[10px] font-bold text-primary/50 hover:text-primary transition-colors uppercase tracking-wide shrink-0"
+                        >
+                          Ver todos
+                        </button>
                       </div>
                       {useCollage ? (
                         <StoreServicesCollage items={items} bgColor={collageColor} />
