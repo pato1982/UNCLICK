@@ -241,30 +241,30 @@ function MosaicTile({ tour, colSpan, rowSpan, onClick, onOpenTour, fading, aspec
   )
 }
 
-function TurismoPromo({ onViewAll, portadas }) {
-  const imgs = portadas
-    .map(p => {
-      const arr = Array.isArray(p.imagenes) ? p.imagenes : (typeof p.imagenes === 'string' ? JSON.parse(p.imagenes || '[]') : [])
-      const img = arr[0]
-      if (!img) return null
-      return img.startsWith('http') ? img : `${API}${img}`
-    })
-    .filter(Boolean)
-    .slice(0, 4)
+function TurismoPromo({ onViewAll }) {
+  const chips = ['Kayak', 'Senderismo', 'Volcán', 'Camping', 'Fotografía', 'Pesca', 'Ciclismo', 'Avistamiento']
 
   return (
-    <div className="relative overflow-hidden" style={{ background: 'linear-gradient(150deg, #091e35 0%, #0c2d44 25%, #182540 50%, #241432 75%, #1a1220 100%)' }}>
-      {/* Lago: reflejo azul-teal suave en la parte inferior */}
-      <div className="absolute inset-0 pointer-events-none" style={{
-        background: 'radial-gradient(ellipse 90% 55% at 15% 85%, rgba(10,65,95,0.55) 0%, transparent 60%), radial-gradient(ellipse 65% 75% at 85% 15%, rgba(42,18,52,0.65) 0%, transparent 55%)'
+    <div className="relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #08192e 0%, #0d2840 35%, #1a2540 60%, #26143a 85%, #1a1220 100%)' }}>
+      {/* Blob lago — azul teal difuso */}
+      <div className="absolute pointer-events-none" style={{
+        bottom: '-60px', left: '25%', width: '480px', height: '220px',
+        background: 'radial-gradient(ellipse, rgba(6,75,115,0.5) 0%, transparent 70%)',
+        filter: 'blur(28px)',
       }} />
-      {/* Líneas de agua muy sutiles */}
-      <div className="absolute inset-0 pointer-events-none opacity-[0.035]" style={{
-        backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 5px, rgba(255,255,255,1) 5px, rgba(255,255,255,1) 6px)'
+      {/* Blob volcán — cono morado */}
+      <div className="absolute pointer-events-none" style={{
+        top: '-50px', right: '10%', width: '280px', height: '260px',
+        background: 'radial-gradient(ellipse, rgba(55,16,75,0.65) 0%, transparent 68%)',
+        filter: 'blur(30px)',
+      }} />
+      {/* Destello dorado muy suave */}
+      <div className="absolute inset-x-0 bottom-0 h-12 pointer-events-none" style={{
+        background: 'linear-gradient(to top, rgba(245,200,66,0.04) 0%, transparent 100%)'
       }} />
 
       <div className="relative z-10 py-5 sm:py-6 px-3 sm:px-0">
-        {/* Header igual al de la sección normal */}
+        {/* Header — igual al de la sección normal */}
         <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
           <div className="w-1 h-5 sm:h-6 bg-accent rounded-full" />
           <h2 className="text-sm sm:text-base font-black text-white tracking-wide">Turismo</h2>
@@ -275,63 +275,43 @@ function TurismoPromo({ onViewAll, portadas }) {
           </button>
         </div>
 
-        {/* Contenido principal */}
-        <div className="flex flex-col sm:flex-row items-center sm:items-stretch gap-5 sm:gap-8">
+        {/* Contenido: texto + chips */}
+        <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 sm:gap-10">
 
-          {/* Texto izquierdo */}
-          <div className="flex-1 flex flex-col justify-center text-center sm:text-left">
-            <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-2" style={{ color: 'rgba(245,200,66,0.7)' }}>
+          {/* Texto y CTA */}
+          <div className="text-center sm:text-left">
+            <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1.5" style={{ color: 'rgba(245,200,66,0.65)' }}>
               Lago Villarrica · Volcán · Naturaleza
             </p>
-            <h3 className="text-lg sm:text-2xl md:text-[1.6rem] font-black text-white leading-tight mb-3">
+            <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-white leading-tight mb-2.5">
               Descubre el turismo<br />
               <span style={{ color: '#F5C842' }}>en Villarrica</span>
             </h3>
-            <p className="text-[11px] sm:text-xs leading-relaxed mb-5 max-w-xs mx-auto sm:mx-0" style={{ color: 'rgba(255,255,255,0.5)' }}>
-              Lago cristalino, volcán imponente y naturaleza única. Conoce las empresas locales que ofrecen tours, aventura y experiencias en el corazón de La Araucanía.
+            <p className="text-[11px] sm:text-xs leading-relaxed mb-4 max-w-xs mx-auto sm:mx-0" style={{ color: 'rgba(255,255,255,0.45)' }}>
+              Lago cristalino, volcán imponente y naturaleza única.<br className="hidden sm:block" />
+              Conoce las empresas de tours y aventura de la zona.
             </p>
-            <div className="flex justify-center sm:justify-start">
-              <button
-                onClick={onViewAll}
-                className="inline-flex items-center gap-2 font-black text-[11px] sm:text-xs px-4 sm:px-5 py-2 sm:py-2.5 rounded-full transition-all hover:scale-105 shadow-lg"
-                style={{ background: '#F5C842', color: '#3B1969' }}
-              >
-                <span className="material-symbols-outlined text-sm">explore</span>
-                Ver empresas de turismo disponibles
-              </button>
-            </div>
+            <button
+              onClick={onViewAll}
+              className="inline-flex items-center gap-2 font-black text-[11px] sm:text-xs px-4 sm:px-5 py-2 sm:py-2.5 rounded-full transition-all hover:scale-105 shadow-lg"
+              style={{ background: '#F5C842', color: '#3B1969' }}
+            >
+              <span className="material-symbols-outlined text-sm">explore</span>
+              Ver empresas de turismo disponibles
+            </button>
           </div>
 
-          {/* Imágenes derecha */}
-          <div className="shrink-0 grid grid-cols-2 gap-1.5 w-full sm:w-56 md:w-72">
-            {imgs.length > 0 ? (
-              <>
-                {imgs.slice(0, 4).map((src, i) => (
-                  <div
-                    key={i}
-                    className={`relative rounded-xl overflow-hidden ${i === 0 ? 'col-span-2' : ''}`}
-                    style={{ aspectRatio: i === 0 ? '16/6' : '1/1' }}
-                  >
-                    <img src={src} alt="Turismo en Villarrica" className="absolute inset-0 w-full h-full object-cover" />
-                    <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 40%, rgba(9,30,53,0.55) 100%)' }} />
-                  </div>
-                ))}
-                {imgs.length < 4 && Array.from({ length: 4 - imgs.length - (imgs.length === 0 ? 0 : 0) }).map((_, i) => (
-                  <div key={`ph-${i}`} className="relative rounded-xl overflow-hidden flex items-center justify-center"
-                    style={{ aspectRatio: '1/1', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                    <span className="material-symbols-outlined text-3xl" style={{ color: 'rgba(245,200,66,0.2)' }}>landscape</span>
-                  </div>
-                ))}
-              </>
-            ) : (
-              // Sin portadas: íconos representativos
-              ['landscape', 'kayaking', 'hiking', 'forest'].map((icon, i) => (
-                <div key={i} className={`relative rounded-xl overflow-hidden flex items-center justify-center ${i === 0 ? 'col-span-2' : ''}`}
-                  style={{ aspectRatio: i === 0 ? '16/6' : '1/1', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                  <span className="material-symbols-outlined text-4xl" style={{ color: 'rgba(245,200,66,0.25)' }}>{icon}</span>
-                </div>
-              ))
-            )}
+          {/* Chips de actividades */}
+          <div className="flex flex-wrap justify-center sm:justify-start gap-1.5 sm:gap-2 sm:max-w-xs">
+            {chips.map((act, i) => (
+              <span
+                key={i}
+                className="text-[10px] sm:text-[11px] font-bold px-2.5 py-1 rounded-full"
+                style={{ border: '1px solid rgba(245,200,66,0.22)', color: 'rgba(245,200,66,0.7)', background: 'rgba(245,200,66,0.07)' }}
+              >
+                {act}
+              </span>
+            ))}
           </div>
         </div>
       </div>
@@ -345,27 +325,19 @@ export default function TurismoSection({ onViewAll, onOpenTour }) {
   const [fading, setFading] = useState(false)
   const [selectedTour, setSelectedTour] = useState(null)
   const [loaded, setLoaded] = useState(false)
-  const [portadas, setPortadas] = useState([])
   const gridRef = useRef(null)
   const rotationRef = useRef(null)
 
-  // Fetch tours from DB (only premium). Si no hay, carga portadas para el placeholder.
+  // Fetch tours from DB (only premium)
   useEffect(() => {
     fetch(`${API}/api/v1/public/tours`)
       .then(r => r.json())
-      .then(async data => {
+      .then(data => {
         const tours = data.tours || []
         setAllTours(tours)
         const shuffled = shuffleWithCompanyBalance(tours)
         setDisplayTours(shuffled.slice(0, LAYOUT.length))
         setLoaded(true)
-        if (tours.length === 0) {
-          try {
-            const r2 = await fetch(`${API}/api/v1/public/portadas`)
-            const d2 = await r2.json()
-            setPortadas(d2.portadas || [])
-          } catch {}
-        }
       })
       .catch(() => {
         setLoaded(true)
@@ -405,7 +377,7 @@ export default function TurismoSection({ onViewAll, onOpenTour }) {
 
   // Placeholder cuando no hay tours premium activos
   if (loaded && allTours.length === 0) {
-    return <TurismoPromo onViewAll={onViewAll} portadas={portadas} />
+    return <TurismoPromo onViewAll={onViewAll} />
   }
 
   const tiles = LAYOUT.map((slot, i) => ({
