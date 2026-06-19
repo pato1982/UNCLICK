@@ -37,6 +37,7 @@ installDevFetchInterceptor()
 function AdminIndex() {
   const user = JSON.parse(localStorage.getItem('user') || '{}')
   if (user.rol === 'programador')          return <Navigate to="/admin/programador/locales" replace />
+  if (user.tipo_cuenta === 'turismo' && user.plan_id === 4) return <Navigate to="/admin/portada" replace />
   if (user.tipo_cuenta === 'turismo')      return <Navigate to="/admin/tour" replace />
   if (user.tipo_cuenta === 'local')        return <Navigate to="/admin/mi-local" replace />
   if (user.tipo_cuenta === 'evento')       return <Navigate to="/admin/mis-eventos" replace />
