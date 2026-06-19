@@ -133,30 +133,23 @@ export default function AdminPortada() {
     setError('')
 
     try {
-      const finalUrls = []
-      for (let i = 0; i < 3; i++) {
-        const img = form.imagenes[i]
-        if (img instanceof File) {
-          const fd = new FormData()
-          fd.append('imagen', img)
-          const upRes = await fetch(`${API}/api/v1/upload?tipo=portadas`, {
-            method: 'POST',
-            credentials: 'include',
-            body: fd
-          })
-          if (!upRes.ok) {
-            setError(`Error al subir imagen ${i + 1}`)
-            setSaving(false)
-            return
+      const finalUrls = await Promise.all(
+        form.imagenes.map(async (img, i) => {
+          if (img instanceof File) {
+            const fd = new FormData()
+            fd.append('imagen', img)
+            const upRes = await fetch(`${API}/api/v1/upload?tipo=portadas`, {
+              method: 'POST',
+              credentials: 'include',
+              body: fd
+            })
+            if (!upRes.ok) throw new Error(`Error al subir imagen ${i + 1}`)
+            const upData = await upRes.json()
+            return upData.url || null
           }
-          const upData = await upRes.json()
-          finalUrls.push(upData.url || null)
-        } else if (typeof img === 'string') {
-          finalUrls.push(img)
-        } else {
-          finalUrls.push(null)
-        }
-      }
+          return typeof img === 'string' ? img : null
+        })
+      )
 
       const body = {
         nombre: nombreNegocio || 'Mi emprendimiento',
@@ -197,7 +190,7 @@ export default function AdminPortada() {
       setTimeout(() => setSaved(false), 3000)
     } catch (err) {
       console.error('Error guardando portada:', err)
-      setError('Error de conexión al guardar')
+      setError(err.message || 'Error de conexión al guardar')
     }
     setSaving(false)
   }
