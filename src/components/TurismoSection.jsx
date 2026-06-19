@@ -335,36 +335,34 @@ export default function TurismoSection({ onViewAll, onOpenTour }) {
 
   const handleTileClick = (tour) => setSelectedTour(tour)
 
-  // Pocos tours: fondo ceñido al ancho de las tarjetas, centrado en la página
+  // Pocos tours: fondo a lo ancho, tarjetas centradas
   if (fewItems) {
     return (
-      <div className="flex justify-center py-4 sm:py-6 px-3">
-        <div className="relative overflow-hidden rounded-2xl" style={{ background: '#1a1220', width: 'fit-content' }}>
-          <div className="relative z-10 p-3 sm:p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-1 h-5 bg-accent rounded-full" />
-              <h2 className="text-sm font-black text-white tracking-wide">Turismo</h2>
-              <span className="text-[9px] font-bold text-accent/70 uppercase tracking-wider">Villarrica</span>
-              <div className="w-6 h-px bg-white/10" />
-              <button onClick={onViewAll} className="text-[9px] font-bold text-accent hover:text-white transition-colors uppercase tracking-wider">
-                Ver todo
-              </button>
-            </div>
-            <div className="flex gap-2">
-              {displayTours.map((tour) => (
-                <div key={`few-${tour.id}`} style={{ width: '180px', flexShrink: 0 }}>
-                  <MosaicTile
-                    tour={tour}
-                    colSpan={1}
-                    rowSpan={1}
-                    aspect="1 / 1"
-                    onClick={() => handleTileClick(tour)}
-                    onOpenTour={onOpenTour}
-                    fading={fading}
-                  />
-                </div>
-              ))}
-            </div>
+      <div className="relative overflow-hidden" style={{ background: '#1a1220' }}>
+        <div className="relative z-10 py-4 sm:py-6 px-3 sm:px-0">
+          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
+            <div className="w-1 h-5 sm:h-6 bg-accent rounded-full" />
+            <h2 className="text-sm sm:text-base font-black text-white tracking-wide">Turismo</h2>
+            <span className="text-[9px] sm:text-[10px] font-bold text-accent/70 uppercase tracking-wider">Villarrica</span>
+            <div className="flex-1 h-px bg-white/10" />
+            <button onClick={onViewAll} className="text-[9px] sm:text-[10px] font-bold text-accent hover:text-white transition-colors uppercase tracking-wider">
+              Ver todo
+            </button>
+          </div>
+          <div className="flex justify-center gap-2">
+            {displayTours.map((tour) => (
+              <div key={`few-${tour.id}`} style={{ width: '180px', flexShrink: 0 }}>
+                <MosaicTile
+                  tour={tour}
+                  colSpan={1}
+                  rowSpan={1}
+                  aspect="1 / 1"
+                  onClick={() => handleTileClick(tour)}
+                  onOpenTour={onOpenTour}
+                  fading={fading}
+                />
+              </div>
+            ))}
           </div>
         </div>
         {selectedTour && (
