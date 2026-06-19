@@ -105,27 +105,16 @@ function TourModal({ tour, onClose, onOpenTour }) {
           )}
         </div>
         </div>
-        <div className="p-4 flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-black text-slate-800">{tour.nombre}</h3>
-            {tour.user_id && !tour._isPlaceholder && (
-              <button
-                onClick={() => { onClose(); onOpenTour && onOpenTour(tour.user_id, tour) }}
-                className="flex items-center gap-1 px-2.5 py-1 bg-accent hover:bg-accent/80 rounded-full transition-colors shadow-sm"
-              >
-                <span className="material-symbols-outlined text-primary text-sm">storefront</span>
-                <span className="text-[10px] font-bold text-primary">Ver tienda</span>
-              </button>
-            )}
-          </div>
+        <div className="p-4 flex flex-col items-center gap-2 text-center">
+          <h3 className="text-sm font-black text-slate-800">{tour.nombre}</h3>
           {tour.empresa_nombre && (
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center justify-center gap-1.5">
               <span className="material-symbols-outlined text-primary text-sm">store</span>
               <span className="text-[11px] font-bold text-primary">{tour.empresa_nombre}</span>
             </div>
           )}
           {tour.ubicacion && (
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center justify-center gap-1.5">
               <span className="material-symbols-outlined text-accent text-sm">location_on</span>
               <span className="text-[11px] text-slate-500">{tour.ubicacion}</span>
             </div>
@@ -134,7 +123,7 @@ function TourModal({ tour, onClose, onOpenTour }) {
             <p className="text-[11px] text-slate-500 leading-relaxed line-clamp-3">{tour.detalle}</p>
           )}
           {(tour.precio || tour.precio_antes) && (
-            <div className="flex items-center gap-3 pt-1">
+            <div className="flex items-center justify-center gap-3 pt-1">
               {tour.precio_antes && (
                 <span className="text-xs text-slate-400 line-through">
                   ${Number(tour.precio_antes).toLocaleString('es-CL', { maximumFractionDigits: 0 })}
@@ -146,6 +135,15 @@ function TourModal({ tour, onClose, onOpenTour }) {
                 </span>
               )}
             </div>
+          )}
+          {tour.user_id && !tour._isPlaceholder && (
+            <button
+              onClick={() => { onClose(); onOpenTour && onOpenTour(tour.user_id, tour) }}
+              className="flex items-center gap-1 px-3 py-1.5 bg-accent hover:bg-accent/80 rounded-full transition-colors shadow-sm"
+            >
+              <span className="material-symbols-outlined text-primary text-sm">storefront</span>
+              <span className="text-[10px] font-bold text-primary">Ver tienda</span>
+            </button>
           )}
         </div>
       </div>
@@ -175,36 +173,34 @@ function TourCard({ tour, onClick, onOpenTour, fading }) {
       </div>
 
       {/* Info abajo */}
-      <div className="px-0 py-1.5 flex flex-col gap-1 flex-1">
+      <div className="py-1.5 flex flex-col items-center gap-1 flex-1 text-center">
         <h3 className="font-bold text-xs text-slate-900 leading-tight line-clamp-2">{tour.nombre}</h3>
 
         {tour.ubicacion && (
-          <div className="flex items-center gap-0.5">
+          <div className="flex items-center justify-center gap-0.5">
             <span className="material-symbols-outlined text-accent shrink-0" style={{ fontSize: '11px' }}>location_on</span>
             <span className="text-[10px] text-slate-500 line-clamp-1">{tour.ubicacion}</span>
           </div>
         )}
 
-        <div className="mt-auto flex items-end justify-between pt-1">
-          <div>
-            {tour.precio_antes && (
-              <p className="text-[9px] text-slate-400 line-through leading-none">
-                ${Number(tour.precio_antes).toLocaleString('es-CL', { maximumFractionDigits: 0 })}
-              </p>
-            )}
-            {tour.precio && (
-              <div className="flex items-center gap-0.5">
-                <span className="material-symbols-outlined text-primary" style={{ fontSize: '11px' }}>sell</span>
-                <span className="text-xs font-bold text-primary leading-none">
-                  ${Number(tour.precio).toLocaleString('es-CL', { maximumFractionDigits: 0 })}
-                </span>
-              </div>
-            )}
-          </div>
+        <div className="mt-auto flex flex-col items-center gap-1 pt-1">
+          {tour.precio_antes && (
+            <p className="text-[9px] text-slate-400 line-through leading-none">
+              ${Number(tour.precio_antes).toLocaleString('es-CL', { maximumFractionDigits: 0 })}
+            </p>
+          )}
+          {tour.precio && (
+            <div className="flex items-center justify-center gap-0.5">
+              <span className="material-symbols-outlined text-primary" style={{ fontSize: '11px' }}>sell</span>
+              <span className="text-xs font-bold text-primary leading-none">
+                ${Number(tour.precio).toLocaleString('es-CL', { maximumFractionDigits: 0 })}
+              </span>
+            </div>
+          )}
           {isPaid && (
             <button
               onClick={(e) => { e.stopPropagation(); onOpenTour && onOpenTour(tour.user_id, tour) }}
-              className="h-7 w-7 bg-accent text-primary rounded-lg flex items-center justify-center hover:bg-accent/80 transition-colors shadow-sm shrink-0"
+              className="h-7 w-7 bg-accent text-primary rounded-lg flex items-center justify-center hover:bg-accent/80 transition-colors shadow-sm"
             >
               <span className="material-symbols-outlined font-bold" style={{ fontSize: '16px' }}>storefront</span>
             </button>
