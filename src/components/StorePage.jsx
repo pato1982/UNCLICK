@@ -195,8 +195,8 @@ function MarqueeModal({ product, phone, onClose }) {
           <span className="material-symbols-outlined text-slate-600 text-sm">close</span>
         </button>
         <div className="flex flex-col md:flex-row md:min-h-[220px]">
-          <div className="md:w-[50%] h-64 md:h-auto shrink-0 p-1">
-            <img src={product.image} alt={product.alt || product.name} className="w-full h-full object-contain rounded-tr-xl bg-slate-100" />
+          <div className="md:w-[50%] h-64 md:h-auto shrink-0 p-1 pt-3 md:pt-1">
+            <img src={product.image} alt={product.alt || product.name} className="w-full h-full object-contain rounded-xl bg-slate-100" />
           </div>
           <div className="md:w-[50%] p-3 flex flex-col flex-1">
             <h3 className="text-sm font-black text-primary text-center mb-2 shrink-0 line-clamp-2">

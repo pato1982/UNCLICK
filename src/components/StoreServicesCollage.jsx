@@ -10,21 +10,23 @@ function ServiceModal({ service, onClose }) {
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60" onClick={onClose}>
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden" onClick={(e) => e.stopPropagation()}>
-        <div className="relative w-full" style={{ aspectRatio: '4 / 3' }}>
-          {service.image ? (
-            <img src={service.image} alt={service.name} className="w-full h-full object-contain" />
-          ) : (
-            <div className="w-full h-full bg-slate-200 flex items-center justify-center">
-              <span className="material-symbols-outlined text-5xl text-slate-400">work</span>
-            </div>
-          )}
-          <button onClick={onClose} className="absolute top-2 right-2 h-7 w-7 bg-black/40 backdrop-blur rounded-full flex items-center justify-center hover:bg-black/60 transition-colors">
-            <span className="material-symbols-outlined text-white text-sm">close</span>
-          </button>
-          {service.badge && (
-            <span className="absolute top-2 left-2 bg-accent text-primary text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">{service.badge}</span>
-          )}
+        <div className="px-3 pt-3">
+          <div className="relative w-full rounded-xl overflow-hidden" style={{ aspectRatio: '4 / 3' }}>
+            {service.image ? (
+              <img src={service.image} alt={service.name} className="w-full h-full object-contain bg-slate-50" />
+            ) : (
+              <div className="w-full h-full bg-slate-200 flex items-center justify-center">
+                <span className="material-symbols-outlined text-5xl text-slate-400">work</span>
+              </div>
+            )}
+            {service.badge && (
+              <span className="absolute top-2 left-2 bg-accent text-primary text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">{service.badge}</span>
+            )}
+          </div>
         </div>
+        <button onClick={onClose} className="absolute top-2 right-2 h-7 w-7 bg-black/40 backdrop-blur rounded-full flex items-center justify-center hover:bg-black/60 transition-colors">
+          <span className="material-symbols-outlined text-white text-sm">close</span>
+        </button>
 
         <div className="p-4 flex flex-col gap-2">
           <h3 className="text-sm font-black text-slate-800">{service.name}</h3>
