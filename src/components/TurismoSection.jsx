@@ -122,10 +122,10 @@ function TourModal({ tour, onClose, onOpenTour }) {
           {tour.detalle && (
             <p className="text-[11px] text-slate-500 leading-relaxed line-clamp-3">{tour.detalle}</p>
           )}
-          {(tour.precio || tour.precio_antes) && (
-            <div className="flex items-center justify-center gap-3 pt-1">
+          <div className="flex items-center justify-between w-full pt-1">
+            <div>
               {tour.precio_antes && (
-                <span className="text-xs text-slate-400 line-through">
+                <span className="text-xs text-slate-400 line-through block">
                   ${Number(tour.precio_antes).toLocaleString('es-CL', { maximumFractionDigits: 0 })}
                 </span>
               )}
@@ -135,16 +135,16 @@ function TourModal({ tour, onClose, onOpenTour }) {
                 </span>
               )}
             </div>
-          )}
-          {tour.user_id && !tour._isPlaceholder && (
-            <button
-              onClick={() => { onClose(); onOpenTour && onOpenTour(tour.user_id, tour) }}
-              className="flex items-center gap-1 px-3 py-1.5 bg-accent hover:bg-accent/80 rounded-full transition-colors shadow-sm"
-            >
-              <span className="material-symbols-outlined text-primary text-sm">storefront</span>
-              <span className="text-[10px] font-bold text-primary">Ver tienda</span>
-            </button>
-          )}
+            {tour.user_id && !tour._isPlaceholder && (
+              <button
+                onClick={() => { onClose(); onOpenTour && onOpenTour(tour.user_id, tour) }}
+                className="flex items-center gap-1 px-3 py-1.5 bg-accent hover:bg-accent/80 rounded-full transition-colors shadow-sm shrink-0"
+              >
+                <span className="material-symbols-outlined text-primary text-sm">storefront</span>
+                <span className="text-[10px] font-bold text-primary">Ver tienda</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -183,24 +183,26 @@ function TourCard({ tour, onClick, onOpenTour, fading }) {
           </div>
         )}
 
-        <div className="mt-auto flex flex-col items-center gap-1 pt-1">
-          {tour.precio_antes && (
-            <p className="text-[9px] text-slate-400 line-through leading-none">
-              ${Number(tour.precio_antes).toLocaleString('es-CL', { maximumFractionDigits: 0 })}
-            </p>
-          )}
-          {tour.precio && (
-            <div className="flex items-center justify-center gap-0.5">
-              <span className="material-symbols-outlined text-primary" style={{ fontSize: '11px' }}>sell</span>
-              <span className="text-xs font-bold text-primary leading-none">
-                ${Number(tour.precio).toLocaleString('es-CL', { maximumFractionDigits: 0 })}
-              </span>
-            </div>
-          )}
+        <div className="mt-auto flex items-center justify-between w-full pt-1">
+          <div>
+            {tour.precio_antes && (
+              <p className="text-[9px] text-slate-400 line-through leading-none">
+                ${Number(tour.precio_antes).toLocaleString('es-CL', { maximumFractionDigits: 0 })}
+              </p>
+            )}
+            {tour.precio && (
+              <div className="flex items-center gap-0.5">
+                <span className="material-symbols-outlined text-primary" style={{ fontSize: '11px' }}>sell</span>
+                <span className="text-xs font-bold text-primary leading-none">
+                  ${Number(tour.precio).toLocaleString('es-CL', { maximumFractionDigits: 0 })}
+                </span>
+              </div>
+            )}
+          </div>
           {isPaid && (
             <button
               onClick={(e) => { e.stopPropagation(); onOpenTour && onOpenTour(tour.user_id, tour) }}
-              className="h-7 w-7 bg-accent text-primary rounded-lg flex items-center justify-center hover:bg-accent/80 transition-colors shadow-sm"
+              className="h-7 w-7 bg-accent text-primary rounded-lg flex items-center justify-center hover:bg-accent/80 transition-colors shadow-sm shrink-0"
             >
               <span className="material-symbols-outlined font-bold" style={{ fontSize: '16px' }}>storefront</span>
             </button>
