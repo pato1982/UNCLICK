@@ -1,4 +1,4 @@
-import 'dotenv/config' // rev: 2026-06-11
+﻿import 'dotenv/config' // rev: 2026-06-11
 import express      from 'express'
 import cors         from 'cors'
 import cookieParser from 'cookie-parser'
@@ -13,6 +13,8 @@ import passwordResetRouter from './routes/password-reset.js'
 import categoriasRouter from './routes/categorias.js'
 import eventosRouter    from './routes/eventos.js'
 import localesRouter    from './routes/locales.js'
+import miLocalRouter    from './routes/mi-local.js'
+import misEventosRouter from './routes/mis-eventos.js'
 import listingsRouter   from './routes/listings.js'
 import toursRouter      from './routes/tours.js'
 import businessRouter   from './routes/business.js'
@@ -28,7 +30,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const app  = express()
 const PORT = process.env.PORT || 3001
 
-// Detrás de nginx (reverse proxy): confiar en el primer proxy para que
+// DetrÃ¡s de nginx (reverse proxy): confiar en el primer proxy para que
 // req.secure y X-Forwarded-* sean correctos (cookies Secure, rate-limit por IP real).
 app.set('trust proxy', 1)
 
@@ -36,24 +38,24 @@ app.use(cors({ origin: process.env.CORS_ORIGIN || 'http://localhost:5173', crede
 app.use(express.json())
 app.use(cookieParser())
 
-// ── Rate limiting ──────────────────────────────────────────────────────────
+// â”€â”€ Rate limiting â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Auth: anti-fuerza-bruta (login/register)
 const limiterAuth = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
   max: 20,
-  message: { error: 'Demasiados intentos, esperá 15 minutos e intentá de nuevo.' },
+  message: { error: 'Demasiados intentos, esperÃ¡ 15 minutos e intentÃ¡ de nuevo.' },
   standardHeaders: true,
   legacyHeaders: false,
 })
-// Upload: evita flooding de imágenes
+// Upload: evita flooding de imÃ¡genes
 const limiterUpload = rateLimit({
   windowMs: 60 * 1000, // 1 minuto
   max: 30,
-  message: { error: 'Demasiadas imágenes subidas seguidas, esperá un momento.' },
+  message: { error: 'Demasiadas imÃ¡genes subidas seguidas, esperÃ¡ un momento.' },
   standardHeaders: true,
   legacyHeaders: false,
 })
-// Público: track de analytics y visitas al sitio
+// PÃºblico: track de analytics y visitas al sitio
 const limiterPublico = rateLimit({
   windowMs: 60 * 1000,
   max: 120,
@@ -61,11 +63,11 @@ const limiterPublico = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 })
-// General: todas las demás rutas autenticadas
+// General: todas las demÃ¡s rutas autenticadas
 const limiterGeneral = rateLimit({
   windowMs: 60 * 1000,
   max: 300,
-  message: { error: 'Demasiadas peticiones, esperá un momento.' },
+  message: { error: 'Demasiadas peticiones, esperÃ¡ un momento.' },
   standardHeaders: true,
   legacyHeaders: false,
 })
@@ -76,10 +78,10 @@ app.use('/api/v1/analytics/track',  limiterPublico)
 app.use('/api/v1/servidor/visita',  limiterPublico)
 app.use('/api/v1',                  limiterGeneral)
 
-// ── Imágenes estáticas ─────────────────────────────────────────────────────
+// â”€â”€ ImÃ¡genes estÃ¡ticas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.use('/uploads', express.static(join(__dirname, 'uploads')))
 
-// ── Pool de conexiones ─────────────────────────────────────────────────────
+// â”€â”€ Pool de conexiones â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const pool = mysql.createPool({
   host:     process.env.DB_HOST,
   port:     Number(process.env.DB_PORT),
@@ -92,30 +94,30 @@ const pool = mysql.createPool({
 
 pool.getConnection()
   .then(conn => {
-    console.log(`✅  MySQL conectado → ${process.env.DB_NAME}@${process.env.DB_HOST}:${process.env.DB_PORT}`)
+    console.log(`âœ…  MySQL conectado â†’ ${process.env.DB_NAME}@${process.env.DB_HOST}:${process.env.DB_PORT}`)
     conn.release()
   })
   .catch(err => {
-    console.error('❌  Error al conectar con MySQL:', err.message)
+    console.error('âŒ  Error al conectar con MySQL:', err.message)
     process.exit(1)
   })
 
-// ── Pool disponible en todas las rutas ────────────────────────────────────
+// â”€â”€ Pool disponible en todas las rutas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.use((req, _res, next) => { req.pool = pool; next() })
 
-// ── Health check ───────────────────────────────────────────────────────────
+// â”€â”€ Health check â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get('/api/v1/health', (_req, res) => res.json({ ok: true }))
 
-// ── Autenticación (rutas públicas) ─────────────────────────────────────────
+// â”€â”€ AutenticaciÃ³n (rutas pÃºblicas) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.use('/api/v1/auth', authRouter)
 
-// ── Recuperación de contraseña (pública, rate-limited por limiterAuth) ──────
+// â”€â”€ RecuperaciÃ³n de contraseÃ±a (pÃºblica, rate-limited por limiterAuth) â”€â”€â”€â”€â”€â”€
 app.use('/api/v1/password-reset', limiterAuth, passwordResetRouter)
 
-// ── Upload de imágenes (requiere sesión) ───────────────────────────────────
+// â”€â”€ Upload de imÃ¡genes (requiere sesiÃ³n) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.post('/api/v1/upload', requireAuth, multerMemoria.single('imagen'), async (req, res) => {
   const tipo = CARPETAS_VALIDAS.has(req.query.tipo) ? req.query.tipo : 'productos'
-  if (!req.file) return res.status(400).json({ error: 'No se recibió imagen válida (jpeg, png o webp)' })
+  if (!req.file) return res.status(400).json({ error: 'No se recibiÃ³ imagen vÃ¡lida (jpeg, png o webp)' })
   try {
     const { url } = await guardarImagen(req.file.buffer, tipo)
     // Registrar actividad
@@ -129,54 +131,40 @@ app.post('/api/v1/upload', requireAuth, multerMemoria.single('imagen'), async (r
   }
 })
 
-// ── Rutas públicas (sin auth — marketplace, tiendas, turismo) ─────────────
+// â”€â”€ Rutas pÃºblicas (sin auth â€” marketplace, tiendas, turismo) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.use('/api/v1/public', publicRouter)
 
-// ── Analytics (track público + stats privado con su propio requireAuth) ────
+// â”€â”€ Analytics (track pÃºblico + stats privado con su propio requireAuth) â”€â”€â”€â”€
 app.use('/api/v1/analytics', analyticsRouter)
 
-// ── Servidor: visita pública + estadísticas programador ───────────────────
+// â”€â”€ Servidor: visita pÃºblica + estadÃ­sticas programador â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.use('/api/v1/servidor', servidorRouter)
 
-// ── Monitor de plataforma (requireAuth aplicado en server, requireProg en ruta) ─
+// â”€â”€ Monitor de plataforma (requireAuth aplicado en server, requireProg en ruta) â”€
 app.use('/api/v1/monitor', requireAuth, monitorRouter)
 
-// ── Categorías (públicas) ──────────────────────────────────────────────────
+// â”€â”€ CategorÃ­as (pÃºblicas) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.use('/api/v1/categorias', categoriasRouter)
 
-app.get('/api/v1/eventos/categorias', async (req, res) => {
-  try {
-    const [rows] = await pool.query(
-      'SELECT id, nombre, icono FROM tb_categorias WHERE tipo = ? ORDER BY nombre', ['evento']
-    )
-    res.json({ categorias: rows })
-  } catch { res.status(500).json({ error: 'Error al obtener categorías' }) }
-})
+// Rutas /categorias manejadas dentro de cada router (eventos.js / locales.js)
 
-app.get('/api/v1/locales/categorias', async (req, res) => {
-  try {
-    const [rows] = await pool.query(
-      'SELECT id, nombre, icono FROM tb_categorias WHERE tipo = ? ORDER BY nombre', ['local']
-    )
-    res.json({ categorias: rows })
-  } catch { res.status(500).json({ error: 'Error al obtener categorías' }) }
-})
-
-// ── Rutas del programador (públicas en dev, proteger en prod) ──────────────
+// â”€â”€ Rutas del programador (pÃºblicas en dev, proteger en prod) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.use('/api/v1/eventos', eventosRouter)
 app.use('/api/v1/locales', localesRouter)
 
-// ── Rutas de usuario (requieren sesión) ────────────────────────────────────
-app.use('/api/v1/business',  requireAuth, businessRouter)
-app.use('/api/v1/portada',   requireAuth, portadaRouter)
-app.use('/api/v1/pagina',    requireAuth, paginaRouter)
-app.use('/api/v1/listings',  requireAuth, listingsRouter)
-app.use('/api/v1/tours',     requireAuth, toursRouter)
+// â”€â”€ Rutas de usuario (requieren sesiÃ³n) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+app.use('/api/v1/business',    requireAuth, businessRouter)
+app.use('/api/v1/portada',     requireAuth, portadaRouter)
+app.use('/api/v1/pagina',      requireAuth, paginaRouter)
+app.use('/api/v1/listings',    requireAuth, listingsRouter)
+app.use('/api/v1/tours',       requireAuth, toursRouter)
+app.use('/api/v1/mi-local',    requireAuth, miLocalRouter)
+app.use('/api/v1/mis-eventos', requireAuth, misEventosRouter)
 
-// ── Error handler global para errores de upload (multer límite, etc.) ─────
+// â”€â”€ Error handler global para errores de upload (multer lÃ­mite, etc.) â”€â”€â”€â”€â”€
 app.use(handleUploadError)
 
-// ── Inicio ─────────────────────────────────────────────────────────────────
+// â”€â”€ Inicio â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.listen(PORT, () => {
-  console.log(`🚀  Backend corriendo en http://localhost:${PORT}`)
+  console.log(`ðŸš€  Backend corriendo en http://localhost:${PORT}`)
 })

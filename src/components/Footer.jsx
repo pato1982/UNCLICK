@@ -26,10 +26,9 @@ export default function Footer({ onNavigate, onLoginSuccess }) {
               <div className="bg-accent p-1.5 rounded-lg text-primary">
                 <span className="material-symbols-outlined block text-2xl font-bold">ads_click</span>
               </div>
-              <div className="flex flex-col leading-none">
-                <span className="text-[9px] font-bold uppercase tracking-widest text-white/70">Solo a</span>
-                <span className="text-xl font-black italic tracking-tight">un <span className="text-accent uppercase">CLICK</span></span>
-              </div>
+              <span className="text-xl font-black tracking-tight">
+                Local<span className="text-accent">Click</span>
+              </span>
             </div>
             <p className="text-white/50 text-[8px] leading-relaxed text-justify pl-3">
               Tu vitrina digital en Villarrica. Conectamos productos, servicios, arriendos y experiencias turísticas con quienes los necesitan.
@@ -115,10 +114,9 @@ export default function Footer({ onNavigate, onLoginSuccess }) {
               <div className="bg-accent p-1.5 rounded-lg text-primary">
                 <span className="material-symbols-outlined block text-3xl font-bold">ads_click</span>
               </div>
-              <div className="flex flex-col leading-none">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Solo a</span>
-                <span className="text-2xl font-black italic tracking-tight">un <span className="text-accent uppercase">CLICK</span></span>
-              </div>
+              <span className="text-2xl font-black tracking-tight">
+                Local<span className="text-accent">Click</span>
+              </span>
             </div>
             <p className="text-white/50 text-[10px] leading-relaxed text-justify">
               Tu vitrina digital en Villarrica. Conectamos productos, servicios, arriendos y experiencias turísticas con quienes los necesitan, todo en un solo lugar.
@@ -188,10 +186,9 @@ export default function Footer({ onNavigate, onLoginSuccess }) {
               <div className="bg-accent p-2 rounded-lg text-primary">
                 <span className="material-symbols-outlined block text-4xl font-bold">ads_click</span>
               </div>
-              <div className="flex flex-col leading-none">
-                <span className="text-xs font-bold uppercase tracking-widest text-white/70">Solo a</span>
-                <span className="text-3xl font-black italic tracking-tight">un <span className="text-accent uppercase">CLICK</span></span>
-              </div>
+              <span className="text-3xl font-black tracking-tight">
+                Local<span className="text-accent">Click</span>
+              </span>
             </div>
             <p className="text-white/50 text-xs leading-relaxed max-w-xs text-justify">
               Tu vitrina digital en Villarrica. Conectamos productos, servicios, arriendos y experiencias turísticas con quienes los necesitan, todo en un solo lugar.

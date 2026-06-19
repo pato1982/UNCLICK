@@ -1,6 +1,6 @@
 import { getStoreHeaderStyle } from '../lib/storeHeaderPresets'
 
-/* Logo "un CLICK" — solo planes gratuitos o cuando no hay logo propio */
+/* Logo LocalClick — aparece en el header de todas las tiendas */
 function Brand({ light, mini, onClick }) {
   const sub = light ? 'text-white/70' : 'text-slate-400'
   const main = light ? 'text-white' : 'text-slate-900'

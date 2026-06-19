@@ -1,5 +1,4 @@
 ﻿import { useState, useEffect, useRef } from 'react'
-import ImageZoomPan from '../components/ImageZoomPan'
 
 const API = import.meta.env.VITE_API || ''
 
@@ -259,42 +258,55 @@ export default function AdminPagina() {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row gap-6">
           {/* Columna izquierda — Imagen */}
-          <div className="w-full sm:w-52 shrink-0">
+          <div className="w-full sm:w-80 shrink-0">
             <label className="block text-[11px] font-semibold text-gray-600 mb-2">
               Imagen {activeTab === 'superior' ? 'superior' : 'inferior'}
             </label>
 
             {current.preview ? (
-              <ImageZoomPan
-                src={current.preview}
-                alt={`Imagen ${activeTab}`}
-                onEdit={() => current.ref.current?.click()}
-                onRemove={() => removeImage(activeTab)}
-                initialCrop={current.crop}
-                onSaveCrop={(cropData) => {
-                  current.setCrop(cropData)
-                  if (paginaId) {
-                    const body = activeTab === 'superior'
-                      ? { crop_superior: cropData, crop_inferior: infCrop }
-                      : { crop_superior: supCrop, crop_inferior: cropData }
-                    fetch(`${API}/api/v1/pagina/${paginaId}/crop`, {
-                      method: 'PATCH',
-                      headers: { 'Content-Type': 'application/json' }, credentials: 'include',
-                      body: JSON.stringify(body),
-                    }).catch(() => {})
-                  }
-                }}
-              />
+              <div className="w-full rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-gray-50" style={{ aspectRatio: '16/9' }}>
+                <img
+                  src={current.preview}
+                  alt={`Imagen ${activeTab}`}
+                  className="w-full h-full object-contain"
+                />
+              </div>
             ) : (
               <button
                 type="button"
                 onClick={() => current.ref.current?.click()}
-                className="w-full sm:w-52 h-52 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center gap-2 hover:border-primary hover:bg-primary/5 transition-all cursor-pointer"
+                className="w-full border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center gap-1.5 hover:border-primary hover:bg-primary/5 transition-all cursor-pointer py-6"
+                style={{ aspectRatio: '16/9' }}
               >
                 <span className="material-symbols-outlined text-3xl text-gray-400">cloud_upload</span>
-                <span className="text-xs text-gray-500">Buscar imagen</span>
+                <span className="text-xs font-semibold text-gray-500">Buscar imagen</span>
                 <span className="text-[10px] text-gray-400">JPG, PNG, WEBP</span>
+                <span className="text-[10px] text-amber-600 font-semibold mt-1 px-3 text-center leading-tight">
+                  📐 Recuerda usar una imagen rectangular (horizontal) para que se vea bien
+                </span>
               </button>
+            )}
+
+            {/* Botones editar/quitar cuando hay imagen */}
+            {current.preview && (
+              <div className="flex gap-2 mt-2">
+                <button
+                  type="button"
+                  onClick={() => current.ref.current?.click()}
+                  className="flex-1 text-[11px] font-semibold text-primary border border-primary/30 rounded-lg py-1.5 hover:bg-primary/5 transition-colors flex items-center justify-center gap-1"
+                >
+                  <span className="material-symbols-outlined text-sm">edit</span>
+                  Cambiar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => removeImage(activeTab)}
+                  className="flex-1 text-[11px] font-semibold text-red-500 border border-red-200 rounded-lg py-1.5 hover:bg-red-50 transition-colors flex items-center justify-center gap-1"
+                >
+                  <span className="material-symbols-outlined text-sm">delete</span>
+                  Quitar
+                </button>
+              </div>
             )}
 
             <input
@@ -375,11 +387,11 @@ export default function AdminPagina() {
           {activeTab === 'superior' ? (
             <div className="flex flex-col sm:flex-row gap-5 items-center">
               {current.preview ? (
-                <div className="sm:w-1/2 rounded-xl overflow-hidden shadow-md">
-                  <img src={current.preview} alt="Superior" className="w-full h-48 object-cover" />
+                <div className="sm:w-1/2 rounded-xl overflow-hidden shadow-md bg-gray-50" style={{ aspectRatio: '16/9' }}>
+                  <img src={current.preview} alt="Superior" className="w-full h-full object-contain" />
                 </div>
               ) : (
-                <div className="sm:w-1/2 h-48 bg-gray-50 rounded-xl flex items-center justify-center border border-dashed border-gray-200">
+                <div className="sm:w-1/2 bg-gray-50 rounded-xl flex items-center justify-center border border-dashed border-gray-200" style={{ aspectRatio: '16/9' }}>
                   <span className="material-symbols-outlined text-3xl text-gray-300">image</span>
                 </div>
               )}
@@ -395,11 +407,11 @@ export default function AdminPagina() {
                 <p className="text-xs text-slate-500 leading-relaxed">{current.texto || 'Tu texto aparecerá aquí...'}</p>
               </div>
               {current.preview ? (
-                <div className="sm:w-1/2 rounded-xl overflow-hidden shadow-md">
-                  <img src={current.preview} alt="Inferior" className="w-full h-48 object-cover" />
+                <div className="sm:w-1/2 rounded-xl overflow-hidden shadow-md bg-gray-50" style={{ aspectRatio: '16/9' }}>
+                  <img src={current.preview} alt="Inferior" className="w-full h-full object-contain" />
                 </div>
               ) : (
-                <div className="sm:w-1/2 h-48 bg-gray-50 rounded-xl flex items-center justify-center border border-dashed border-gray-200">
+                <div className="sm:w-1/2 bg-gray-50 rounded-xl flex items-center justify-center border border-dashed border-gray-200" style={{ aspectRatio: '16/9' }}>
                   <span className="material-symbols-outlined text-3xl text-gray-300">image</span>
                 </div>
               )}

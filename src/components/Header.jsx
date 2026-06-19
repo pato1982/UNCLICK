@@ -106,10 +106,9 @@ export default function Header({ activeNav, toggleNav, onToggleSidebar, sidebarO
             <div className="bg-accent p-1.5 sm:p-2 md:p-1.5 rounded-lg text-primary">
               <span className="material-symbols-outlined block text-2xl sm:text-3xl md:text-2xl font-bold">ads_click</span>
             </div>
-            <div className="flex flex-col leading-none">
-              <span className="text-[9px] sm:text-[10px] md:text-[10px] font-bold uppercase tracking-widest text-white/70">Solo a</span>
-              <span className="text-lg sm:text-xl md:text-xl font-black italic tracking-tight">un <span className="text-accent uppercase">CLICK</span></span>
-            </div>
+            <span className="text-lg sm:text-xl md:text-xl font-black tracking-tight">
+              Local<span className="text-accent">Click</span>
+            </span>
           </div>
 
           {/* Buscador - oculto en mobile, visible en tablet/desktop */}
