@@ -64,8 +64,9 @@ function TourModal({ tour, onClose, onOpenTour }) {
 
   return (
     <div className="fixed inset-0 z-[60] flex items-start justify-center pt-10 sm:pt-14 bg-black/60 overflow-y-auto" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden" onClick={(e) => e.stopPropagation()}>
-        <div className="relative w-full" style={{ aspectRatio: '4 / 3' }}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 mb-4" onClick={(e) => e.stopPropagation()}>
+        <div className="p-3 pb-0">
+        <div className="relative w-full rounded-xl overflow-hidden" style={{ aspectRatio: '4 / 3' }}>
           {imgs.length > 0 ? (
             <img
               src={imgs[currentImg]}
@@ -102,6 +103,7 @@ function TourModal({ tour, onClose, onOpenTour }) {
               </span>
             </>
           )}
+        </div>
         </div>
         <div className="p-4 flex flex-col gap-2">
           <div className="flex items-center justify-between">
@@ -158,10 +160,11 @@ function TourCard({ tour, onClick, onOpenTour, fading }) {
   return (
     <div
       onClick={onClick}
-      className={`bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md cursor-pointer flex flex-col transition-all duration-200 ${fading ? 'opacity-0' : 'opacity-100'}`}
+      className={`bg-white rounded-xl shadow-sm hover:shadow-md cursor-pointer flex flex-col transition-all duration-200 ${fading ? 'opacity-0' : 'opacity-100'}`}
     >
+      <div className="p-2 pb-0 flex flex-col flex-1">
       {/* Imagen arriba */}
-      <div className="relative w-full bg-slate-100 overflow-hidden" style={{ aspectRatio: '4/3' }}>
+      <div className="relative w-full bg-slate-100 rounded-lg overflow-hidden" style={{ aspectRatio: '4/3' }}>
         {imageSrc ? (
           <img src={imageSrc} alt={tour.nombre} className="w-full h-full object-contain" />
         ) : (
@@ -172,7 +175,7 @@ function TourCard({ tour, onClick, onOpenTour, fading }) {
       </div>
 
       {/* Info abajo */}
-      <div className="px-2 py-1.5 flex flex-col gap-1 flex-1">
+      <div className="px-0 py-1.5 flex flex-col gap-1 flex-1">
         <h3 className="font-bold text-xs text-slate-900 leading-tight line-clamp-2">{tour.nombre}</h3>
 
         {tour.ubicacion && (
@@ -207,6 +210,7 @@ function TourCard({ tour, onClick, onOpenTour, fading }) {
             </button>
           )}
         </div>
+      </div>
       </div>
     </div>
   )
