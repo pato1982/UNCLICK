@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect, useRef } from 'react'
+import { Navigate } from 'react-router-dom'
 import ImageZoomPan from '../components/ImageZoomPan'
 
 const API = import.meta.env.VITE_API || ''
@@ -64,6 +65,11 @@ export default function AdminTour() {
       .then(data => setCategorias(data.categorias || []))
       .catch(() => {})
   }, [])
+
+  const _user = JSON.parse(localStorage.getItem('user') || '{}')
+  if (_user.tipo_cuenta === 'turismo' && (_user.plan_id || 0) < 5) {
+    return <Navigate to="/admin/negocio" replace />
+  }
 
   const update = (field, value) => {
     setForm(prev => ({ ...prev, [field]: value }))
