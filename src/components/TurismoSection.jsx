@@ -244,6 +244,40 @@ function MosaicTile({ tour, colSpan, rowSpan, onClick, onOpenTour, fading, aspec
 const TOUR_IMGS_LEFT  = ['/1.jpg', '/2.jfif', '/3.jfif']
 const TOUR_IMGS_RIGHT = ['/4.jpg', '/5.webp', '/6.jfif']
 
+// 3 cartas en abanico, como naipes, estilo portada de tour
+function CardFan({ imgs }) {
+  // Posición de cada naipe: [rotación, desplazamiento X, desplazamiento Y, z-index]
+  const pos = [
+    { r: -14, x: -42, y: 14, z: 1 },   // carta izquierda
+    { r:   0, x:   0, y:  0, z: 3 },   // carta central (frente)
+    { r:  14, x:  42, y: 14, z: 2 },   // carta derecha
+  ]
+
+  return (
+    <div className="relative flex items-end justify-center" style={{ width: '180px', height: '190px' }}>
+      {imgs.slice(0, 3).map((src, i) => (
+        <div
+          key={i}
+          className="absolute rounded-2xl overflow-hidden shadow-2xl"
+          style={{
+            width: '100px',
+            height: '150px',
+            transform: `translateX(${pos[i].x}px) translateY(${pos[i].y}px) rotate(${pos[i].r}deg)`,
+            zIndex: pos[i].z,
+            border: '2px solid rgba(255,255,255,0.12)',
+            bottom: 0,
+          }}
+        >
+          <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
+          <div className="absolute inset-0" style={{
+            background: 'linear-gradient(to bottom, transparent 55%, rgba(5,15,35,0.65) 100%)'
+          }} />
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function TurismoPromo({ onViewAll }) {
   const chips = ['Kayak', 'Senderismo', 'Volcán', 'Camping', 'Fotografía', 'Pesca', 'Ciclismo', 'Avistamiento']
 
@@ -274,21 +308,16 @@ function TurismoPromo({ onViewAll }) {
           </button>
         </div>
 
-        {/* Layout: móvil=solo centro / desktop=imgs | texto | imgs */}
-        <div className="flex items-stretch gap-2" style={{ minHeight: '200px' }}>
+        {/* Layout: móvil=solo centro / desktop=naipes | texto | naipes */}
+        <div className="flex items-center gap-0 sm:gap-2">
 
-          {/* 3 imágenes izquierda — solo desktop */}
-          <div className="hidden sm:flex flex-col gap-1.5 shrink-0" style={{ width: '110px' }}>
-            {TOUR_IMGS_LEFT.map((src, i) => (
-              <div key={i} className="flex-1 relative rounded-xl overflow-hidden" style={{ minHeight: '60px' }}>
-                <img src={src} alt="" className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
-                <div className="absolute inset-0 rounded-xl" style={{ background: 'linear-gradient(to bottom, transparent 50%, rgba(8,20,40,0.5) 100%)' }} />
-              </div>
-            ))}
+          {/* Naipes izquierda — solo desktop */}
+          <div className="hidden sm:flex items-center justify-center shrink-0">
+            <CardFan imgs={TOUR_IMGS_LEFT} />
           </div>
 
           {/* Centro: texto + CTA + chips */}
-          <div className="flex-1 flex flex-col items-center justify-center text-center px-2 sm:px-6">
+          <div className="flex-1 flex flex-col items-center justify-center text-center px-2 sm:px-4">
             <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1.5" style={{ color: 'rgba(245,200,66,0.65)' }}>
               Lago Villarrica · Volcán · Naturaleza
             </p>
@@ -318,14 +347,9 @@ function TurismoPromo({ onViewAll }) {
             </div>
           </div>
 
-          {/* 3 imágenes derecha — solo desktop */}
-          <div className="hidden sm:flex flex-col gap-1.5 shrink-0" style={{ width: '110px' }}>
-            {TOUR_IMGS_RIGHT.map((src, i) => (
-              <div key={i} className="flex-1 relative rounded-xl overflow-hidden" style={{ minHeight: '60px' }}>
-                <img src={src} alt="" className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
-                <div className="absolute inset-0 rounded-xl" style={{ background: 'linear-gradient(to bottom, transparent 50%, rgba(8,20,40,0.5) 100%)' }} />
-              </div>
-            ))}
+          {/* Naipes derecha — solo desktop */}
+          <div className="hidden sm:flex items-center justify-center shrink-0">
+            <CardFan imgs={TOUR_IMGS_RIGHT} />
           </div>
 
         </div>
