@@ -248,20 +248,20 @@ const TOUR_IMGS_RIGHT = ['/4.jpg', '/5.webp', '/6.jfif']
 function CardFan({ imgs }) {
   // Posición de cada naipe: [rotación, desplazamiento X, desplazamiento Y, z-index]
   const pos = [
-    { r: -14, x: -42, y: -8, z: 1 },   // carta izquierda
+    { r: -14, x: -56, y: -8, z: 1 },   // carta izquierda
     { r:   0, x:   0, y:  0, z: 3 },   // carta central (frente)
-    { r:  14, x:  42, y: -8, z: 2 },   // carta derecha
+    { r:  14, x:  56, y: -8, z: 2 },   // carta derecha
   ]
 
   return (
-    <div className="relative flex items-end justify-center" style={{ width: '180px', height: '190px' }}>
+    <div className="relative flex items-end justify-center" style={{ width: '230px', height: '190px' }}>
       {imgs.slice(0, 3).map((src, i) => (
         <div
           key={i}
           className="absolute rounded-2xl overflow-hidden shadow-2xl"
           style={{
-            width: '100px',
-            height: '150px',
+            width: '114px',
+            height: '168px',
             transform: `translateX(${pos[i].x}px) translateY(${pos[i].y}px) rotate(${pos[i].r}deg)`,
             zIndex: pos[i].z,
             border: '2px solid rgba(255,255,255,0.12)',
