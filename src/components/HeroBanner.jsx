@@ -2,25 +2,19 @@ import { useState, useEffect } from 'react'
 
 const SLIDES = [
   {
-    // Lago Villarrica con botes y volcán al fondo — Pucón, Chile (Unsplash: Ricardo Díaz)
-    image: 'https://images.unsplash.com/photo-1701787432237-6abfb090dd4a?auto=format&fit=crop&w=1600&q=80',
-    imageMobile: 'https://images.unsplash.com/photo-1701787432237-6abfb090dd4a?auto=format&fit=crop&w=800&h=500&q=75',
+    image: '/villa1.jpg',
     label: 'Villarrica, Chile',
     title: <>Todo lo que<br />necesitas está<br />en <em className="text-accent not-italic">LocalClick</em></>,
     sub: 'El marketplace local de Villarrica y sus alrededores',
   },
   {
-    // Lago Caburgua — bosques andinos y volcán, Pucón, Chile (Unsplash: @basico)
-    image: 'https://images.unsplash.com/photo-1531976731176-a9c0224aa9c6?auto=format&fit=crop&w=1600&q=80',
-    imageMobile: 'https://images.unsplash.com/photo-1531976731176-a9c0224aa9c6?auto=format&fit=crop&w=800&h=500&q=75',
+    image: '/villa2.jpg',
     label: 'Lagos y Volcanes',
     title: <>Compra, arrienda<br />y descubre<br /><em className="text-accent not-italic">Villarrica</em></>,
     sub: 'Productos, servicios, turismo y mucho más',
   },
   {
-    // Costanera de Pucón junto al Lago Villarrica, Chile (Unsplash: Gonzalo Cornish)
-    image: 'https://images.unsplash.com/photo-1581403241227-650fc9a88431?auto=format&fit=crop&w=1600&q=80',
-    imageMobile: 'https://images.unsplash.com/photo-1581403241227-650fc9a88431?auto=format&fit=crop&w=800&h=500&q=75',
+    image: '/villa3.jfif',
     label: 'Comercio Local',
     title: <>Negocios locales<br />a tu<br /><em className="text-accent not-italic">alcance</em></>,
     sub: 'Apoya a los emprendedores de Villarrica y sus alrededores',
@@ -43,8 +37,6 @@ export default function HeroBanner() {
         <img
           key={i}
           src={s.image}
-          srcSet={`${s.imageMobile} 800w, ${s.image} 1600w`}
-          sizes="100vw"
           alt="Villarrica"
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${i === current ? 'opacity-100' : 'opacity-0'}`}
         />

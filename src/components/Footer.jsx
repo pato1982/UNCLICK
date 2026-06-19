@@ -22,7 +22,14 @@ export default function Footer({ onNavigate, onLoginSuccess }) {
         <div className="sm:hidden flex flex-col gap-4">
           {/* Logo + Descripción en una fila */}
           <div className="flex items-center gap-3">
-            <img src="/icon1.png" alt="LocalClick" className="h-14 w-auto shrink-0" />
+            <div className="flex items-center gap-2 shrink-0">
+              <div className="bg-accent p-1.5 rounded-lg text-primary">
+                <span className="material-symbols-outlined block text-2xl font-bold">ads_click</span>
+              </div>
+              <span className="text-xl font-black tracking-tight">
+                Local<span className="text-accent">Click</span>
+              </span>
+            </div>
             <p className="text-white/50 text-[8px] leading-relaxed text-justify pl-3">
               Tu vitrina digital en Villarrica. Conectamos productos, servicios, arriendos y experiencias turísticas con quienes los necesitan.
             </p>
@@ -103,7 +110,14 @@ export default function Footer({ onNavigate, onLoginSuccess }) {
         <div className="hidden sm:flex md:hidden flex-col gap-5">
           {/* Fila 1: Logo + Descripción */}
           <div className="flex items-center gap-4">
-            <img src="/icon1.png" alt="LocalClick" className="h-16 w-auto shrink-0" />
+            <div className="flex items-center gap-2 shrink-0">
+              <div className="bg-accent p-1.5 rounded-lg text-primary">
+                <span className="material-symbols-outlined block text-3xl font-bold">ads_click</span>
+              </div>
+              <span className="text-2xl font-black tracking-tight">
+                Local<span className="text-accent">Click</span>
+              </span>
+            </div>
             <p className="text-white/50 text-[10px] leading-relaxed text-justify">
               Tu vitrina digital en Villarrica. Conectamos productos, servicios, arriendos y experiencias turísticas con quienes los necesitan, todo en un solo lugar.
             </p>
@@ -168,8 +182,13 @@ export default function Footer({ onNavigate, onLoginSuccess }) {
         {/* ===== DESKTOP: layout original ===== */}
         <div className="hidden md:grid md:grid-cols-[1fr_1fr_1fr_1fr_1fr] gap-8">
           <div>
-            <div className="mb-4">
-              <img src="/icon1.png" alt="LocalClick" className="h-20 w-auto" />
+            <div className="flex items-center gap-3 mb-4">
+              <div className="bg-accent p-2 rounded-lg text-primary">
+                <span className="material-symbols-outlined block text-4xl font-bold">ads_click</span>
+              </div>
+              <span className="text-3xl font-black tracking-tight">
+                Local<span className="text-accent">Click</span>
+              </span>
             </div>
             <p className="text-white/50 text-xs leading-relaxed max-w-xs text-justify">
               Tu vitrina digital en Villarrica. Conectamos productos, servicios, arriendos y experiencias turísticas con quienes los necesitan, todo en un solo lugar.
