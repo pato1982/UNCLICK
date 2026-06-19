@@ -275,11 +275,20 @@ function TurismoPromo({ onViewAll }) {
           </button>
         </div>
 
-        {/* Contenido: texto + chips */}
-        <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 sm:gap-10">
+        {/* Contenido: móvil = columna, desktop = logo | centro */}
+        <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-0">
 
-          {/* Texto y CTA */}
-          <div className="text-center sm:text-left">
+          {/* Logo LocalClick — solo desktop, lado izquierdo */}
+          <div className="hidden sm:flex flex-col items-center gap-2 shrink-0 pr-8 mr-8 border-r border-white/10">
+            <img src="/icon-192.png" alt="LocalClick" className="w-16 h-16 rounded-2xl shadow-lg" style={{ boxShadow: '0 0 24px rgba(59,25,105,0.6)' }} />
+            <span className="text-[13px] font-black text-white tracking-wide">LocalClick</span>
+            <span className="text-[9px] uppercase tracking-wider text-center leading-tight" style={{ color: 'rgba(255,255,255,0.35)' }}>
+              El marketplace<br />de Villarrica
+            </span>
+          </div>
+
+          {/* Centro: título + descripción + CTA + chips */}
+          <div className="flex-1 flex flex-col items-center text-center">
             <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1.5" style={{ color: 'rgba(245,200,66,0.65)' }}>
               Lago Villarrica · Volcán · Naturaleza
             </p>
@@ -287,32 +296,31 @@ function TurismoPromo({ onViewAll }) {
               Descubre el turismo<br />
               <span style={{ color: '#F5C842' }}>en Villarrica</span>
             </h3>
-            <p className="text-[11px] sm:text-xs leading-relaxed mb-4 max-w-xs mx-auto sm:mx-0" style={{ color: 'rgba(255,255,255,0.45)' }}>
-              Lago cristalino, volcán imponente y naturaleza única.<br className="hidden sm:block" />
+            <p className="text-[11px] sm:text-xs leading-relaxed mb-4 max-w-md" style={{ color: 'rgba(255,255,255,0.45)' }}>
+              Lago cristalino, volcán imponente y naturaleza única.
               Conoce las empresas de tours y aventura de la zona.
             </p>
             <button
               onClick={onViewAll}
-              className="inline-flex items-center gap-2 font-black text-[11px] sm:text-xs px-4 sm:px-5 py-2 sm:py-2.5 rounded-full transition-all hover:scale-105 shadow-lg"
+              className="inline-flex items-center gap-2 font-black text-[11px] sm:text-xs px-4 sm:px-5 py-2 sm:py-2.5 rounded-full transition-all hover:scale-105 shadow-lg mb-4"
               style={{ background: '#F5C842', color: '#3B1969' }}
             >
               <span className="material-symbols-outlined text-sm">explore</span>
               Ver empresas de turismo disponibles
             </button>
+            <div className="flex flex-wrap justify-center gap-1.5">
+              {chips.map((act, i) => (
+                <span
+                  key={i}
+                  className="text-[10px] sm:text-[11px] font-bold px-2.5 py-1 rounded-full"
+                  style={{ border: '1px solid rgba(245,200,66,0.22)', color: 'rgba(245,200,66,0.7)', background: 'rgba(245,200,66,0.07)' }}
+                >
+                  {act}
+                </span>
+              ))}
+            </div>
           </div>
 
-          {/* Chips de actividades */}
-          <div className="flex flex-wrap justify-center sm:justify-start gap-1.5 sm:gap-2 sm:max-w-xs">
-            {chips.map((act, i) => (
-              <span
-                key={i}
-                className="text-[10px] sm:text-[11px] font-bold px-2.5 py-1 rounded-full"
-                style={{ border: '1px solid rgba(245,200,66,0.22)', color: 'rgba(245,200,66,0.7)', background: 'rgba(245,200,66,0.07)' }}
-              >
-                {act}
-              </span>
-            ))}
-          </div>
         </div>
       </div>
     </div>
