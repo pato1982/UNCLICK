@@ -241,27 +241,134 @@ function MosaicTile({ tour, colSpan, rowSpan, onClick, onOpenTour, fading, aspec
   )
 }
 
+function TurismoPromo({ onViewAll, portadas }) {
+  const imgs = portadas
+    .map(p => {
+      const arr = Array.isArray(p.imagenes) ? p.imagenes : (typeof p.imagenes === 'string' ? JSON.parse(p.imagenes || '[]') : [])
+      const img = arr[0]
+      if (!img) return null
+      return img.startsWith('http') ? img : `${API}${img}`
+    })
+    .filter(Boolean)
+    .slice(0, 4)
+
+  return (
+    <div className="relative overflow-hidden" style={{ background: 'linear-gradient(150deg, #091e35 0%, #0c2d44 25%, #182540 50%, #241432 75%, #1a1220 100%)' }}>
+      {/* Lago: reflejo azul-teal suave en la parte inferior */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: 'radial-gradient(ellipse 90% 55% at 15% 85%, rgba(10,65,95,0.55) 0%, transparent 60%), radial-gradient(ellipse 65% 75% at 85% 15%, rgba(42,18,52,0.65) 0%, transparent 55%)'
+      }} />
+      {/* Líneas de agua muy sutiles */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.035]" style={{
+        backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 5px, rgba(255,255,255,1) 5px, rgba(255,255,255,1) 6px)'
+      }} />
+
+      <div className="relative z-10 py-5 sm:py-6 px-3 sm:px-0">
+        {/* Header igual al de la sección normal */}
+        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
+          <div className="w-1 h-5 sm:h-6 bg-accent rounded-full" />
+          <h2 className="text-sm sm:text-base font-black text-white tracking-wide">Turismo</h2>
+          <span className="text-[9px] sm:text-[10px] font-bold text-accent/70 uppercase tracking-wider">Villarrica</span>
+          <div className="flex-1 h-px bg-white/10" />
+          <button onClick={onViewAll} className="text-[9px] sm:text-[10px] font-bold text-accent hover:text-white transition-colors uppercase tracking-wider">
+            Ver todo
+          </button>
+        </div>
+
+        {/* Contenido principal */}
+        <div className="flex flex-col sm:flex-row items-center sm:items-stretch gap-5 sm:gap-8">
+
+          {/* Texto izquierdo */}
+          <div className="flex-1 flex flex-col justify-center text-center sm:text-left">
+            <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-2" style={{ color: 'rgba(245,200,66,0.7)' }}>
+              Lago Villarrica · Volcán · Naturaleza
+            </p>
+            <h3 className="text-lg sm:text-2xl md:text-[1.6rem] font-black text-white leading-tight mb-3">
+              Descubre el turismo<br />
+              <span style={{ color: '#F5C842' }}>en Villarrica</span>
+            </h3>
+            <p className="text-[11px] sm:text-xs leading-relaxed mb-5 max-w-xs mx-auto sm:mx-0" style={{ color: 'rgba(255,255,255,0.5)' }}>
+              Lago cristalino, volcán imponente y naturaleza única. Conoce las empresas locales que ofrecen tours, aventura y experiencias en el corazón de La Araucanía.
+            </p>
+            <div className="flex justify-center sm:justify-start">
+              <button
+                onClick={onViewAll}
+                className="inline-flex items-center gap-2 font-black text-[11px] sm:text-xs px-4 sm:px-5 py-2 sm:py-2.5 rounded-full transition-all hover:scale-105 shadow-lg"
+                style={{ background: '#F5C842', color: '#3B1969' }}
+              >
+                <span className="material-symbols-outlined text-sm">explore</span>
+                Ver empresas de turismo disponibles
+              </button>
+            </div>
+          </div>
+
+          {/* Imágenes derecha */}
+          <div className="shrink-0 grid grid-cols-2 gap-1.5 w-full sm:w-56 md:w-72">
+            {imgs.length > 0 ? (
+              <>
+                {imgs.slice(0, 4).map((src, i) => (
+                  <div
+                    key={i}
+                    className={`relative rounded-xl overflow-hidden ${i === 0 ? 'col-span-2' : ''}`}
+                    style={{ aspectRatio: i === 0 ? '16/6' : '1/1' }}
+                  >
+                    <img src={src} alt="Turismo en Villarrica" className="absolute inset-0 w-full h-full object-cover" />
+                    <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 40%, rgba(9,30,53,0.55) 100%)' }} />
+                  </div>
+                ))}
+                {imgs.length < 4 && Array.from({ length: 4 - imgs.length - (imgs.length === 0 ? 0 : 0) }).map((_, i) => (
+                  <div key={`ph-${i}`} className="relative rounded-xl overflow-hidden flex items-center justify-center"
+                    style={{ aspectRatio: '1/1', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                    <span className="material-symbols-outlined text-3xl" style={{ color: 'rgba(245,200,66,0.2)' }}>landscape</span>
+                  </div>
+                ))}
+              </>
+            ) : (
+              // Sin portadas: íconos representativos
+              ['landscape', 'kayaking', 'hiking', 'forest'].map((icon, i) => (
+                <div key={i} className={`relative rounded-xl overflow-hidden flex items-center justify-center ${i === 0 ? 'col-span-2' : ''}`}
+                  style={{ aspectRatio: i === 0 ? '16/6' : '1/1', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                  <span className="material-symbols-outlined text-4xl" style={{ color: 'rgba(245,200,66,0.25)' }}>{icon}</span>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function TurismoSection({ onViewAll, onOpenTour }) {
   const [allTours, setAllTours] = useState([])
   const [displayTours, setDisplayTours] = useState([])
   const [fading, setFading] = useState(false)
   const [selectedTour, setSelectedTour] = useState(null)
+  const [loaded, setLoaded] = useState(false)
+  const [portadas, setPortadas] = useState([])
   const gridRef = useRef(null)
   const rotationRef = useRef(null)
 
-  // Fetch tours from DB (only premium)
+  // Fetch tours from DB (only premium). Si no hay, carga portadas para el placeholder.
   useEffect(() => {
     fetch(`${API}/api/v1/public/tours`)
       .then(r => r.json())
-      .then(data => {
+      .then(async data => {
         const tours = data.tours || []
         setAllTours(tours)
         const shuffled = shuffleWithCompanyBalance(tours)
         setDisplayTours(shuffled.slice(0, LAYOUT.length))
+        setLoaded(true)
+        if (tours.length === 0) {
+          try {
+            const r2 = await fetch(`${API}/api/v1/public/portadas`)
+            const d2 = await r2.json()
+            setPortadas(d2.portadas || [])
+          } catch {}
+        }
       })
       .catch(() => {
-        setAllTours([])
-        setDisplayTours([])
+        setLoaded(true)
       })
   }, [])
 
@@ -295,6 +402,11 @@ export default function TurismoSection({ onViewAll, onOpenTour }) {
     window.addEventListener('resize', equalize)
     return () => window.removeEventListener('resize', equalize)
   }, [displayTours])
+
+  // Placeholder cuando no hay tours premium activos
+  if (loaded && allTours.length === 0) {
+    return <TurismoPromo onViewAll={onViewAll} portadas={portadas} />
+  }
 
   const tiles = LAYOUT.map((slot, i) => ({
     ...slot,
