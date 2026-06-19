@@ -2,20 +2,23 @@ import { useState, useEffect } from 'react'
 
 const SLIDES = [
   {
-    image: '/villa1.jpg',
+    // Volcán Villarrica con lago — Ricardo Díaz (Unsplash free license)
+    image: 'https://images.unsplash.com/photo-1665107277506-5f272d52ddb1?auto=format&fit=crop&w=1600&q=85',
     label: 'Villarrica, Chile',
     title: <>Todo lo que<br />necesitas está<br />en <em className="text-accent not-italic">LocalClick</em></>,
     sub: 'El marketplace local de Villarrica y sus alrededores',
   },
   {
-    image: '/villa2.jpg',
+    // Bosque andino y volcán — David Vives (Unsplash free license)
+    image: 'https://images.unsplash.com/photo-1600591054558-106b19b70279?auto=format&fit=crop&w=1600&q=85',
     label: 'Lagos y Volcanes',
     title: <>Compra, arrienda<br />y descubre<br /><em className="text-accent not-italic">Villarrica</em></>,
     sub: 'Productos, servicios, turismo y mucho más',
   },
   {
-    image: '/villa3.jfif',
-    label: 'Comercio Local',
+    // Montañas nevadas Villarrica — David Vives (Unsplash free license)
+    image: 'https://images.unsplash.com/photo-1573502143827-a16f0ee55a9b?auto=format&fit=crop&w=1600&q=85',
+    label: 'Naturaleza y Aventura',
     title: <>Negocios locales<br />a tu<br /><em className="text-accent not-italic">alcance</em></>,
     sub: 'Apoya a los emprendedores de Villarrica y sus alrededores',
   },
