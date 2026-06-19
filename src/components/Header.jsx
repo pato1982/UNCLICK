@@ -102,13 +102,8 @@ export default function Header({ activeNav, toggleNav, onToggleSidebar, sidebarO
       <header className="bg-primary text-white px-3 sm:px-4 md:px-6 shadow-lg">
         <div className="max-w-7xl mx-auto flex items-center gap-2 sm:gap-4 md:gap-8 md:justify-center relative py-4 sm:py-5 md:py-7">
           {/* Logo */}
-          <div className="flex items-center gap-2 sm:gap-2 md:absolute md:left-0 shrink-0">
-            <div className="bg-accent p-1.5 sm:p-2 md:p-1.5 rounded-lg text-primary">
-              <span className="material-symbols-outlined block text-2xl sm:text-3xl md:text-2xl font-bold">ads_click</span>
-            </div>
-            <span className="text-lg sm:text-xl md:text-xl font-black tracking-tight">
-              Local<span className="text-accent">Click</span>
-            </span>
+          <div className="md:absolute md:left-0 shrink-0">
+            <img src="/icon1.png" alt="LocalClick" className="h-10 sm:h-11 md:h-10 w-auto" />
           </div>
 
           {/* Buscador - oculto en mobile, visible en tablet/desktop */}
