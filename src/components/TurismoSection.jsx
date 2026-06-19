@@ -241,31 +241,30 @@ function MosaicTile({ tour, colSpan, rowSpan, onClick, onOpenTour, fading, aspec
   )
 }
 
+const TOUR_IMGS_LEFT  = ['/1.jpg', '/2.jfif', '/3.jfif']
+const TOUR_IMGS_RIGHT = ['/4.jpg', '/5.webp', '/6.jfif']
+
 function TurismoPromo({ onViewAll }) {
   const chips = ['Kayak', 'Senderismo', 'Volcán', 'Camping', 'Fotografía', 'Pesca', 'Ciclismo', 'Avistamiento']
 
   return (
     <div className="relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #08192e 0%, #0d2840 35%, #1a2540 60%, #26143a 85%, #1a1220 100%)' }}>
-      {/* Blob lago — azul teal difuso */}
+      {/* Blob lago */}
       <div className="absolute pointer-events-none" style={{
         bottom: '-60px', left: '25%', width: '480px', height: '220px',
-        background: 'radial-gradient(ellipse, rgba(6,75,115,0.5) 0%, transparent 70%)',
+        background: 'radial-gradient(ellipse, rgba(6,75,115,0.45) 0%, transparent 70%)',
         filter: 'blur(28px)',
       }} />
-      {/* Blob volcán — cono morado */}
+      {/* Blob volcán */}
       <div className="absolute pointer-events-none" style={{
         top: '-50px', right: '10%', width: '280px', height: '260px',
-        background: 'radial-gradient(ellipse, rgba(55,16,75,0.65) 0%, transparent 68%)',
+        background: 'radial-gradient(ellipse, rgba(55,16,75,0.6) 0%, transparent 68%)',
         filter: 'blur(30px)',
       }} />
-      {/* Destello dorado muy suave */}
-      <div className="absolute inset-x-0 bottom-0 h-12 pointer-events-none" style={{
-        background: 'linear-gradient(to top, rgba(245,200,66,0.04) 0%, transparent 100%)'
-      }} />
 
-      <div className="relative z-10 py-5 sm:py-6 px-3 sm:px-0">
-        {/* Header — igual al de la sección normal */}
-        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
+      <div className="relative z-10 py-5 sm:py-4 px-3 sm:px-0">
+        {/* Header */}
+        <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
           <div className="w-1 h-5 sm:h-6 bg-accent rounded-full" />
           <h2 className="text-sm sm:text-base font-black text-white tracking-wide">Turismo</h2>
           <span className="text-[9px] sm:text-[10px] font-bold text-accent/70 uppercase tracking-wider">Villarrica</span>
@@ -275,20 +274,21 @@ function TurismoPromo({ onViewAll }) {
           </button>
         </div>
 
-        {/* Contenido: móvil = columna, desktop = logo | centro */}
-        <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-0">
+        {/* Layout: móvil=solo centro / desktop=imgs | texto | imgs */}
+        <div className="flex items-stretch gap-2" style={{ minHeight: '200px' }}>
 
-          {/* Logo LocalClick — solo desktop, lado izquierdo */}
-          <div className="hidden sm:flex flex-col items-center gap-2 shrink-0 pr-8 mr-8 border-r border-white/10">
-            <img src="/icon-192.png" alt="LocalClick" className="w-16 h-16 rounded-2xl shadow-lg" style={{ boxShadow: '0 0 24px rgba(59,25,105,0.6)' }} />
-            <span className="text-[13px] font-black text-white tracking-wide">LocalClick</span>
-            <span className="text-[9px] uppercase tracking-wider text-center leading-tight" style={{ color: 'rgba(255,255,255,0.35)' }}>
-              El marketplace<br />de Villarrica
-            </span>
+          {/* 3 imágenes izquierda — solo desktop */}
+          <div className="hidden sm:flex flex-col gap-1.5 shrink-0" style={{ width: '110px' }}>
+            {TOUR_IMGS_LEFT.map((src, i) => (
+              <div key={i} className="flex-1 relative rounded-xl overflow-hidden" style={{ minHeight: '60px' }}>
+                <img src={src} alt="" className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+                <div className="absolute inset-0 rounded-xl" style={{ background: 'linear-gradient(to bottom, transparent 50%, rgba(8,20,40,0.5) 100%)' }} />
+              </div>
+            ))}
           </div>
 
-          {/* Centro: título + descripción + CTA + chips */}
-          <div className="flex-1 flex flex-col items-center text-center">
+          {/* Centro: texto + CTA + chips */}
+          <div className="flex-1 flex flex-col items-center justify-center text-center px-2 sm:px-6">
             <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-1.5" style={{ color: 'rgba(245,200,66,0.65)' }}>
               Lago Villarrica · Volcán · Naturaleza
             </p>
@@ -296,29 +296,36 @@ function TurismoPromo({ onViewAll }) {
               Descubre el turismo<br />
               <span style={{ color: '#F5C842' }}>en Villarrica</span>
             </h3>
-            <p className="text-[11px] sm:text-xs leading-relaxed mb-4 max-w-md" style={{ color: 'rgba(255,255,255,0.45)' }}>
+            <p className="text-[11px] sm:text-xs leading-relaxed mb-4 max-w-sm" style={{ color: 'rgba(255,255,255,0.45)' }}>
               Lago cristalino, volcán imponente y naturaleza única.
               Conoce las empresas de tours y aventura de la zona.
             </p>
             <button
               onClick={onViewAll}
-              className="inline-flex items-center gap-2 font-black text-[11px] sm:text-xs px-4 sm:px-5 py-2 sm:py-2.5 rounded-full transition-all hover:scale-105 shadow-lg mb-4"
+              className="inline-flex items-center gap-2 font-black text-[11px] sm:text-xs px-4 sm:px-5 py-2 sm:py-2.5 rounded-full transition-all hover:scale-105 shadow-lg mb-3"
               style={{ background: '#F5C842', color: '#3B1969' }}
             >
               <span className="material-symbols-outlined text-sm">explore</span>
               Ver empresas de turismo disponibles
             </button>
-            <div className="flex flex-wrap justify-center gap-1.5">
+            <div className="hidden sm:flex flex-wrap justify-center gap-1.5">
               {chips.map((act, i) => (
-                <span
-                  key={i}
-                  className="text-[10px] sm:text-[11px] font-bold px-2.5 py-1 rounded-full"
-                  style={{ border: '1px solid rgba(245,200,66,0.22)', color: 'rgba(245,200,66,0.7)', background: 'rgba(245,200,66,0.07)' }}
-                >
+                <span key={i} className="text-[10px] font-bold px-2.5 py-1 rounded-full"
+                  style={{ border: '1px solid rgba(245,200,66,0.22)', color: 'rgba(245,200,66,0.7)', background: 'rgba(245,200,66,0.07)' }}>
                   {act}
                 </span>
               ))}
             </div>
+          </div>
+
+          {/* 3 imágenes derecha — solo desktop */}
+          <div className="hidden sm:flex flex-col gap-1.5 shrink-0" style={{ width: '110px' }}>
+            {TOUR_IMGS_RIGHT.map((src, i) => (
+              <div key={i} className="flex-1 relative rounded-xl overflow-hidden" style={{ minHeight: '60px' }}>
+                <img src={src} alt="" className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+                <div className="absolute inset-0 rounded-xl" style={{ background: 'linear-gradient(to bottom, transparent 50%, rgba(8,20,40,0.5) 100%)' }} />
+              </div>
+            ))}
           </div>
 
         </div>
