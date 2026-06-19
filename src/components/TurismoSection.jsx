@@ -248,9 +248,9 @@ const TOUR_IMGS_RIGHT = ['/4.jpg', '/5.webp', '/6.jfif']
 function CardFan({ imgs }) {
   // Posición de cada naipe: [rotación, desplazamiento X, desplazamiento Y, z-index]
   const pos = [
-    { r: -14, x: -42, y: 14, z: 1 },   // carta izquierda
+    { r: -14, x: -42, y: -8, z: 1 },   // carta izquierda
     { r:   0, x:   0, y:  0, z: 3 },   // carta central (frente)
-    { r:  14, x:  42, y: 14, z: 2 },   // carta derecha
+    { r:  14, x:  42, y: -8, z: 2 },   // carta derecha
   ]
 
   return (
@@ -309,10 +309,10 @@ function TurismoPromo({ onViewAll }) {
         </div>
 
         {/* Layout: móvil=solo centro / desktop=naipes | texto | naipes */}
-        <div className="flex items-center gap-0 sm:gap-2">
+        <div className="flex items-center gap-0 sm:gap-2 max-w-4xl mx-auto w-full">
 
           {/* Naipes izquierda — solo desktop */}
-          <div className="hidden sm:flex items-center justify-center shrink-0">
+          <div className="hidden sm:flex items-center justify-center shrink-0 ml-6 sm:ml-10">
             <CardFan imgs={TOUR_IMGS_LEFT} />
           </div>
 
@@ -348,7 +348,7 @@ function TurismoPromo({ onViewAll }) {
           </div>
 
           {/* Naipes derecha — solo desktop */}
-          <div className="hidden sm:flex items-center justify-center shrink-0">
+          <div className="hidden sm:flex items-center justify-center shrink-0 mr-6 sm:mr-10">
             <CardFan imgs={TOUR_IMGS_RIGHT} />
           </div>
 
