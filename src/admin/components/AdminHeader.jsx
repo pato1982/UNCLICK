@@ -209,7 +209,7 @@ function ProfileModal({ onClose }) {
     const esTurismo = tipoCuenta === 'turismo'
     const items = []
     if (esTurismo) {
-      if (user.plan_id >= 3 && planId < 3) {
+      if (user.plan_id >= 5 && planId < 5) {
         if (counts?.tours > 0) items.push(`${counts.tours} tours dejarán de mostrarse`)
         if (counts?.pagina > 0) items.push('Tu página personalizada no será accesible')
         items.push('Las estadísticas no estarán disponibles')
@@ -319,8 +319,8 @@ function ProfileModal({ onClose }) {
     setEditDireccion(user.direccion || '')
   }
 
-  const planLabel = (id) => id === 3 ? 'Premium' : id === 2 ? 'Normal' : 'Gratis'
-  const planColor = (id) => id === 3 ? 'text-amber-400' : id === 2 ? 'text-blue-400' : 'text-slate-400'
+  const planLabel = (id) => (id === 3 || id === 5) ? 'Premium' : id === 2 ? 'Normal' : 'Gratis'
+  const planColor = (id) => (id === 3 || id === 5) ? 'text-amber-400' : id === 2 ? 'text-blue-400' : 'text-slate-400'
   const tipoCuentaLabel = () => {
     if (user?.tipo_cuenta === 'turismo') return 'Turismo'
     const tipos = []
@@ -533,7 +533,7 @@ function ProfileModal({ onClose }) {
             <p className="text-sm text-slate-700">Plan {planLabel(user.plan_id)}</p>
           ) : (
             <div className="flex gap-2 mt-1">
-              {(tipoCuenta === 'turismo' ? [1, 3] : [1, 2, 3]).map(p => (
+              {(tipoCuenta === 'turismo' ? [4, 5] : [1, 2, 3]).map(p => (
                 <button key={p} onClick={() => setPlanId(p)}
                   className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${planId === p
                     ? (p === 3 ? 'bg-amber-400 text-amber-900' : p === 2 ? 'bg-blue-500 text-white' : 'bg-slate-500 text-white')
