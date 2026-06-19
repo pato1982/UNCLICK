@@ -348,6 +348,8 @@ function TurismoPromo({ onViewAll }) {
   )
 }
 
+const FEW_THRESHOLD = 4
+
 export default function TurismoSection({ onViewAll, onOpenTour }) {
   const [allTours, setAllTours] = useState([])
   const [displayTours, setDisplayTours] = useState([])
@@ -409,6 +411,8 @@ export default function TurismoSection({ onViewAll, onOpenTour }) {
     return <TurismoPromo onViewAll={onViewAll} />
   }
 
+  const fewItems = allTours.length > 0 && allTours.length <= FEW_THRESHOLD
+
   const tiles = LAYOUT.map((slot, i) => ({
     ...slot,
     tour: displayTours[i],
@@ -420,7 +424,8 @@ export default function TurismoSection({ onViewAll, onOpenTour }) {
 
   return (
     <div className="relative overflow-hidden" style={{ background: '#1a1220' }}>
-      {displayTours.length > 0 && getTourImage(displayTours[0]) && (
+      {/* Imagen borroneada de fondo solo cuando hay suficientes tours */}
+      {!fewItems && displayTours.length > 0 && getTourImage(displayTours[0]) && (
         <>
           <img
             src={getTourImage(displayTours[0])}
@@ -447,60 +452,81 @@ export default function TurismoSection({ onViewAll, onOpenTour }) {
           </button>
         </div>
 
-        {/* Móvil: 2 filas de 2 tarjetas visibles (rotan cada 10s con el fade) */}
-        <div className="grid sm:hidden grid-cols-2 gap-1.5">
-          {displayTours.slice(0, 4).map((tour, i) => (
-            <MosaicTile
-              key={`m-${tour.id}-${i}`}
-              tour={tour}
-              colSpan={1}
-              rowSpan={1}
-              aspect="1 / 1"
-              onClick={() => handleTileClick(tour)}
-              onOpenTour={onOpenTour}
-              fading={fading}
-            />
-          ))}
-        </div>
-
-        {/* Rango 800–900px: una fila de 4 tarjetas (rotan cada 10s con el fade) */}
-        <div className="hidden min-[800px]:max-[900px]:flex gap-1.5 px-6">
-          {displayTours.slice(0, 4).map((tour, i) => (
-            <div key={`mid-${tour.id}-${i}`} className="flex-1">
-              <MosaicTile
-                tour={tour}
-                colSpan={1}
-                rowSpan={1}
-                aspect="1 / 1"
-                onClick={() => handleTileClick(tour)}
-                onOpenTour={onOpenTour}
-                fading={fading}
-              />
+        {fewItems ? (
+          /* Pocos tours: tarjetas centradas, sin mosaico */
+          <div className="flex justify-center flex-wrap gap-2 px-3">
+            {displayTours.map((tour, i) => (
+              <div key={`few-${tour.id}`} style={{ width: '180px', flexShrink: 0 }}>
+                <MosaicTile
+                  tour={tour}
+                  colSpan={1}
+                  rowSpan={1}
+                  aspect="1 / 1"
+                  onClick={() => handleTileClick(tour)}
+                  onOpenTour={onOpenTour}
+                  fading={fading}
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <>
+            {/* Móvil: 2 filas de 2 tarjetas visibles (rotan cada 10s con el fade) */}
+            <div className="grid sm:hidden grid-cols-2 gap-1.5">
+              {displayTours.slice(0, 4).map((tour, i) => (
+                <MosaicTile
+                  key={`m-${tour.id}-${i}`}
+                  tour={tour}
+                  colSpan={1}
+                  rowSpan={1}
+                  aspect="1 / 1"
+                  onClick={() => handleTileClick(tour)}
+                  onOpenTour={onOpenTour}
+                  fading={fading}
+                />
+              ))}
             </div>
-          ))}
-        </div>
 
-        {/* Escritorio: mosaico (se oculta en el rango 800–900px) */}
-        <div
-          ref={gridRef}
-          className="hidden min-[640px]:max-[799px]:grid min-[901px]:grid gap-1.5"
-          style={{
-            gridTemplateColumns: 'repeat(8, 1fr)',
-            gridAutoRows: 'auto',
-          }}
-        >
-          {tiles.map((tile, i) => (
-            <MosaicTile
-              key={`${tile.tour.id}-${i}`}
-              tour={tile.tour}
-              colSpan={tile.colSpan}
-              rowSpan={tile.rowSpan}
-              onClick={() => handleTileClick(tile.tour)}
-              onOpenTour={onOpenTour}
-              fading={fading}
-            />
-          ))}
-        </div>
+            {/* Rango 800–900px: una fila de 4 tarjetas */}
+            <div className="hidden min-[800px]:max-[900px]:flex gap-1.5 px-6">
+              {displayTours.slice(0, 4).map((tour, i) => (
+                <div key={`mid-${tour.id}-${i}`} className="flex-1">
+                  <MosaicTile
+                    tour={tour}
+                    colSpan={1}
+                    rowSpan={1}
+                    aspect="1 / 1"
+                    onClick={() => handleTileClick(tour)}
+                    onOpenTour={onOpenTour}
+                    fading={fading}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Escritorio: mosaico (se oculta en el rango 800–900px) */}
+            <div
+              ref={gridRef}
+              className="hidden min-[640px]:max-[799px]:grid min-[901px]:grid gap-1.5"
+              style={{
+                gridTemplateColumns: 'repeat(8, 1fr)',
+                gridAutoRows: 'auto',
+              }}
+            >
+              {tiles.map((tile, i) => (
+                <MosaicTile
+                  key={`${tile.tour.id}-${i}`}
+                  tour={tile.tour}
+                  colSpan={tile.colSpan}
+                  rowSpan={tile.rowSpan}
+                  onClick={() => handleTileClick(tile.tour)}
+                  onOpenTour={onOpenTour}
+                  fading={fading}
+                />
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       {selectedTour && (
