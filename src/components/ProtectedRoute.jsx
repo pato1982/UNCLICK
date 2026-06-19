@@ -102,7 +102,26 @@ export default function ProtectedRoute({ children }) {
     async function checkAuth() {
       try {
         const res = await fetch(`${API}/api/v1/auth/me`, { credentials: 'include' })
-        if (res.ok) { setStatus('ok'); return }
+        if (res.ok) {
+          // Sincronizar plan_id y campos clave desde el servidor al localStorage
+          try {
+            const data = await res.json()
+            const fresh = data.usuario || data.user
+            if (fresh) {
+              const stored = JSON.parse(localStorage.getItem('user') || '{}')
+              localStorage.setItem('user', JSON.stringify({
+                ...stored,
+                plan_id: fresh.plan_id,
+                tipo_cuenta: fresh.tipo_cuenta,
+                vende_productos: fresh.vende_productos,
+                ofrece_servicios: fresh.ofrece_servicios,
+                ofrece_arriendos: fresh.ofrece_arriendos,
+              }))
+            }
+          } catch {}
+          setStatus('ok')
+          return
+        }
         const refreshRes = await fetch(`${API}/api/v1/auth/refresh`, {
           method: 'POST',
           credentials: 'include',
