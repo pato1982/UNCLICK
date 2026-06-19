@@ -244,34 +244,24 @@ function MosaicTile({ tour, colSpan, rowSpan, onClick, onOpenTour, fading, aspec
 const TOUR_IMGS_LEFT  = ['/1.jpg', '/2.jfif', '/3.jfif']
 const TOUR_IMGS_RIGHT = ['/4.jpg', '/5.webp', '/6.jfif']
 
-// 3 cartas en abanico, como naipes, estilo portada de tour
-function CardFan({ imgs }) {
-  // Posición de cada naipe: [rotación, desplazamiento X, desplazamiento Y, z-index]
-  const pos = [
-    { r: -16, x: -95, y: -8, z: 1 },   // carta izquierda
-    { r:   0, x:   0, y:  0, z: 3 },   // carta central (frente)
-    { r:  16, x:  95, y: -8, z: 2 },   // carta derecha
-  ]
+// 3 cartas apiladas en columna, estilo naipes levemente rotados
+function CardColumn({ imgs }) {
+  const rotations = [-4, 3, -2]
 
   return (
-    <div className="relative flex items-end justify-center" style={{ width: '360px', height: '250px' }}>
-      {imgs.slice(0, 3).map((src, i) => (
+    <div className="flex flex-col gap-2 h-full py-2 overflow-hidden" style={{ width: '130px' }}>
+      {imgs.map((src, i) => (
         <div
           key={i}
-          className="absolute rounded-2xl overflow-hidden shadow-2xl"
+          className="flex-1 relative rounded-2xl overflow-hidden shadow-xl"
           style={{
-            width: '155px',
-            height: '225px',
-            transform: `translateX(${pos[i].x}px) translateY(${pos[i].y}px) rotate(${pos[i].r}deg)`,
-            zIndex: pos[i].z,
-            border: '2px solid rgba(255,255,255,0.12)',
-            bottom: 0,
+            transform: `rotate(${rotations[i]}deg)`,
+            border: '2px solid rgba(255,255,255,0.13)',
+            minHeight: 0,
           }}
         >
-          <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
-          <div className="absolute inset-0" style={{
-            background: 'linear-gradient(to bottom, transparent 55%, rgba(5,15,35,0.65) 100%)'
-          }} />
+          <img src={src} alt="" className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 55%, rgba(5,15,35,0.6) 100%)' }} />
         </div>
       ))}
     </div>
@@ -309,11 +299,11 @@ function TurismoPromo({ onViewAll }) {
         </div>
 
         {/* Layout: móvil=solo centro / desktop=naipes | texto | naipes */}
-        <div className="flex items-center gap-0 sm:gap-2 max-w-4xl mx-auto w-full">
+        <div className="flex items-stretch gap-2 sm:gap-4 max-w-5xl mx-auto w-full" style={{ minHeight: '220px' }}>
 
           {/* Naipes izquierda — solo desktop */}
-          <div className="hidden sm:flex items-center justify-center shrink-0 ml-6 sm:ml-10">
-            <CardFan imgs={TOUR_IMGS_LEFT} />
+          <div className="hidden sm:flex items-stretch justify-center shrink-0">
+            <CardColumn imgs={TOUR_IMGS_LEFT} />
           </div>
 
           {/* Centro: texto + CTA + chips */}
@@ -348,8 +338,8 @@ function TurismoPromo({ onViewAll }) {
           </div>
 
           {/* Naipes derecha — solo desktop */}
-          <div className="hidden sm:flex items-center justify-center shrink-0 mr-6 sm:mr-10">
-            <CardFan imgs={TOUR_IMGS_RIGHT} />
+          <div className="hidden sm:flex items-stretch justify-center shrink-0">
+            <CardColumn imgs={TOUR_IMGS_RIGHT} />
           </div>
 
         </div>
