@@ -63,7 +63,7 @@ function TourModal({ tour, onClose, onOpenTour }) {
   const next = () => setCurrentImg(i => i === imgs.length - 1 ? 0 : i + 1)
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60" onClick={onClose}>
+    <div className="fixed inset-0 z-[60] flex items-start justify-center pt-10 sm:pt-14 bg-black/60 overflow-y-auto" onClick={onClose}>
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden" onClick={(e) => e.stopPropagation()}>
         <div className="relative w-full" style={{ aspectRatio: '4 / 3' }}>
           {imgs.length > 0 ? (
@@ -168,11 +168,6 @@ function TourCard({ tour, onClick, onOpenTour, fading }) {
           <div className="w-full h-full flex items-center justify-center">
             <span className="material-symbols-outlined text-4xl text-slate-400">landscape</span>
           </div>
-        )}
-        {tour.categoria && (
-          <span className="absolute top-1.5 left-1.5 bg-accent/90 text-primary text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
-            {tour.categoria}
-          </span>
         )}
       </div>
 
