@@ -817,6 +817,16 @@ export default function TourismPage({ activeFilter, onClearFilter, onEmpresaCate
                 </div>
               )}
               <p className="text-[10px] sm:text-xs text-slate-500 leading-relaxed mb-2 sm:mb-3 line-clamp-5 sm:line-clamp-3">{company.description}</p>
+              {/* Categorías — solo mobile, fila horizontal scrolleable */}
+              {company.subcategories && company.subcategories.length > 0 && (
+                <div className="sm:hidden flex items-center gap-1 overflow-x-auto mb-2 w-full" style={{ scrollbarWidth: 'none' }}>
+                  {company.subcategories.map((cat) => (
+                    <span key={cat} className="shrink-0 text-[9px] font-semibold px-2 py-0.5 rounded-full border whitespace-nowrap" style={{ color: '#3B1969', background: 'rgba(59,25,105,0.07)', borderColor: 'rgba(59,25,105,0.15)' }}>
+                      {cat}
+                    </span>
+                  ))}
+                </div>
+              )}
               <div className="mt-auto flex items-center gap-2 sm:gap-3">
                 {company.planId >= 5 && (
                   <button
@@ -851,7 +861,7 @@ export default function TourismPage({ activeFilter, onClearFilter, onEmpresaCate
 
             <div className="shrink-0 flex flex-col items-center">
               <CardFan images={company.images} crops={company.imagesCrop} />
-              <div className="min-h-[28px] sm:min-h-0 flex flex-wrap justify-center items-start content-start gap-x-1 gap-y-0.5 -mt-1 sm:-mt-2 max-w-[120px] sm:max-w-[200px] md:max-w-[250px]">
+              <div className="hidden sm:flex flex-wrap justify-center items-start content-start gap-x-1 gap-y-0.5 sm:-mt-2 max-w-[200px] md:max-w-[250px]">
                 {company.subcategories && company.subcategories.length > 0 && company.subcategories.map((cat, i) => (
                   <span key={cat} className="flex items-center gap-0.5 sm:gap-1">
                     {i > 0 && <span className="text-[5px] sm:text-[6px] text-slate-300">●</span>}
