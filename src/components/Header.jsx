@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, lazy, Suspense } from 'react'
 import { Link } from 'react-router-dom'
-import PlansModal from './PlansModal'
-import LoginModal from './LoginModal'
-import RegisterModal from './RegisterModal'
+// Modales cargados bajo demanda: no entran en el bundle inicial, solo al abrirse
+const PlansModal = lazy(() => import('./PlansModal'))
+const LoginModal = lazy(() => import('./LoginModal'))
+const RegisterModal = lazy(() => import('./RegisterModal'))
 const API = import.meta.env.VITE_API || ''
 
 export default function Header({ activeNav, toggleNav, onToggleSidebar, sidebarOpen, onGoHome, showInicio, onSearchSelect, user, onLoginSuccess, onLogout }) {
@@ -344,21 +345,23 @@ export default function Header({ activeNav, toggleNav, onToggleSidebar, sidebarO
         </div>
       </nav>
 
-      {showPlans && <PlansModal onClose={() => setShowPlans(false)} />}
-      {showLogin && (
-        <LoginModal
-          onClose={() => setShowLogin(false)}
-          onSwitchToRegister={() => { setShowLogin(false); setShowRegister(true) }}
-          onLoginSuccess={onLoginSuccess}
-        />
-      )}
-      {showRegister && (
-        <RegisterModal
-          onClose={() => setShowRegister(false)}
-          onSwitchToLogin={() => { setShowRegister(false); setShowLogin(true) }}
-          onRegisterSuccess={onLoginSuccess}
-        />
-      )}
+      <Suspense fallback={null}>
+        {showPlans && <PlansModal onClose={() => setShowPlans(false)} />}
+        {showLogin && (
+          <LoginModal
+            onClose={() => setShowLogin(false)}
+            onSwitchToRegister={() => { setShowLogin(false); setShowRegister(true) }}
+            onLoginSuccess={onLoginSuccess}
+          />
+        )}
+        {showRegister && (
+          <RegisterModal
+            onClose={() => setShowRegister(false)}
+            onSwitchToLogin={() => { setShowRegister(false); setShowLogin(true) }}
+            onRegisterSuccess={onLoginSuccess}
+          />
+        )}
+      </Suspense>
     </div>
   )
 }

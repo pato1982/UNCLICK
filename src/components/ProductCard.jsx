@@ -227,6 +227,10 @@ export default function ProductCard({ product, hidePrice, isFirst, onOpenStore, 
             alt={product.alt}
             className="w-full h-full object-contain"
             src={product.image}
+            width={400}
+            height={300}
+            loading="lazy"
+            decoding="async"
           />
           {isFirst && (
             <span className="absolute top-1 left-1 sm:top-2 sm:left-2 bg-amber-400 text-amber-900 px-1 sm:px-2 py-0.5 rounded-full text-[6px] sm:text-[8px] font-black uppercase tracking-wider shadow">

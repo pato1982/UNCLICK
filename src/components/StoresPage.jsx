@@ -43,6 +43,10 @@ function StoreCard({ store }) {
             src={store.image}
             alt={store.name}
             className="w-full h-full object-contain"
+            width={300}
+            height={225}
+            loading="lazy"
+            decoding="async"
           />
           {store.type && (
             <span className="absolute top-1 right-1 sm:top-2 sm:right-2 bg-primary/80 backdrop-blur text-white px-1.5 sm:px-2 py-0.5 rounded-full text-[7px] sm:text-[8px] font-bold uppercase tracking-wider">
@@ -71,13 +75,27 @@ function StoresMap({ stores, activeFilter }) {
   const mapRef = useRef(null)
   const mapInstanceRef = useRef(null)
   const markersRef = useRef([])
+  const [L, setL] = useState(null)
+
+  // Carga Leaflet (JS + CSS) bajo demanda, solo cuando se muestra el mapa.
+  // Antes se cargaba en el <head> de index.html y bloqueaba el render de toda la app.
+  useEffect(() => {
+    let cancelled = false
+    Promise.all([
+      import('leaflet'),
+      import('leaflet/dist/leaflet.css'),
+    ]).then(([mod]) => {
+      if (!cancelled) setL(mod.default || mod)
+    })
+    return () => { cancelled = true }
+  }, [])
 
   useEffect(() => {
-    if (!window.L || !mapRef.current) return
+    if (!L || !mapRef.current) return
 
     if (!mapInstanceRef.current) {
-      mapInstanceRef.current = window.L.map(mapRef.current).setView([-39.2850, -72.2270], 15)
-      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      mapInstanceRef.current = L.map(mapRef.current).setView([-39.2850, -72.2270], 15)
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap',
       }).addTo(mapInstanceRef.current)
     }
@@ -93,7 +111,7 @@ function StoresMap({ stores, activeFilter }) {
     filtered.forEach((store) => {
       if (!store.lat || !store.lng) return
       const color = typeColors[store.type] || '#6b21a8'
-      const icon = window.L.divIcon({
+      const icon = L.divIcon({
         className: '',
         html: `<div style="background:${color};width:28px;height:28px;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;">
           <span class="material-symbols-outlined" style="color:white;font-size:14px;">storefront</span>
@@ -103,7 +121,7 @@ function StoresMap({ stores, activeFilter }) {
         popupAnchor: [0, -16],
       })
 
-      const marker = window.L.marker([store.lat, store.lng], { icon })
+      const marker = L.marker([store.lat, store.lng], { icon })
         .addTo(mapInstanceRef.current)
         .bindPopup(`
           <div style="min-width:180px;font-family:Inter,sans-serif;">
@@ -122,10 +140,10 @@ function StoresMap({ stores, activeFilter }) {
 
     const withCoords = filtered.filter(s => s.lat && s.lng)
     if (withCoords.length > 0) {
-      const bounds = window.L.latLngBounds(withCoords.map((s) => [s.lat, s.lng]))
+      const bounds = L.latLngBounds(withCoords.map((s) => [s.lat, s.lng]))
       mapInstanceRef.current.fitBounds(bounds, { padding: [40, 40], maxZoom: 16 })
     }
-  }, [stores, activeFilter])
+  }, [L, stores, activeFilter])
 
   useEffect(() => {
     return () => {

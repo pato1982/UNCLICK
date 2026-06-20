@@ -27,7 +27,7 @@ export default function ImageGallery({ images = [], alt = '', height = 'h-52 sm:
 
   if (count === 1) return (
     <div className={`w-full ${height} overflow-hidden bg-slate-100`}>
-      <img src={imgs[0]} alt={alt} className="w-full h-full object-cover" />
+      <img src={imgs[0]} alt={alt} className="w-full h-full object-cover" loading="lazy" decoding="async" />
     </div>
   )
 
@@ -55,6 +55,8 @@ export default function ImageGallery({ images = [], alt = '', height = 'h-52 sm:
           key={src + i}
           src={src}
           alt={`${alt} ${i + 1}`}
+          loading="lazy"
+          decoding="async"
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${i === current ? 'opacity-100' : 'opacity-0'}`}
         />
       ))}

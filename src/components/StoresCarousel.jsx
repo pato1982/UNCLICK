@@ -173,6 +173,10 @@ export default function StoresCarousel({ onViewAll }) {
                   src={store.image}
                   alt={store.name}
                   className="w-full h-full object-contain"
+                  width={300}
+                  height={225}
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
               <div className="px-2 py-2 sm:px-3 sm:py-2.5">

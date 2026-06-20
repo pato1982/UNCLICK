@@ -1,25 +1,36 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, lazy, Suspense } from 'react'
 import { Link } from 'react-router-dom'
 import Header from './components/Header'
 import Sidebar from './components/Sidebar'
 import Breadcrumbs from './components/Breadcrumbs'
 import ProductCarousel from './components/ProductCarousel'
-import TourismPage from './components/TourismPage'
 import EventsSection from './components/EventsSection'
 import StoresCarousel from './components/StoresCarousel'
 import TurismoSection from './components/TurismoSection'
 import Footer from './components/Footer'
-import SectionPage from './components/SectionPage'
-import StoresPage from './components/StoresPage'
-import EventsPage from './components/EventsPage'
-import ArriendosPage from './components/ArriendosPage'
-import ServiciosPage from './components/ServiciosPage'
-import StorePage, { StoreFooter } from './components/StorePage'
 import { ProductModal } from './components/ProductCard'
-import StoreHeader from './components/StoreHeader'
 import CategoryGrid from './components/CategoryGrid'
 import HeroBanner from './components/HeroBanner'
+
+// Vistas/paginas secundarias: cargadas bajo demanda (no estan en el primer paint del home)
+const TourismPage = lazy(() => import('./components/TourismPage'))
+const SectionPage = lazy(() => import('./components/SectionPage'))
+const StoresPage = lazy(() => import('./components/StoresPage'))
+const EventsPage = lazy(() => import('./components/EventsPage'))
+const ArriendosPage = lazy(() => import('./components/ArriendosPage'))
+const ServiciosPage = lazy(() => import('./components/ServiciosPage'))
+const StorePage = lazy(() => import('./components/StorePage'))
+const StoreFooter = lazy(() => import('./components/StorePage').then(m => ({ default: m.StoreFooter })))
+const StoreHeader = lazy(() => import('./components/StoreHeader'))
+
 const API = import.meta.env.VITE_API || ''
+
+// Fallback para vistas cargadas perezosamente
+const PageFallback = () => (
+  <div className="flex items-center justify-center min-h-[50vh] text-primary">
+    <span className="material-symbols-outlined animate-spin" style={{ fontSize: 36 }}>progress_activity</span>
+  </div>
+)
 
 const SECTION_TITLES = {
   destacados: 'Productos Destacados',
@@ -621,6 +632,7 @@ export default function App() {
 
   if (activeStore) {
     return (
+      <Suspense fallback={<PageFallback />}>
       <div className="relative flex min-h-screen flex-col">
         {/* Header de la tienda (estilo personalizable por el usuario) + barra de navegación */}
         <StoreHeader
@@ -646,6 +658,7 @@ export default function App() {
           />
         )}
       </div>
+      </Suspense>
     )
   }
 
@@ -674,6 +687,7 @@ export default function App() {
         <main className="flex-1 flex flex-col gap-4 sm:gap-6 md:gap-8 p-3 sm:p-4 md:p-6 overflow-hidden transition-all duration-300">
           {/* <Breadcrumbs /> */}
 
+          <Suspense fallback={<PageFallback />}>
           {currentPage === 'productos' ? (
             (() => {
               const productSections = sections
@@ -868,6 +882,20 @@ export default function App() {
             (() => {
               // Group sections by mockup layout (using sections directly, not shuffledRows)
               const getSection = (id) => sections.find(s => s.id === id)
+              // Mientras cargan los listings, reservamos altura para evitar CLS: las secciones
+              // data-driven aparecerian progresivamente y empujarian el contenido (CLS ~0.30).
+              // Renderizamos hero + categorias + placeholder de altura fija hasta que haya datos.
+              if (sections.length === 0) {
+                return (
+                  <>
+                    <HeroBanner />
+                    <CategoryGrid onNavigate={toggleNav} />
+                    <div className="min-h-screen flex items-start justify-center pt-16">
+                      <PageFallback />
+                    </div>
+                  </>
+                )
+              }
               // Ordenar por prioridad de plan: Premium (3) → Normal (2) → Gratuito (1), aleatorio dentro de cada tier
               const byPriority = (items) => {
                 const shuffle = (arr) => {
@@ -1042,6 +1070,7 @@ export default function App() {
               )
             })()
           )}
+          </Suspense>
         </main>
       </div>
 

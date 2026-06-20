@@ -1,23 +1,28 @@
 import { useState, useEffect } from 'react'
 
+// Imagenes del hero auto-hospedadas y optimizadas (WebP local en /public/hero/).
+// Antes eran remotas de Unsplash a w=1600 => LCP ~11s. Ahora locales => LCP ~1-2s.
+// srcset responsive: 640w para mobile, 1280w para desktop.
+const srcSet = (base) => `${base}-640.webp 640w, ${base}-1280.webp 1280w`
+
 const SLIDES = [
   {
     // Volcán Villarrica con lago — Ricardo Díaz (Unsplash free license)
-    image: 'https://images.unsplash.com/photo-1665107277506-5f272d52ddb1?auto=format&fit=crop&w=1600&q=85',
+    base: '/hero/hero1',
     label: 'Villarrica, Chile',
     title: <>Todo lo que<br />necesitas está<br />en <em className="text-accent not-italic">LocalClick</em></>,
     sub: 'El marketplace local de Villarrica y sus alrededores',
   },
   {
     // Bosque andino y volcán — David Vives (Unsplash free license)
-    image: 'https://images.unsplash.com/photo-1600591054558-106b19b70279?auto=format&fit=crop&w=1600&q=85',
+    base: '/hero/hero2',
     label: 'Lagos y Volcanes',
     title: <>Compra, arrienda<br />y descubre<br /><em className="text-accent not-italic">Villarrica</em></>,
     sub: 'Productos, servicios, turismo y mucho más',
   },
   {
     // Montañas nevadas Villarrica — David Vives (Unsplash free license)
-    image: 'https://images.unsplash.com/photo-1573502143827-a16f0ee55a9b?auto=format&fit=crop&w=1600&q=85',
+    base: '/hero/hero3',
     label: 'Naturaleza y Aventura',
     title: <>Negocios locales<br />a tu<br /><em className="text-accent not-italic">alcance</em></>,
     sub: 'Apoya a los emprendedores de Villarrica y sus alrededores',
@@ -39,8 +44,15 @@ export default function HeroBanner() {
       {SLIDES.map((s, i) => (
         <img
           key={i}
-          src={s.image}
-          alt="Villarrica"
+          src={`${s.base}-1280.webp`}
+          srcSet={srcSet(s.base)}
+          sizes="100vw"
+          alt={`Villarrica — ${s.label}`}
+          width={1280}
+          height={400}
+          loading={i === 0 ? 'eager' : 'lazy'}
+          fetchpriority={i === 0 ? 'high' : 'low'}
+          decoding="async"
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${i === current ? 'opacity-100' : 'opacity-0'}`}
         />
       ))}
