@@ -115,12 +115,13 @@ export default function Header({ activeNav, toggleNav, onToggleSidebar, sidebarO
           {/* Buscador - oculto en mobile, visible en tablet/desktop */}
           <div className="hidden sm:block sm:flex-initial w-full sm:max-w-[280px] md:max-w-lg relative group md:flex-none sm:mx-auto" ref={searchRef}>
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-              <span className="material-symbols-outlined text-slate-400 group-focus-within:text-primary text-sm sm:text-base">search</span>
+              <span className="material-symbols-outlined text-slate-500 group-focus-within:text-primary text-sm sm:text-base" aria-hidden="true">search</span>
             </div>
             <input
-              className="w-full rounded-full bg-white text-slate-900 py-1.5 md:py-2 pl-8 sm:pl-10 pr-10 sm:pr-24 focus:ring-4 focus:ring-primary-light/40 border-none transition-all placeholder:text-slate-400 text-[10px] sm:text-xs md:text-sm"
+              className="w-full rounded-full bg-white text-slate-900 py-1.5 md:py-2 pl-8 sm:pl-10 pr-10 sm:pr-24 focus:ring-4 focus:ring-primary-light/40 border-none transition-all placeholder:text-slate-500 text-[10px] sm:text-xs md:text-sm"
               placeholder="Buscar..."
               type="text"
+              aria-label="Buscar en LocalClick"
               value={query}
               onChange={(e) => handleSearch(e.target.value)}
               onFocus={() => query.length >= 3 && setShowResults(true)}
@@ -188,12 +189,13 @@ export default function Header({ activeNav, toggleNav, onToggleSidebar, sidebarO
           {/* Buscador (angosto) */}
           <div className="relative group flex-1 min-w-0">
             <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none z-10">
-              <span className="material-symbols-outlined text-slate-400 group-focus-within:text-primary text-xs">search</span>
+              <span className="material-symbols-outlined text-slate-500 group-focus-within:text-primary text-xs" aria-hidden="true">search</span>
             </div>
             <input
-              className="w-full rounded-full bg-white/90 text-slate-900 py-1 pl-7 pr-2 border-none placeholder:text-slate-400 text-[10px] focus:ring-2 focus:ring-accent/40 transition-all"
+              className="w-full rounded-full bg-white/90 text-slate-900 py-1 pl-7 pr-2 border-none placeholder:text-slate-500 text-[10px] focus:ring-2 focus:ring-accent/40 transition-all"
               placeholder="Buscar..."
               type="text"
+              aria-label="Buscar en LocalClick"
               value={query}
               onChange={(e) => handleSearch(e.target.value)}
               onFocus={() => query.length >= 3 && setShowResults(true)}

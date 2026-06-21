@@ -140,7 +140,7 @@ export function ProductModal({ product, hidePrice, inStorePage, onClose, onOpenS
                   ${(product.price ?? product.precio ?? 0).toLocaleString('es-CL', { maximumFractionDigits: 0 })}
                 </p>
                 {(product.originalPrice || product.precioOriginal) && (
-                  <p className="text-[11px] font-bold text-slate-400 line-through">
+                  <p className="text-[11px] font-bold text-slate-500 line-through">
                     ${(product.originalPrice ?? product.precioOriginal ?? 0).toLocaleString('es-CL', { maximumFractionDigits: 0 })}
                   </p>
                 )}
@@ -269,7 +269,7 @@ export default function ProductCard({ product, hidePrice, isFirst, onOpenStore, 
               <>
                 <div className="text-left">
                   {product.originalPrice && (
-                    <p className="text-[8px] sm:text-[9px] font-medium text-slate-400 line-through leading-none">
+                    <p className="text-[8px] sm:text-[9px] font-medium text-slate-500 line-through leading-none">
                       ${product.originalPrice.toLocaleString('es-CL', { maximumFractionDigits: 0 })}
                     </p>
                   )}

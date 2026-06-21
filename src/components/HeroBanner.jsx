@@ -72,12 +72,16 @@ export default function HeroBanner() {
       </div>
       {/* Dots */}
       <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-        {SLIDES.map((_, i) => (
+        {SLIDES.map((s, i) => (
           <button
             key={i}
             onClick={() => setCurrent(i)}
-            className={`h-1.5 rounded-full transition-all duration-300 ${i === current ? 'w-5 bg-accent' : 'w-1.5 bg-white/40'}`}
-          />
+            aria-label={`Ver imagen ${i + 1}: ${s.label}`}
+            aria-current={i === current}
+            className="flex items-center justify-center p-2 -m-2"
+          >
+            <span className={`block h-1.5 rounded-full transition-all duration-300 ${i === current ? 'w-5 bg-accent' : 'w-1.5 bg-white/40'}`} />
+          </button>
         ))}
       </div>
     </div>

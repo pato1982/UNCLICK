@@ -1,10 +1,11 @@
-import { useState } from 'react'
-import LoginModal from './LoginModal'
-import RegisterModal from './RegisterModal'
-import PlansModal from './PlansModal'
-import TermsModal from './TermsModal'
-import PrivacyModal from './PrivacyModal'
-import CookiesModal from './CookiesModal'
+import { useState, lazy, Suspense } from 'react'
+// Modales cargados bajo demanda: no entran en el bundle inicial de la home
+const LoginModal = lazy(() => import('./LoginModal'))
+const RegisterModal = lazy(() => import('./RegisterModal'))
+const PlansModal = lazy(() => import('./PlansModal'))
+const TermsModal = lazy(() => import('./TermsModal'))
+const PrivacyModal = lazy(() => import('./PrivacyModal'))
+const CookiesModal = lazy(() => import('./CookiesModal'))
 
 export default function Footer({ onNavigate, onLoginSuccess }) {
   const [showLogin, setShowLogin] = useState(false)
@@ -39,7 +40,7 @@ export default function Footer({ onNavigate, onLoginSuccess }) {
           <div className="grid grid-cols-3 gap-3">
             <div className="flex justify-center">
               <div>
-                <h4 className="font-black tracking-widest text-accent text-[10px] mb-2">Accesos</h4>
+                <h3 className="font-black tracking-widest text-accent text-[10px] mb-2">Accesos</h3>
                 <ul className="space-y-1 text-[9px] font-normal text-white/50">
                   <li><a className="hover:text-accent transition-colors cursor-pointer" onClick={(e) => { e.preventDefault(); onNavigate?.('productos', false) }} href="#">Productos</a></li>
                   <li><a className="hover:text-accent transition-colors cursor-pointer" onClick={(e) => { e.preventDefault(); onNavigate?.('arriendos', false) }} href="#">Arriendos</a></li>
@@ -52,7 +53,7 @@ export default function Footer({ onNavigate, onLoginSuccess }) {
             </div>
             <div className="flex justify-center">
               <div>
-                <h4 className="font-black tracking-widest text-accent text-[10px] mb-2">Legal</h4>
+                <h3 className="font-black tracking-widest text-accent text-[10px] mb-2">Legal</h3>
                 <ul className="space-y-1 text-[9px] font-normal text-white/50">
                   <li><button type="button" onClick={() => setShowTerms(true)} className="hover:text-accent transition-colors text-left">Términos</button></li>
                   <li><a className="hover:text-accent transition-colors" href="#">Datos</a></li>
@@ -63,7 +64,7 @@ export default function Footer({ onNavigate, onLoginSuccess }) {
             </div>
             <div className="flex justify-center">
               <div>
-                <h4 className="font-black tracking-widest text-accent text-[10px] mb-2">Mi cuenta</h4>
+                <h3 className="font-black tracking-widest text-accent text-[10px] mb-2">Mi cuenta</h3>
                 <ul className="space-y-1 text-[9px] font-normal text-white/50">
                   <li><a className="hover:text-accent transition-colors cursor-pointer" onClick={(e) => { e.preventDefault(); setShowLogin(true) }} href="#">Ingresar</a></li>
                   <li><a className="hover:text-accent transition-colors cursor-pointer" onClick={(e) => { e.preventDefault(); setShowRegister(true) }} href="#">Registrarse</a></li>
@@ -77,7 +78,7 @@ export default function Footer({ onNavigate, onLoginSuccess }) {
           <div className="grid grid-cols-2 gap-3">
             <div className="flex justify-center">
               <div>
-                <h4 className="font-black tracking-widest text-accent text-[10px] mb-2">Contacto</h4>
+                <h3 className="font-black tracking-widest text-accent text-[10px] mb-2">Contacto</h3>
                 <ul className="space-y-1 text-[9px] font-normal text-white/50">
                   <li className="flex items-center gap-1.5">
                     <span className="material-symbols-outlined text-xs text-accent">mail</span>
@@ -92,7 +93,7 @@ export default function Footer({ onNavigate, onLoginSuccess }) {
             </div>
             <div className="flex justify-center">
               <div>
-                <h4 className="font-black tracking-widest text-accent text-[10px] mb-2">Redes Sociales</h4>
+                <h3 className="font-black tracking-widest text-accent text-[10px] mb-2">Redes Sociales</h3>
                 <div className="flex items-center gap-3">
                 <a href="#" className="hover:opacity-80 transition-opacity" title="Facebook">
                   <svg className="w-5 h-5 fill-current text-[#1877F2]" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
@@ -125,7 +126,7 @@ export default function Footer({ onNavigate, onLoginSuccess }) {
           {/* Fila 2: 5 columnas */}
           <div className="grid grid-cols-5 gap-3">
             <div>
-              <h4 className="font-black tracking-widest text-accent text-[10px] mb-2">Accesos</h4>
+              <h3 className="font-black tracking-widest text-accent text-[10px] mb-2">Accesos</h3>
               <ul className="space-y-1 text-[10px] font-normal text-white/50">
                 <li><a className="hover:text-accent transition-colors cursor-pointer" onClick={(e) => { e.preventDefault(); onNavigate?.('productos', false) }} href="#">Productos</a></li>
                 <li><a className="hover:text-accent transition-colors cursor-pointer" onClick={(e) => { e.preventDefault(); onNavigate?.('arriendos', false) }} href="#">Arriendos</a></li>
@@ -136,7 +137,7 @@ export default function Footer({ onNavigate, onLoginSuccess }) {
               </ul>
             </div>
             <div>
-              <h4 className="font-black tracking-widest text-accent text-[10px] mb-2">Legal</h4>
+              <h3 className="font-black tracking-widest text-accent text-[10px] mb-2">Legal</h3>
               <ul className="space-y-1 text-[10px] font-normal text-white/50">
                 <li><button type="button" onClick={() => setShowTerms(true)} className="hover:text-accent transition-colors text-left">Términos</button></li>
                 <li><a className="hover:text-accent transition-colors" href="#">Datos</a></li>
@@ -145,7 +146,7 @@ export default function Footer({ onNavigate, onLoginSuccess }) {
               </ul>
             </div>
             <div>
-              <h4 className="font-black tracking-widest text-accent text-[10px] mb-2">Mi cuenta</h4>
+              <h3 className="font-black tracking-widest text-accent text-[10px] mb-2">Mi cuenta</h3>
               <ul className="space-y-1 text-[10px] font-normal text-white/50">
                 <li><a className="hover:text-accent transition-colors cursor-pointer" onClick={(e) => { e.preventDefault(); setShowLogin(true) }} href="#">Ingresar</a></li>
                 <li><a className="hover:text-accent transition-colors cursor-pointer" onClick={(e) => { e.preventDefault(); setShowRegister(true) }} href="#">Registrarse</a></li>
@@ -153,7 +154,7 @@ export default function Footer({ onNavigate, onLoginSuccess }) {
               </ul>
             </div>
             <div>
-              <h4 className="font-black tracking-widest text-accent text-[10px] mb-2">Contacto</h4>
+              <h3 className="font-black tracking-widest text-accent text-[10px] mb-2">Contacto</h3>
               <ul className="space-y-1 text-[10px] font-normal text-white/50">
                 <li className="flex items-center gap-1">
                   <span className="material-symbols-outlined text-xs text-accent">mail</span>
@@ -166,7 +167,7 @@ export default function Footer({ onNavigate, onLoginSuccess }) {
               </ul>
             </div>
             <div>
-              <h4 className="font-black tracking-widest text-accent text-[10px] mb-2">Redes Sociales</h4>
+              <h3 className="font-black tracking-widest text-accent text-[10px] mb-2">Redes Sociales</h3>
               <div className="flex items-center gap-2">
                 <a href="#" className="hover:opacity-80 transition-opacity" title="Facebook">
                   <svg className="w-5 h-5 fill-current text-[#1877F2]" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
@@ -195,7 +196,7 @@ export default function Footer({ onNavigate, onLoginSuccess }) {
             </p>
           </div>
           <div className="md:px-20">
-            <h4 className="font-black tracking-widest text-accent text-sm mb-6 text-center">Accesos</h4>
+            <h3 className="font-black tracking-widest text-accent text-sm mb-6 text-center">Accesos</h3>
             <div className="grid grid-cols-2 gap-x-20 gap-y-2 text-xs font-normal text-white/50 justify-items-center">
               <a className="hover:text-accent transition-colors cursor-pointer" onClick={(e) => { e.preventDefault(); onNavigate?.('productos', false) }} href="#">Productos</a>
               <a className="hover:text-accent transition-colors cursor-pointer" onClick={(e) => { e.preventDefault(); onNavigate?.('negocios', false) }} href="#">Negocios</a>
@@ -206,7 +207,7 @@ export default function Footer({ onNavigate, onLoginSuccess }) {
             </div>
           </div>
           <div className="md:px-10">
-            <h4 className="font-black tracking-widest text-accent text-sm mb-6">Legal</h4>
+            <h3 className="font-black tracking-widest text-accent text-sm mb-6">Legal</h3>
             <ul className="space-y-2 text-xs font-normal text-white/50">
               <li><button type="button" onClick={() => setShowTerms(true)} className="hover:text-accent transition-colors text-left">Términos y condiciones</button></li>
               <li><button type="button" onClick={() => setShowPrivacy(true)} className="hover:text-accent transition-colors text-left">Protección de datos</button></li>
@@ -215,7 +216,7 @@ export default function Footer({ onNavigate, onLoginSuccess }) {
             </ul>
           </div>
           <div className="md:px-10">
-            <h4 className="font-black tracking-widest text-accent text-sm mb-6">Mi cuenta</h4>
+            <h3 className="font-black tracking-widest text-accent text-sm mb-6">Mi cuenta</h3>
             <ul className="space-y-2 text-xs font-normal text-white/50">
               <li><a className="hover:text-accent transition-colors cursor-pointer" onClick={(e) => { e.preventDefault(); setShowLogin(true) }} href="#">Ingresar</a></li>
               <li><a className="hover:text-accent transition-colors cursor-pointer" onClick={(e) => { e.preventDefault(); setShowRegister(true) }} href="#">Registrarse</a></li>
@@ -223,7 +224,7 @@ export default function Footer({ onNavigate, onLoginSuccess }) {
             </ul>
           </div>
           <div>
-            <h4 className="font-black tracking-widest text-accent text-sm mb-6">Contacto</h4>
+            <h3 className="font-black tracking-widest text-accent text-sm mb-6">Contacto</h3>
             <ul className="space-y-2 text-xs font-normal text-white/50">
               <li className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-sm text-accent">mail</span>
@@ -234,7 +235,7 @@ export default function Footer({ onNavigate, onLoginSuccess }) {
                 <a className="hover:text-accent transition-colors" href="#">+54 9 2972 12 3456</a>
               </li>
             </ul>
-            <h4 className="font-black tracking-widest text-accent text-sm mt-3 mb-4">Redes Sociales</h4>
+            <h3 className="font-black tracking-widest text-accent text-sm mt-3 mb-4">Redes Sociales</h3>
             <div className="flex items-center gap-3">
               <a href="#" className="hover:opacity-80 transition-opacity" title="Facebook">
                 <svg className="w-6 h-6 fill-current text-[#1877F2]" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
@@ -255,24 +256,26 @@ export default function Footer({ onNavigate, onLoginSuccess }) {
           Desarrollado por <span className="text-accent">CH</span>system
         </p>
       </div>
-      {showPlans && <PlansModal onClose={() => setShowPlans(false)} />}
-      {showTerms && <TermsModal onClose={() => setShowTerms(false)} />}
-      {showPrivacy && <PrivacyModal onClose={() => setShowPrivacy(false)} />}
-      {showCookies && <CookiesModal onClose={() => setShowCookies(false)} />}
-      {showLogin && (
-        <LoginModal
-          onClose={() => setShowLogin(false)}
-          onSwitchToRegister={() => { setShowLogin(false); setShowRegister(true) }}
-          onLoginSuccess={(userData) => { setShowLogin(false); onLoginSuccess?.(userData) }}
-        />
-      )}
-      {showRegister && (
-        <RegisterModal
-          onClose={() => setShowRegister(false)}
-          onSwitchToLogin={() => { setShowRegister(false); setShowLogin(true) }}
-          onRegisterSuccess={(userData) => { setShowRegister(false); onLoginSuccess?.(userData) }}
-        />
-      )}
+      <Suspense fallback={null}>
+        {showPlans && <PlansModal onClose={() => setShowPlans(false)} />}
+        {showTerms && <TermsModal onClose={() => setShowTerms(false)} />}
+        {showPrivacy && <PrivacyModal onClose={() => setShowPrivacy(false)} />}
+        {showCookies && <CookiesModal onClose={() => setShowCookies(false)} />}
+        {showLogin && (
+          <LoginModal
+            onClose={() => setShowLogin(false)}
+            onSwitchToRegister={() => { setShowLogin(false); setShowRegister(true) }}
+            onLoginSuccess={(userData) => { setShowLogin(false); onLoginSuccess?.(userData) }}
+          />
+        )}
+        {showRegister && (
+          <RegisterModal
+            onClose={() => setShowRegister(false)}
+            onSwitchToLogin={() => { setShowRegister(false); setShowLogin(true) }}
+            onRegisterSuccess={(userData) => { setShowRegister(false); onLoginSuccess?.(userData) }}
+          />
+        )}
+      </Suspense>
     </footer>
   )
 }
