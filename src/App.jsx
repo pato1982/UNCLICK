@@ -286,6 +286,21 @@ export default function App() {
     }).catch(() => {})
   }, [])
 
+  // Título dinámico por vista (SPA: la navegación es por estado, no por URL)
+  useEffect(() => {
+    const BASE = 'LocalClick — Marketplace local de Villarrica'
+    const PAGE_TITLES = {
+      productos: 'Productos', servicios: 'Servicios', arriendos: 'Arriendos',
+      eventos: 'Eventos', locales: 'Locales', turismo: 'Turismo',
+    }
+    let label = null
+    if (activeStore) label = activeStore.name
+    else if (activeSection) label = SECTION_TITLES[activeSection] || activeSection
+    else if (currentPage && PAGE_TITLES[currentPage]) label = PAGE_TITLES[currentPage]
+    else if (typeof activeFilter === 'string') label = activeFilter
+    document.title = label ? `${label} | LocalClick` : BASE
+  }, [currentPage, activeStore, activeSection, activeFilter])
+
   // Cargar listings desde API
   useEffect(() => {
     fetch(`${API}/api/v1/public/listings`)
@@ -985,7 +1000,7 @@ export default function App() {
                   <div className="bg-[#F5F4F7] -mx-3 sm:-mx-4 md:-mx-6 px-3 sm:px-4 md:px-6 py-5 sm:py-6">
                     <div className="flex items-center gap-2 sm:gap-3 mb-4">
                       <div className="w-1 h-5 sm:h-6 bg-accent rounded-full"></div>
-                      <h2 className="text-sm sm:text-base font-black text-slate-800 tracking-wide">Productos en <span className="text-red-500">Oferta</span></h2>
+                      <h2 className="text-sm sm:text-base font-black text-slate-800 tracking-wide">Productos en <span className="text-red-600">Oferta</span></h2>
                       <div className="flex-1 h-px bg-slate-200"></div>
                       <button onClick={() => toggleNav('productos')} className="text-[9px] sm:text-[10px] font-bold text-primary hover:text-accent transition-colors uppercase tracking-wider">Ver todo</button>
                     </div>
