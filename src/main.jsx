@@ -19,6 +19,7 @@ const ProgramadorLocales = lazy(() => import('./admin/pages/ProgramadorLocales')
 const ProgramadorEventos = lazy(() => import('./admin/pages/ProgramadorEventos'))
 const ProgramadorServidor = lazy(() => import('./admin/pages/ProgramadorServidor'))
 const ProgramadorEstadisticas = lazy(() => import('./admin/pages/ProgramadorEstadisticas'))
+const ProgramadorRoadmap = lazy(() => import('./admin/pages/ProgramadorRoadmap'))
 const AdminMonitor = lazy(() => import('./admin/pages/AdminMonitor'))
 const AdminLocal = lazy(() => import('./admin/pages/AdminLocal'))
 const AdminEvento = lazy(() => import('./admin/pages/AdminEvento'))
@@ -83,6 +84,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             <Route path="programador/eventos" element={<ProgramadorEventos />} />
             <Route path="programador/estadisticas" element={<ProgramadorEstadisticas />} />
             <Route path="programador/servidor" element={<ProgramadorServidor />} />
+            <Route path="programador/roadmap" element={<ProgramadorRoadmap />} />
           </Route>
           <Route path="/*" element={<App />} />
         </Routes>

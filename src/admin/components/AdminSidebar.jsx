@@ -25,6 +25,7 @@ const menuProgramador = [
   { label: 'Estadísticas', icon: 'bar_chart', path: '/admin/programador/estadisticas' },
   { label: 'Servidor', icon: 'dns', path: '/admin/programador/servidor' },
   { label: 'Monitor', icon: 'monitor_heart', path: '/admin/programador/monitor' },
+  { label: 'Roadmap', icon: 'map', path: '/admin/programador/roadmap' },
 ]
 
 const menuLocal = [
