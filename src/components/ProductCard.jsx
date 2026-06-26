@@ -79,6 +79,14 @@ export function ProductModal({ product, hidePrice, inStorePage, onClose, onOpenS
           {/* Nombre */}
           <h3 className="text-xs font-black text-primary text-center mb-1">{product.name}</h3>
 
+          {/* Nombre del negocio */}
+          {product.nombre_negocio && (
+            <p className="flex items-center justify-center gap-1 text-[10px] font-bold text-slate-500 mb-1">
+              <span className="material-symbols-outlined text-xs text-primary/70">storefront</span>
+              {product.nombre_negocio}
+            </p>
+          )}
+
           {/* Descripción - 4 líneas fijas */}
           <div className="min-h-[56px] mb-1">
             <p className="text-[10px] text-slate-500 leading-[14px] text-center line-clamp-4">{product.description}</p>

@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getStoreHeaderStyle } from '../lib/storeHeaderPresets'
 import StoreHeaderThemed from './StoreHeaderThemes'
+import ConfirmDialog from './ConfirmDialog'
 
 /**
  * Header de la tienda premium (estilo personalizable).
@@ -8,6 +10,7 @@ import StoreHeaderThemed from './StoreHeaderThemes'
  */
 export default function StoreHeader({ store, user, onGoHome, onLogout, onToggleCat }) {
   const hdr = getStoreHeaderStyle(store)
+  const [confirmLogout, setConfirmLogout] = useState(false)
 
   // Acciones (Volver / panel / salir) — se usan en la barra o integradas en el header.
   // En móvil con barra integrada, el "Volver" se reemplaza por una flecha flotante
@@ -29,7 +32,7 @@ export default function StoreHeader({ store, user, onGoHome, onLogout, onToggleC
         </Link>
       )}
       {user && (
-        <button onClick={onLogout} className="flex items-center hover:text-accent transition-colors" title="Salir">
+        <button onClick={() => setConfirmLogout(true)} className="flex items-center hover:text-accent transition-colors" title="Salir">
           <span className="material-symbols-outlined text-lg sm:text-xl">logout</span>
         </button>
       )}
@@ -90,7 +93,7 @@ export default function StoreHeader({ store, user, onGoHome, onLogout, onToggleC
                       <span className="material-symbols-outlined text-lg sm:text-xl">terminal</span>
                     </Link>
                   )}
-                  <button onClick={onLogout} className={`flex items-center hover:text-accent transition-colors ${hdr.navText}`} title="Salir">
+                  <button onClick={() => setConfirmLogout(true)} className={`flex items-center hover:text-accent transition-colors ${hdr.navText}`} title="Salir">
                     <span className="material-symbols-outlined text-lg sm:text-xl">logout</span>
                   </button>
                 </>
@@ -104,6 +107,16 @@ export default function StoreHeader({ store, user, onGoHome, onLogout, onToggleC
           </div>
         </nav>
       )}
+
+      <ConfirmDialog
+        open={confirmLogout}
+        icon="logout"
+        title="¿Cerrar sesión?"
+        message="Vas a salir de tu cuenta. Podrás volver a ingresar cuando quieras."
+        confirmLabel="Cerrar sesión"
+        onConfirm={() => { setConfirmLogout(false); onLogout() }}
+        onCancel={() => setConfirmLogout(false)}
+      />
     </div>
   )
 }

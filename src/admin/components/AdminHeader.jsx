@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { GeneralPlans, TurismoPlans } from '../../components/PlansModal.jsx'
+import ConfirmDialog from '../../components/ConfirmDialog.jsx'
 
 const API = import.meta.env.VITE_API || ''
 
@@ -893,9 +894,17 @@ function ProfileModal({ onClose }) {
 
 export default function AdminHeader({ onToggleSidebar }) {
   const [showProfile, setShowProfile] = useState(false)
+  const [confirmLogout, setConfirmLogout] = useState(false)
   const user = JSON.parse(localStorage.getItem('user') || '{}')
   const hasPage = user.plan_id && user.plan_id >= 2
   const isProg = (user.rol || 'usuario') === 'programador'
+
+  const doLogout = async () => {
+    try { await fetch(`${API}/api/v1/auth/logout`, { method: 'POST', credentials: 'include' }) } catch {}
+    localStorage.removeItem('token'); localStorage.removeItem('user')
+    localStorage.removeItem('auth_mode'); localStorage.removeItem('dev_user_id')
+    window.location.href = '/'
+  }
 
   return (
     <>
@@ -933,7 +942,7 @@ export default function AdminHeader({ onToggleSidebar }) {
           {/* Programador: botón salir */}
           {isProg && (
             <button
-              onClick={async () => { await fetch(`${API}/api/v1/auth/logout`, { method: 'POST', credentials: 'include' }); localStorage.removeItem('token'); localStorage.removeItem('user'); localStorage.removeItem('auth_mode'); localStorage.removeItem('dev_user_id'); window.location.href = '/' }}
+              onClick={() => setConfirmLogout(true)}
               className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 rounded-lg hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition-colors mr-1 sm:mr-3"
               title="Cerrar sesión"
             >
@@ -975,12 +984,7 @@ export default function AdminHeader({ onToggleSidebar }) {
               )}
             </div>
             <button
-              onClick={async () => {
-                await fetch(`${API}/api/v1/auth/logout`, { method: 'POST', credentials: 'include' })
-                localStorage.removeItem('token'); localStorage.removeItem('user')
-                localStorage.removeItem('auth_mode'); localStorage.removeItem('dev_user_id')
-                window.location.href = '/'
-              }}
+              onClick={() => setConfirmLogout(true)}
               className="shrink-0 flex items-center gap-1 text-[10px] font-bold text-white/50 hover:text-red-400 transition-colors"
               title="Cerrar sesión"
             >
@@ -1014,12 +1018,7 @@ export default function AdminHeader({ onToggleSidebar }) {
             </div>
             {/* Derecha: Cerrar sesión */}
             <button
-              onClick={async () => {
-                await fetch(`${API}/api/v1/auth/logout`, { method: 'POST', credentials: 'include' })
-                localStorage.removeItem('token'); localStorage.removeItem('user')
-                localStorage.removeItem('auth_mode'); localStorage.removeItem('dev_user_id')
-                window.location.href = '/'
-              }}
+              onClick={() => setConfirmLogout(true)}
               className="ml-auto flex items-center gap-1 text-xs font-bold text-white/50 hover:text-red-400 transition-colors"
               title="Cerrar sesión"
             >
@@ -1031,6 +1030,16 @@ export default function AdminHeader({ onToggleSidebar }) {
       </header>
 
       {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
+
+      <ConfirmDialog
+        open={confirmLogout}
+        icon="logout"
+        title="¿Cerrar sesión?"
+        message="Vas a salir de tu cuenta. Podrás volver a ingresar cuando quieras."
+        confirmLabel="Cerrar sesión"
+        onConfirm={() => { setConfirmLogout(false); doLogout() }}
+        onCancel={() => setConfirmLogout(false)}
+      />
     </>
   )
 }
