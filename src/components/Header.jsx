@@ -97,6 +97,10 @@ export default function Header({ activeNav, toggleNav, onToggleSidebar, sidebarO
     { label: 'Negocios', icon: 'storefront' },
   ]
 
+  // Saludo al usuario logueado (no programador). Reutilizado en desktop/tablet/mobile.
+  const greetingName = user ? (() => { const n = (user.nombre || user.email || '').split(' ')[0]; return n.length > 10 ? n.slice(0, 10) + '…' : n })() : ''
+  const showGreeting = !!user && user.rol !== 'programador'
+
   return (
     <div id="main-header" className="sticky top-0 z-50">
       {/* === HEADER PRINCIPAL === */}
@@ -227,6 +231,9 @@ export default function Header({ activeNav, toggleNav, onToggleSidebar, sidebarO
           <div className="flex items-center gap-1 shrink-0">
             {user ? (
               <>
+                {showGreeting && (
+                  <span className="text-[10px] font-bold text-accent max-w-[64px] truncate" title={`Hola, ${greetingName}`}>Hola, {greetingName}</span>
+                )}
                 <Link to="/admin" className="p-1 text-white/70 hover:text-accent rounded-full hover:bg-white/10 transition-colors">
                   <span className="material-symbols-outlined text-base">{user.rol === 'programador' ? 'terminal' : 'dashboard'}</span>
                 </Link>
@@ -284,7 +291,7 @@ export default function Header({ activeNav, toggleNav, onToggleSidebar, sidebarO
               <>
                 {user.rol !== 'programador' && (
                   <>
-                    <span className="text-xs text-white/70">Hola, <span className="font-bold text-accent">{(() => { const n = user.nombre.split(' ')[0]; return n.length > 10 ? n.slice(0, 10) + '...' : n })()}</span>
+                    <span className="text-xs text-white/70">Hola, <span className="font-bold text-accent">{greetingName}</span>
                     </span>
                     <Link to="/admin" className="flex items-center text-white/90 hover:text-accent transition-colors" title="Panel de administrador">
                       <span className="material-symbols-outlined text-xl">dashboard</span>
@@ -322,6 +329,9 @@ export default function Header({ activeNav, toggleNav, onToggleSidebar, sidebarO
           <div className="flex sm:flex md:hidden items-center gap-2">
             {user ? (
               <>
+                {showGreeting && (
+                  <span className="text-[11px] text-white/70 whitespace-nowrap">Hola, <span className="font-bold text-accent">{greetingName}</span></span>
+                )}
                 <Link to="/admin" className="flex items-center text-white/90 hover:text-accent transition-colors" title="Panel">
                   <span className="material-symbols-outlined text-lg">{user.rol === 'programador' ? 'terminal' : 'dashboard'}</span>
                 </Link>

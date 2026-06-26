@@ -2,6 +2,62 @@ import { useState, useEffect } from 'react'
 
 const API = import.meta.env.VITE_API || ''
 
+// Primer nombre acotado para saludos (login exitoso, bienvenida).
+const firstNameOf = (u) => {
+  const n = (u?.nombre || u?.email || '').split(' ')[0]
+  return n.length > 14 ? n.slice(0, 14) + '…' : n
+}
+
+function WelcomeView({ nombre, onContinue }) {
+  return (
+    <>
+      <div className="bg-primary px-6 py-5 text-center">
+        <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
+          <span className="material-symbols-outlined text-4xl text-white">check_circle</span>
+        </div>
+        <h2 className="text-white font-bold text-lg">¡Bienvenido, {nombre}!</h2>
+        <p className="text-white/80 text-sm mt-1">Iniciaste sesión correctamente</p>
+      </div>
+      <div className="p-6">
+        <button
+          onClick={onContinue}
+          className="w-full bg-emerald-500 text-white font-bold py-2.5 rounded-lg hover:bg-emerald-600 transition-colors"
+        >
+          Continuar
+        </button>
+      </div>
+    </>
+  )
+}
+
+// ── DEV ONLY · acceso rápido a usuarios de prueba ────────────────────────────
+// Coincide con los usuarios sembrados por backend/seed-qa.mjs (+ admin de db-setup.mjs).
+// Todo este bloque se usa solo bajo import.meta.env.DEV; Vite lo elimina del build de prod.
+const QA_PASSWORD = 'Dev1234!'
+const DEV_USERS = (() => {
+  const CAP = { p: 'Productos', s: 'Servicios', a: 'Arriendos', ps: 'Prod+Serv', pa: 'Prod+Arr', sa: 'Serv+Arr', psa: 'Todos' }
+  const PLAN = { 1: 'Gratuito', 2: 'Normal', 3: 'Premium' }
+  const gen = (n) => ({ group: `General P${n} (${PLAN[n]})`, users: Object.keys(CAP).map((c) => ({ email: `gen_p${n}_${c}@qa.dev`, label: CAP[c] })) })
+  return [
+    { group: 'Admin', users: [{ email: 'admin@qa.dev', label: 'Admin (programador)' }] },
+    gen(1), gen(2), gen(3),
+    { group: 'Turismo', users: [
+      { email: 'tur_p1@qa.dev', label: 'Gratis' },
+      { email: 'tur_p1_b@qa.dev', label: 'Gratis 2' },
+      { email: 'tur_p1_c@qa.dev', label: 'Gratis 3' },
+      { email: 'tur_p3@qa.dev', label: 'Premium' },
+      { email: 'tur_p3_b@qa.dev', label: 'Premium 2' },
+      { email: 'tur_p3_c@qa.dev', label: 'Premium 3' },
+      { email: 'tur_p3_d@qa.dev', label: 'Premium 4' },
+      { email: 'tur_p3_e@qa.dev', label: 'Premium 5' },
+    ] },
+    { group: 'Autogestión', users: [
+      { email: 'local_p1@qa.dev', label: 'Mi Local' },
+      { email: 'evento_p1@qa.dev', label: 'Mis Eventos' },
+    ] },
+  ]
+})()
+
 function DeletionPendingView({ diasRestantes, email, password, onCancel, onRecovered }) {
   const [recovering, setRecovering] = useState(false)
   const [error, setError] = useState('')
@@ -373,6 +429,14 @@ export default function LoginModal({ onClose, onSwitchToRegister, onLoginSuccess
   const [deletionPending, setDeletionPending] = useState(null)
   const [intentosRestantes, setIntentosRestantes] = useState(null)
   const [bloqueadoSegundos, setBloqueadoSegundos] = useState(null)
+  const [welcome, setWelcome] = useState(null) // nombre a saludar tras login exitoso
+
+  // Tras un login exitoso, mostrar bienvenida ~1.8s y cerrar el modal
+  useEffect(() => {
+    if (!welcome) return
+    const t = setTimeout(() => onClose(), 2800)
+    return () => clearTimeout(t)
+  }, [welcome])
 
   // Contador regresivo cuando la cuenta está bloqueada
   useEffect(() => {
@@ -390,8 +454,7 @@ export default function LoginModal({ onClose, onSwitchToRegister, onLoginSuccess
     }
   }, [])
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const loginWith = async (email, password) => {
     setError('')
     setLoading(true)
 
@@ -400,7 +463,7 @@ export default function LoginModal({ onClose, onSwitchToRegister, onLoginSuccess
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ ...form, remember_me: rememberMe })
+        body: JSON.stringify({ email, password, remember_me: rememberMe })
       })
       const data = await res.json()
 
@@ -414,7 +477,7 @@ export default function LoginModal({ onClose, onSwitchToRegister, onLoginSuccess
         }
         // Cuenta con eliminación programada — mostrar pantalla de recuperación
         if (data.cuenta_en_eliminacion) {
-          setDeletionPending({ dias_restantes: data.dias_restantes, email: form.email, password: form.password })
+          setDeletionPending({ dias_restantes: data.dias_restantes, email, password })
           setLoading(false)
           return
         }
@@ -443,11 +506,16 @@ export default function LoginModal({ onClose, onSwitchToRegister, onLoginSuccess
       localStorage.setItem('auth_mode', 'real')
       localStorage.setItem('user', JSON.stringify(u))
       onLoginSuccess(u)
-      onClose()
+      setWelcome(firstNameOf(u))
     } catch {
       setError('Error de conexión')
       setLoading(false)
     }
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    loginWith(form.email, form.password)
   }
 
   const handleMfaSuccess = (user) => {
@@ -455,13 +523,15 @@ export default function LoginModal({ onClose, onSwitchToRegister, onLoginSuccess
     localStorage.removeItem('dev_user_id')
     localStorage.setItem('auth_mode', 'real')
     onLoginSuccess(user)
-    onClose()
+    setWelcome(firstNameOf(user))
   }
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden" onClick={(e) => e.stopPropagation()}>
-        {deletionPending ? (
+        {welcome ? (
+          <WelcomeView nombre={welcome} onContinue={onClose} />
+        ) : deletionPending ? (
           <DeletionPendingView
             diasRestantes={deletionPending.dias_restantes}
             email={deletionPending.email}
@@ -473,7 +543,7 @@ export default function LoginModal({ onClose, onSwitchToRegister, onLoginSuccess
               localStorage.setItem('auth_mode', 'real')
               localStorage.setItem('user', JSON.stringify(u))
               onLoginSuccess(u)
-              onClose()
+              setWelcome(firstNameOf(u))
             }}
           />
         ) : showForgot ? (
@@ -524,6 +594,37 @@ export default function LoginModal({ onClose, onSwitchToRegister, onLoginSuccess
                 </div>
               ) : (
               <>
+              {/* DEV ONLY · acceso rápido — eliminado por Vite en el build de producción */}
+              {import.meta.env.DEV && (
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                  <label className="flex items-center gap-1 text-[11px] font-bold text-purple-700 mb-1">
+                    <span className="material-symbols-outlined text-sm">bolt</span>
+                    DEV · Acceso rápido (solo local)
+                  </label>
+                  <select
+                    defaultValue=""
+                    disabled={loading}
+                    onChange={(e) => {
+                      const email = e.target.value
+                      if (!email) return
+                      setForm({ email, password: QA_PASSWORD })
+                      loginWith(email, QA_PASSWORD)
+                    }}
+                    className="w-full border border-purple-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-purple-300 outline-none disabled:opacity-50"
+                  >
+                    <option value="">— Elegí un usuario para entrar —</option>
+                    {DEV_USERS.map((g) => (
+                      <optgroup key={g.group} label={g.group}>
+                        {g.users.map((u) => (
+                          <option key={u.email} value={u.email}>{u.label} — {u.email}</option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                  <p className="text-[10px] text-purple-400 mt-1">Contraseña común: {QA_PASSWORD}</p>
+                </div>
+              )}
+
               {error && (
                 <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-4 py-2 flex items-center gap-2">
                   <span className="material-symbols-outlined text-base">error</span>

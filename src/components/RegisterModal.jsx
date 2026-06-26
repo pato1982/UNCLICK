@@ -1,9 +1,37 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const API = import.meta.env.VITE_API || ''
 const IVA = 0.19
 
 const formatCLP = (n) => '$' + n.toLocaleString('es-CL')
+
+// Primer nombre acotado para el saludo de bienvenida.
+const firstNameOf = (u) => {
+  const n = (u?.nombre || u?.email || '').split(' ')[0]
+  return n.length > 14 ? n.slice(0, 14) + '…' : n
+}
+
+function RegisterWelcomeView({ nombre, onContinue }) {
+  return (
+    <>
+      <div className="bg-primary px-6 py-5 text-center">
+        <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
+          <span className="material-symbols-outlined text-4xl text-white">check_circle</span>
+        </div>
+        <h2 className="text-white font-bold text-lg">¡Cuenta creada con éxito!</h2>
+        <p className="text-white/80 text-sm mt-1">Te damos la bienvenida, {nombre}</p>
+      </div>
+      <div className="p-6">
+        <button
+          onClick={onContinue}
+          className="w-full bg-emerald-500 text-white font-bold py-2.5 rounded-lg hover:bg-emerald-600 transition-colors"
+        >
+          Continuar
+        </button>
+      </div>
+    </>
+  )
+}
 
 const plansList = [
   {
@@ -75,6 +103,14 @@ export default function RegisterModal({ onClose, onSwitchToLogin, onRegisterSucc
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [welcome, setWelcome] = useState(null) // nombre a saludar tras registro exitoso
+
+  // Tras crear la cuenta, mostrar la bienvenida ~2.8s y cerrar el modal
+  useEffect(() => {
+    if (!welcome) return
+    const t = setTimeout(() => onClose(), 2800)
+    return () => clearTimeout(t)
+  }, [welcome])
 
   const update = (field, value) => setForm({ ...form, [field]: value })
 
@@ -183,7 +219,7 @@ export default function RegisterModal({ onClose, onSwitchToLogin, onRegisterSucc
       localStorage.removeItem('token')
       localStorage.setItem('user', JSON.stringify(u))
       onRegisterSuccess(u)
-      onClose()
+      setWelcome(firstNameOf(u))
     } catch {
       setError('Error de conexión')
       setLoading(false)
@@ -196,7 +232,11 @@ export default function RegisterModal({ onClose, onSwitchToLogin, onRegisterSucc
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className={`bg-white rounded-2xl shadow-2xl w-full overflow-hidden ${step === 3 ? (form.tipo_cuenta === 'turismo' ? 'max-w-xl' : 'max-w-3xl') : 'max-w-lg'} transition-all duration-300`} onClick={(e) => e.stopPropagation()}>
+      <div className={`bg-white rounded-2xl shadow-2xl w-full overflow-hidden ${welcome ? 'max-w-md' : step === 3 ? (form.tipo_cuenta === 'turismo' ? 'max-w-xl' : 'max-w-3xl') : 'max-w-lg'} transition-all duration-300`} onClick={(e) => e.stopPropagation()}>
+        {welcome ? (
+          <RegisterWelcomeView nombre={welcome} onContinue={onClose} />
+        ) : (
+        <>
         {/* Header */}
         <div className="bg-primary px-3 sm:px-6 py-2.5 sm:py-4 flex items-center justify-between">
           <h2 className="text-white font-bold text-sm sm:text-lg flex items-center gap-1.5 sm:gap-2">
@@ -669,6 +709,8 @@ export default function RegisterModal({ onClose, onSwitchToLogin, onRegisterSucc
             </div>
           )}
         </div>
+        </>
+        )}
       </div>
     </div>
   )
