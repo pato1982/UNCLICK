@@ -8,6 +8,10 @@ const defaultHorarios = DIAS.map((dia) => ({
   activo: dia !== 'Domingo',
   apertura: '09:00',
   cierre: '18:00',
+  // Segundo tramo opcional (cierre por almuerzo). Retrocompatible: si falta, no se muestra.
+  dosTramos: false,
+  apertura2: '15:00',
+  cierre2: '19:00',
 }))
 
 const MAX_SLOGAN_WORDS = 10
@@ -82,6 +86,19 @@ export default function AdminNegocio() {
   const updateHorario = (index, field, value) => {
     const newHorarios = [...form.horarios]
     newHorarios[index] = { ...newHorarios[index], [field]: value }
+    setForm({ ...form, horarios: newHorarios })
+    setSaved(false)
+  }
+
+  // Activar/desactivar el 2º tramo. Al activarlo, inicializa apertura2/cierre2 en
+  // el estado (no solo en el value del input) para no persistir un tramo sin horas
+  // en registros viejos que no traen esos campos.
+  const toggleSegundoTramo = (index, on) => {
+    const newHorarios = [...form.horarios]
+    const h = newHorarios[index]
+    newHorarios[index] = on
+      ? { ...h, dosTramos: true, apertura2: h.apertura2 || '15:00', cierre2: h.cierre2 || '19:00' }
+      : { ...h, dosTramos: false }
     setForm({ ...form, horarios: newHorarios })
     setSaved(false)
   }
@@ -317,20 +334,61 @@ export default function AdminNegocio() {
                   </button>
 
                   {h.activo ? (
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="time"
-                        value={h.apertura}
-                        onChange={(e) => updateHorario(i, 'apertura', e.target.value)}
-                        className="border border-gray-300 rounded-lg px-2 py-1.5 text-xs focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
-                      />
-                      <span className="text-xs text-gray-400">a</span>
-                      <input
-                        type="time"
-                        value={h.cierre}
-                        onChange={(e) => updateHorario(i, 'cierre', e.target.value)}
-                        className="border border-gray-300 rounded-lg px-2 py-1.5 text-xs focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
-                      />
+                    <div className="flex flex-col gap-1.5">
+                      {/* Tramo 1 */}
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="time"
+                          value={h.apertura}
+                          onChange={(e) => updateHorario(i, 'apertura', e.target.value)}
+                          className="border border-gray-300 rounded-lg px-2 py-1.5 text-xs focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
+                        />
+                        <span className="text-xs text-gray-400">a</span>
+                        <input
+                          type="time"
+                          value={h.cierre}
+                          onChange={(e) => updateHorario(i, 'cierre', e.target.value)}
+                          className="border border-gray-300 rounded-lg px-2 py-1.5 text-xs focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
+                        />
+                        {!h.dosTramos && (
+                          <button
+                            type="button"
+                            onClick={() => toggleSegundoTramo(i, true)}
+                            className="text-[11px] font-semibold text-primary hover:text-accent flex items-center gap-0.5 transition-colors"
+                            title="Agregar un segundo tramo (cierre por almuerzo)"
+                          >
+                            <span className="material-symbols-outlined text-sm">add</span>
+                            Tramo
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Tramo 2 (opcional) */}
+                      {h.dosTramos && (
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="time"
+                            value={h.apertura2 || '15:00'}
+                            onChange={(e) => updateHorario(i, 'apertura2', e.target.value)}
+                            className="border border-gray-300 rounded-lg px-2 py-1.5 text-xs focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
+                          />
+                          <span className="text-xs text-gray-400">a</span>
+                          <input
+                            type="time"
+                            value={h.cierre2 || '19:00'}
+                            onChange={(e) => updateHorario(i, 'cierre2', e.target.value)}
+                            className="border border-gray-300 rounded-lg px-2 py-1.5 text-xs focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => toggleSegundoTramo(i, false)}
+                            className="text-gray-400 hover:text-red-500 transition-colors"
+                            title="Quitar el segundo tramo"
+                          >
+                            <span className="material-symbols-outlined text-base">close</span>
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <span className="text-xs text-gray-400 italic">Cerrado</span>

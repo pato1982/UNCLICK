@@ -150,7 +150,7 @@ function SchedulePopup({ horarios, onClose }) {
                 <div key={h.dia} className="flex items-center justify-between text-[11px]">
                   <span className={`font-semibold ${h.activo ? 'text-gray-700' : 'text-gray-400'}`}>{h.dia}</span>
                   {h.activo ? (
-                    <span className="text-gray-500">{h.apertura} - {h.cierre}</span>
+                    <span className="text-gray-500">{h.apertura} - {h.cierre}{h.dosTramos && h.apertura2 && h.cierre2 ? ` · ${h.apertura2} - ${h.cierre2}` : ''}</span>
                   ) : (
                     <span className="text-gray-400 italic">Cerrado</span>
                   )}
@@ -504,7 +504,7 @@ function CompanyDetail({ company, onBack, activeFilter, onClearFilter, initialTo
                 <div key={h.dia} className="flex items-center justify-between text-[11px]">
                   <span className={`font-semibold ${h.activo ? 'text-slate-700' : 'text-slate-400'}`}>{h.dia}</span>
                   {h.activo ? (
-                    <span className="text-slate-500">{h.apertura} - {h.cierre}</span>
+                    <span className="text-slate-500">{h.apertura} - {h.cierre}{h.dosTramos && h.apertura2 && h.cierre2 ? ` · ${h.apertura2} - ${h.cierre2}` : ''}</span>
                   ) : (
                     <span className="text-slate-400 italic">Cerrado</span>
                   )}
