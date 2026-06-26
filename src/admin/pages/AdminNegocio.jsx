@@ -14,6 +14,24 @@ const defaultHorarios = DIAS.map((dia) => ({
   cierre2: '19:00',
 }))
 
+// Valida un día de horario. Devuelve un mensaje de error o null si está OK.
+// Las horas son strings "HH:MM" (24h, con cero a la izquierda) → comparación textual válida.
+function validarHorario(h) {
+  if (!h.activo) return null
+  if (h.apertura && h.cierre && h.apertura >= h.cierre) {
+    return 'La hora de cierre debe ser posterior a la de apertura.'
+  }
+  if (h.dosTramos) {
+    if (h.apertura2 && h.cierre2 && h.apertura2 >= h.cierre2) {
+      return 'En el segundo tramo, el cierre debe ser posterior a la apertura.'
+    }
+    if (h.cierre && h.apertura2 && h.apertura2 < h.cierre) {
+      return 'El segundo tramo debe empezar después de que cierra el primero (no pueden superponerse).'
+    }
+  }
+  return null
+}
+
 const MAX_SLOGAN_WORDS = 10
 
 const emptyForm = {
@@ -106,10 +124,15 @@ export default function AdminNegocio() {
   const fbValid = !form.facebook || /^https?:\/\/(www\.)?(facebook\.com|fb\.com)\//i.test(form.facebook)
   const igValid = !form.instagram || /^https?:\/\/(www\.)?instagram\.com\//i.test(form.instagram) || /^@[\w.]+$/.test(form.instagram)
 
+  // Errores de horario por día (alineados por índice con form.horarios)
+  const horarioErrores = form.horarios.map(validarHorario)
+  const horariosValidos = horarioErrores.every((msg) => !msg)
+
   const handleSave = async (e) => {
     e.preventDefault()
     if (!fbValid) { setError('La URL de Facebook debe ser un enlace válido de facebook.com'); return }
     if (!igValid) { setError('Instagram debe ser una URL de instagram.com o un @usuario'); return }
+    if (!horariosValidos) { setError('Revisa los horarios: hay tramos que se superponen o con la hora de cierre antes de la apertura.'); return }
     setSaving(true)
     setError('')
     try {
@@ -388,6 +411,14 @@ export default function AdminNegocio() {
                             <span className="material-symbols-outlined text-base">close</span>
                           </button>
                         </div>
+                      )}
+
+                      {/* Aviso de validación del horario del día */}
+                      {horarioErrores[i] && (
+                        <span className="text-[11px] text-red-500 flex items-start gap-1 max-w-[260px] leading-snug">
+                          <span className="material-symbols-outlined text-sm shrink-0">warning</span>
+                          {horarioErrores[i]}
+                        </span>
                       )}
                     </div>
                   ) : (
