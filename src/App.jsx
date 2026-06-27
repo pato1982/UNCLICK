@@ -11,6 +11,7 @@ import Footer from './components/Footer'
 import { ProductModal } from './components/ProductCard'
 import CategoryGrid from './components/CategoryGrid'
 import HeroBanner from './components/HeroBanner'
+import { DEFAULT_HEADER } from './lib/storeHeaderPresets'
 
 // Vistas/paginas secundarias: cargadas bajo demanda (no estan en el primer paint del home)
 const TourismPage = lazy(() => import('./components/TourismPage'))
@@ -383,17 +384,7 @@ export default function App() {
               instagram: b.instagram || '',
               horarios: b.horarios || [],
               plan_id: b.plan_id || 1,
-              // Estilo del header (personalizable por el usuario premium)
-              header_preset: b.header_preset,
-              header_color: b.header_color,
-              header_height: b.header_height,
-              header_bar: b.header_bar,
-              banner_color: b.banner_color,
-              services_color: b.services_color,
-              arriendos_color: b.arriendos_color,
-              sidebar_style: b.sidebar_style,
-              nav_color: b.nav_color,
-              nav_style: b.nav_style,
+              ...DEFAULT_HEADER,
             }))
           }
         })
@@ -515,17 +506,7 @@ export default function App() {
               instagram: b.instagram || '',
               horarios: b.horarios || [],
               plan_id: b.plan_id || 1,
-              // Estilo del header (para que el header y el footer reflejen lo elegido en Apariencia)
-              header_preset: b.header_preset,
-              header_color: b.header_color,
-              header_height: b.header_height,
-              header_bar: b.header_bar,
-              banner_color: b.banner_color,
-              services_color: b.services_color,
-              arriendos_color: b.arriendos_color,
-              sidebar_style: b.sidebar_style,
-              nav_color: b.nav_color,
-              nav_style: b.nav_style,
+              ...DEFAULT_HEADER,
             })
           } else {
             setActiveStore(store)

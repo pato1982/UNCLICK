@@ -44,13 +44,6 @@ router.post('/', async (req, res) => {
     'nombre_negocio', 'slogan', 'descripcion', 'ubicacion', 'direccion',
     'whatsapp', 'telefono', 'correo', 'facebook', 'instagram',
   ]
-  // Campos de apariencia
-  const APPEARANCE_FIELDS = [
-    'header_preset', 'header_color', 'header_bar',
-    'banner_color', 'services_color', 'arriendos_color',
-    'sidebar_style', 'nav_color', 'nav_style',
-  ]
-
   try {
     // Garantiza que la fila exista; los defaults del schema se aplican en la creación
     await req.pool.query(
@@ -65,17 +58,9 @@ router.post('/', async (req, res) => {
     for (const k of TEXT_FIELDS) {
       if (k in b) { setClauses.push(`${k} = ?`); values.push(b[k] || null) }
     }
-    for (const k of APPEARANCE_FIELDS) {
-      if (k in b) { setClauses.push(`${k} = ?`); values.push(b[k] || null) }
-    }
-    // Campos con transformación especial
     if ('horarios' in b) {
       setClauses.push('horarios = ?')
       values.push(b.horarios ? JSON.stringify(b.horarios) : null)
-    }
-    if ('header_height' in b) {
-      setClauses.push('header_height = ?')
-      values.push(b.header_height != null ? Number(b.header_height) : null)
     }
     if (setClauses.length > 0) {
       setClauses.push('updated_at = CURRENT_TIMESTAMP')
