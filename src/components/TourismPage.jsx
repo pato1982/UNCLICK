@@ -259,7 +259,7 @@ function TourModal({ tour, onClose }) {
   )
 }
 
-function CompanyDetail({ company, onBack, activeFilter, onClearFilter, initialTour, onInitialTourConsumed }) {
+function CompanyDetail({ company, onBack, activeFilter, onClearFilter, initialTour, onInitialTourConsumed, onEmpresaCategorias }) {
   const [tours, setTours] = useState([])
   const [loadingTours, setLoadingTours] = useState(true)
   const [selectedTour, setSelectedTour] = useState(null)
@@ -296,8 +296,13 @@ function CompanyDetail({ company, onBack, activeFilter, onClearFilter, initialTo
       fetch(`${API}/api/v1/public/pagina/${company.userId}`).then(r => r.json()),
     ])
       .then(([toursData, paginaData]) => {
-        setTours(toursData.tours || [])
+        const loadedTours = toursData.tours || []
+        setTours(loadedTours)
         setPagina(paginaData.pagina || null)
+        if (onEmpresaCategorias) {
+          const cats = [...new Set(loadedTours.map(t => t.categoria).filter(Boolean))]
+          onEmpresaCategorias(cats.length > 0 ? cats : null)
+        }
       })
       .catch(() => setErrorMsg('Error al cargar los datos. Intenta recargar la página.'))
       .finally(() => setLoadingTours(false))
@@ -332,13 +337,8 @@ function CompanyDetail({ company, onBack, activeFilter, onClearFilter, initialTo
       {pagina && (
       <div className="flex flex-col-reverse md:flex-row gap-4 sm:gap-6 items-center">
         {imgSup && (
-          <div className="w-full md:w-1/2 rounded-xl overflow-hidden shadow-md bg-slate-50">
-            <img src={imgSup} alt={company.name} className="w-full h-44 sm:h-52 md:h-64 object-cover"
-              style={cropSup && (cropSup.zoom > 1 || cropSup.x || cropSup.y) ? {
-                transform: `scale(${cropSup.zoom}) translate(${cropSup.x / cropSup.zoom}px, ${cropSup.y / cropSup.zoom}px)`,
-                transformOrigin: 'center center',
-              } : undefined}
-            />
+          <div className="w-full md:w-1/2 rounded-xl overflow-hidden" style={{ aspectRatio: '4/3' }}>
+            <img src={imgSup} alt={company.name} className="w-full h-full object-contain" />
           </div>
         )}
         <div className={imgSup ? 'md:w-1/2 flex flex-col' : 'w-full flex flex-col'}>
@@ -431,13 +431,8 @@ function CompanyDetail({ company, onBack, activeFilter, onClearFilter, initialTo
             {textoInf && <p className="text-xs text-slate-500 leading-relaxed">{textoInf}</p>}
           </div>
           {imgInf && (
-            <div className="w-full md:w-1/2 rounded-xl overflow-hidden shadow-md bg-slate-50">
-              <img src={imgInf} alt={company.name} className="w-full h-44 sm:h-52 md:h-64 object-cover"
-                style={cropInf && (cropInf.zoom > 1 || cropInf.x || cropInf.y) ? {
-                  transform: `scale(${cropInf.zoom}) translate(${cropInf.x / cropInf.zoom}px, ${cropInf.y / cropInf.zoom}px)`,
-                  transformOrigin: 'center center',
-                } : undefined}
-              />
+            <div className="w-full md:w-1/2 rounded-xl overflow-hidden" style={{ aspectRatio: '4/3' }}>
+              <img src={imgInf} alt={company.name} className="w-full h-full object-contain" />
             </div>
           )}
         </div>
@@ -659,14 +654,10 @@ export default function TourismPage({ activeFilter, onClearFilter, onEmpresaCate
     if (activeFilter && !selectedCompany) setSelectedCompany(null)
   }, [activeFilter])
 
-  // Cuando se selecciona/deselecciona empresa, actualizar categorías del sidebar
+  // Al deseleccionar empresa, restaurar categorías globales del sidebar
   useEffect(() => {
-    if (onEmpresaCategorias) {
-      if (selectedCompany) {
-        onEmpresaCategorias(selectedCompany.subcategories || [])
-      } else {
-        onEmpresaCategorias(null) // null = restaurar categorías globales
-      }
+    if (!selectedCompany && onEmpresaCategorias) {
+      onEmpresaCategorias(null)
     }
   }, [selectedCompany])
 
@@ -739,6 +730,7 @@ export default function TourismPage({ activeFilter, onClearFilter, onEmpresaCate
         onClearFilter={onClearFilter}
         initialTour={initialTour}
         onInitialTourConsumed={onInitialTourConsumed}
+        onEmpresaCategorias={onEmpresaCategorias}
         onBack={() => {
           setSelectedCompany(null)
           if (onClearFilter) onClearFilter()
@@ -796,8 +788,9 @@ export default function TourismPage({ activeFilter, onClearFilter, onEmpresaCate
           <div
             key={company.id}
             id={`turismo-card-${company.userId}`}
-            className="flex flex-row bg-white rounded-xl sm:rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow border border-slate-100 p-3 sm:p-4 md:p-5 gap-3 sm:gap-4 items-stretch min-h-[195px] sm:min-h-0 transition-all duration-500"
+            className="flex flex-row flex-wrap bg-white rounded-xl sm:rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow border border-slate-100 p-3 sm:p-4 md:p-5 gap-x-3 sm:gap-4 items-stretch transition-all duration-500"
           >
+            {/* Columna izquierda: info */}
             <div className="flex-1 flex flex-col min-w-0">
               <div className="flex items-center gap-1.5 mb-1">
                 <span
@@ -817,17 +810,8 @@ export default function TourismPage({ activeFilter, onClearFilter, onEmpresaCate
                 </div>
               )}
               <p className="text-[10px] sm:text-xs text-slate-500 leading-relaxed mb-2 sm:mb-3 line-clamp-5 sm:line-clamp-3">{company.description}</p>
-              {/* Categorías — solo mobile, fila horizontal scrolleable */}
-              {company.subcategories && company.subcategories.length > 0 && (
-                <div className="sm:hidden flex items-center gap-1 overflow-x-auto mb-2 w-full" style={{ scrollbarWidth: 'none' }}>
-                  {company.subcategories.map((cat) => (
-                    <span key={cat} className="shrink-0 text-[9px] font-semibold px-2 py-0.5 rounded-full border whitespace-nowrap" style={{ color: '#3B1969', background: 'rgba(59,25,105,0.07)', borderColor: 'rgba(59,25,105,0.15)' }}>
-                      {cat}
-                    </span>
-                  ))}
-                </div>
-              )}
-              <div className="mt-auto flex items-center gap-2 sm:gap-3">
+              {/* Botones: solo sm+ dentro de la columna izquierda */}
+              <div className="hidden sm:flex mt-auto items-center gap-2 sm:gap-3">
                 {company.planId >= 5 && (
                   <button
                     onClick={() => {
@@ -859,6 +843,7 @@ export default function TourismPage({ activeFilter, onClearFilter, onEmpresaCate
               </div>
             </div>
 
+            {/* Columna derecha: imágenes + categorías sm+ */}
             <div className="shrink-0 flex flex-col items-center">
               <CardFan images={company.images} crops={company.imagesCrop} />
               <div className="hidden sm:flex flex-wrap justify-center items-start content-start gap-x-1 gap-y-0.5 sm:-mt-2 max-w-[200px] md:max-w-[250px]">
@@ -869,6 +854,47 @@ export default function TourismPage({ activeFilter, onClearFilter, onEmpresaCate
                   </span>
                 ))}
               </div>
+            </div>
+
+            {/* Categorías full-width — solo mobile, debajo de las imágenes */}
+            {company.subcategories && company.subcategories.length > 0 && (
+              <div className="sm:hidden w-full flex flex-wrap gap-x-3 gap-y-1 pt-1 border-t border-slate-100">
+                {company.subcategories.map((cat) => (
+                  <span key={cat} className="text-[10px] text-slate-500 font-medium">{cat}</span>
+                ))}
+              </div>
+            )}
+
+            {/* Botones full-width — solo mobile */}
+            <div className="sm:hidden w-full flex items-center gap-2 pt-1">
+              {company.planId >= 5 && (
+                <button
+                  onClick={() => {
+                    trackCardClick(company.userId)
+                    setSelectedCompany(company)
+                    window.scrollTo({ top: 0, behavior: 'smooth' })
+                  }}
+                  className="bg-primary hover:bg-primary-light text-white px-5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wide transition-all hover:scale-105 flex items-center gap-1.5 whitespace-nowrap"
+                >
+                  <span className="material-symbols-outlined text-sm">visibility</span>
+                  Ver más
+                </button>
+              )}
+              {(company.telefono || company.whatsapp) && (
+                <a
+                  href={company.whatsapp
+                    ? `https://wa.me/${company.whatsapp.replace(/[^0-9]/g, '')}`
+                    : `tel:${company.telefono}`
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackCardClick(company.userId)}
+                  className="border border-primary/20 text-primary px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wide hover:bg-primary/5 transition-all flex items-center gap-1.5"
+                >
+                  <span className="material-symbols-outlined text-sm">{company.whatsapp ? 'chat' : 'call'}</span>
+                  Contactar
+                </a>
+              )}
             </div>
           </div>
         ))}
