@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
+import ConfirmDialog from '../../components/ConfirmDialog.jsx'
 
 const API = import.meta.env.VITE_API || ''
 
@@ -9,6 +10,7 @@ const menuGeneral = [
   { label: 'Banner', icon: 'photo_library', path: '/admin/banner', minPlan: 3 },
   { label: 'Apariencia', icon: 'palette', path: '/admin/apariencia', minPlan: 3 },
   { label: 'Estadísticas', icon: 'bar_chart', path: '/admin/estadisticas', minPlan: 3 },
+  { label: 'Facturación', icon: 'receipt_long', path: '/admin/facturacion' },
 ]
 
 const menuTurismo = [
@@ -17,6 +19,7 @@ const menuTurismo = [
   { label: 'Mi Página', icon: 'web', path: '/admin/pagina', minPlan: 5, countKey: 'pagina' },
   { label: 'Tour', icon: 'tour', path: '/admin/tour', minPlan: 5, countKey: 'tours' },
   { label: 'Estadísticas', icon: 'bar_chart', path: '/admin/estadisticas', minPlan: 5 },
+  { label: 'Facturación', icon: 'receipt_long', path: '/admin/facturacion' },
 ]
 
 const menuProgramador = [
@@ -25,6 +28,7 @@ const menuProgramador = [
   { label: 'Estadísticas', icon: 'bar_chart', path: '/admin/programador/estadisticas' },
   { label: 'Servidor', icon: 'dns', path: '/admin/programador/servidor' },
   { label: 'Monitor', icon: 'monitor_heart', path: '/admin/programador/monitor' },
+  { label: 'Roadmap', icon: 'map', path: '/admin/programador/roadmap' },
 ]
 
 const menuLocal = [
@@ -50,7 +54,15 @@ export default function AdminSidebar({ open, onClose }) {
     : menuGeneral
   const [lockedPopup, setLockedPopup] = useState(null)
   const [counts, setCounts] = useState(null)
+  const [confirmLogout, setConfirmLogout] = useState(false)
   const location = useLocation()
+
+  const doLogout = async () => {
+    try { await fetch(`${API}/api/v1/auth/logout`, { method: 'POST', credentials: 'include' }) } catch {}
+    localStorage.removeItem('token'); localStorage.removeItem('user')
+    localStorage.removeItem('auth_mode'); localStorage.removeItem('dev_user_id')
+    window.location.href = '/'
+  }
 
   useEffect(() => {
     if (isProg) return
@@ -175,14 +187,7 @@ export default function AdminSidebar({ open, onClose }) {
               <p className="text-[10px] text-gray-400 truncate">{user.email || ''}</p>
             </div>
             <button
-              onClick={async () => {
-                await fetch(`${API}/api/v1/auth/logout`, { method: 'POST', credentials: 'include' })
-                localStorage.removeItem('token')
-                localStorage.removeItem('user')
-                localStorage.removeItem('auth_mode')
-                localStorage.removeItem('dev_user_id')
-                window.location.href = '/'
-              }}
+              onClick={() => setConfirmLogout(true)}
               className="shrink-0 p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
               title="Cerrar sesión"
             >
@@ -219,7 +224,19 @@ export default function AdminSidebar({ open, onClose }) {
           </div>
         </div>
       )}
+
     </aside>
+
+    {/* Fuera del <aside>: su transform crearía un containing block y el modal (fixed) quedaría confinado */}
+    <ConfirmDialog
+      open={confirmLogout}
+      icon="logout"
+      title="¿Cerrar sesión?"
+      message="Vas a salir de tu cuenta. Podrás volver a ingresar cuando quieras."
+      confirmLabel="Cerrar sesión"
+      onConfirm={() => { setConfirmLogout(false); doLogout() }}
+      onCancel={() => setConfirmLogout(false)}
+    />
     </>
   )
 }

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, lazy, Suspense } from 'react'
 import { Link } from 'react-router-dom'
+import ConfirmDialog from './ConfirmDialog'
 // Modales cargados bajo demanda: no entran en el bundle inicial, solo al abrirse
 const PlansModal = lazy(() => import('./PlansModal'))
 const LoginModal = lazy(() => import('./LoginModal'))
@@ -13,6 +14,7 @@ export default function Header({ activeNav, toggleNav, onToggleSidebar, sidebarO
     return !!params.get('reset')
   })
   const [showRegister, setShowRegister] = useState(false)
+  const [confirmLogout, setConfirmLogout] = useState(false)
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [showResults, setShowResults] = useState(false)
@@ -97,20 +99,30 @@ export default function Header({ activeNav, toggleNav, onToggleSidebar, sidebarO
     { label: 'Negocios', icon: 'storefront' },
   ]
 
+  // Saludo al usuario logueado (no programador). Reutilizado en desktop/tablet/mobile.
+  const greetingName = user ? (() => { const n = (user.nombre || user.email || '').split(' ')[0]; return n.length > 10 ? n.slice(0, 10) + '…' : n })() : ''
+  const showGreeting = !!user && user.rol !== 'programador'
+
   return (
     <div id="main-header" className="sticky top-0 z-50">
       {/* === HEADER PRINCIPAL === */}
       <header className="bg-primary text-white px-3 sm:px-4 md:px-6 shadow-lg">
         <div className="max-w-7xl mx-auto flex items-center gap-2 sm:gap-4 md:gap-8 md:justify-center relative py-4 sm:py-5 md:py-7">
-          {/* Logo */}
-          <div className="flex items-center gap-2 sm:gap-2 md:absolute md:left-0 shrink-0">
+          {/* Logo — clic vuelve al inicio (MOD-002) */}
+          <button
+            type="button"
+            onClick={onGoHome}
+            title="Ir al inicio"
+            aria-label="Ir al inicio"
+            className="flex items-center gap-2 sm:gap-2 md:absolute md:left-0 shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
+          >
             <div className="bg-accent p-1.5 sm:p-2 md:p-1.5 rounded-lg text-primary">
               <span className="material-symbols-outlined block text-2xl sm:text-3xl md:text-2xl font-bold">ads_click</span>
             </div>
             <span className="text-lg sm:text-xl md:text-xl font-black tracking-tight">
               Local<span className="text-accent">Click</span>
             </span>
-          </div>
+          </button>
 
           {/* Buscador - oculto en mobile, visible en tablet/desktop */}
           <div className="hidden sm:block sm:flex-initial w-full sm:max-w-[280px] md:max-w-lg relative group md:flex-none sm:mx-auto" ref={searchRef}>
@@ -227,10 +239,13 @@ export default function Header({ activeNav, toggleNav, onToggleSidebar, sidebarO
           <div className="flex items-center gap-1 shrink-0">
             {user ? (
               <>
+                {showGreeting && (
+                  <span className="text-[10px] font-bold text-accent max-w-[64px] truncate" title={`Hola, ${greetingName}`}>Hola, {greetingName}</span>
+                )}
                 <Link to="/admin" className="p-1 text-white/70 hover:text-accent rounded-full hover:bg-white/10 transition-colors">
                   <span className="material-symbols-outlined text-base">{user.rol === 'programador' ? 'terminal' : 'dashboard'}</span>
                 </Link>
-                <button onClick={onLogout} className="p-1 text-white/70 hover:text-accent rounded-full hover:bg-white/10 transition-colors">
+                <button onClick={() => setConfirmLogout(true)} title="Cerrar sesión" className="p-1 text-white/70 hover:text-accent rounded-full hover:bg-white/10 transition-colors">
                   <span className="material-symbols-outlined text-base">logout</span>
                 </button>
               </>
@@ -268,15 +283,7 @@ export default function Header({ activeNav, toggleNav, onToggleSidebar, sidebarO
               </button>
             )}
           </div>
-          {showInicio && (
-            <button
-              onClick={onGoHome}
-              className="flex items-center gap-1 text-[10px] sm:text-xs font-bold bg-accent text-primary px-2 sm:px-3 py-1 rounded-full hover:brightness-110 transition-all"
-            >
-              <span className="material-symbols-outlined text-sm sm:text-base">home</span>
-              Inicio
-            </button>
-          )}
+          {/* Botón "Inicio" eliminado (MOD-004): el logo ya navega al inicio (MOD-002) */}
 
           {/* Desktop: Registrarse, Ingresar y Planes */}
           <div className="hidden md:flex items-center gap-4">
@@ -284,7 +291,7 @@ export default function Header({ activeNav, toggleNav, onToggleSidebar, sidebarO
               <>
                 {user.rol !== 'programador' && (
                   <>
-                    <span className="text-xs text-white/70">Hola, <span className="font-bold text-accent">{(() => { const n = user.nombre.split(' ')[0]; return n.length > 10 ? n.slice(0, 10) + '...' : n })()}</span>
+                    <span className="text-xs text-white/70">Hola, <span className="font-bold text-accent">{greetingName}</span>
                     </span>
                     <Link to="/admin" className="flex items-center text-white/90 hover:text-accent transition-colors" title="Panel de administrador">
                       <span className="material-symbols-outlined text-xl">dashboard</span>
@@ -296,8 +303,9 @@ export default function Header({ activeNav, toggleNav, onToggleSidebar, sidebarO
                     <span className="material-symbols-outlined text-xl">terminal</span>
                   </Link>
                 )}
-                <button onClick={onLogout} className="flex items-center text-white/90 hover:text-accent transition-colors" title="Salir">
-                  <span className="material-symbols-outlined text-xl">logout</span>
+                <button onClick={() => setConfirmLogout(true)} className="flex items-center gap-1 text-xs font-bold text-white/90 hover:text-accent transition-colors">
+                  <span className="material-symbols-outlined text-base">logout</span>
+                  Cerrar sesión
                 </button>
               </>
             ) : (
@@ -322,11 +330,15 @@ export default function Header({ activeNav, toggleNav, onToggleSidebar, sidebarO
           <div className="flex sm:flex md:hidden items-center gap-2">
             {user ? (
               <>
+                {showGreeting && (
+                  <span className="text-[11px] text-white/70 whitespace-nowrap">Hola, <span className="font-bold text-accent">{greetingName}</span></span>
+                )}
                 <Link to="/admin" className="flex items-center text-white/90 hover:text-accent transition-colors" title="Panel">
                   <span className="material-symbols-outlined text-lg">{user.rol === 'programador' ? 'terminal' : 'dashboard'}</span>
                 </Link>
-                <button onClick={onLogout} className="flex items-center text-white/90 hover:text-accent transition-colors" title="Salir">
-                  <span className="material-symbols-outlined text-lg">logout</span>
+                <button onClick={() => setConfirmLogout(true)} className="flex items-center gap-1 text-[11px] font-bold text-white/90 hover:text-accent transition-colors">
+                  <span className="material-symbols-outlined text-base">logout</span>
+                  Cerrar sesión
                 </button>
               </>
             ) : (
@@ -334,8 +346,9 @@ export default function Header({ activeNav, toggleNav, onToggleSidebar, sidebarO
                 <button onClick={() => setShowRegister(true)} className="flex items-center text-white/90 hover:text-accent transition-colors" title="Registrarse">
                   <span className="material-symbols-outlined text-lg">person_add</span>
                 </button>
-                <button onClick={() => setShowLogin(true)} className="flex items-center text-white/90 hover:text-accent transition-colors" title="Ingresar">
-                  <span className="material-symbols-outlined text-lg">login</span>
+                <button onClick={() => setShowLogin(true)} className="flex items-center gap-1 text-[11px] font-bold text-white/90 hover:text-accent transition-colors">
+                  <span className="material-symbols-outlined text-base">login</span>
+                  Ingresar
                 </button>
               </>
             )}
@@ -346,6 +359,17 @@ export default function Header({ activeNav, toggleNav, onToggleSidebar, sidebarO
           </div>
         </div>
       </nav>
+
+      <ConfirmDialog
+        open={confirmLogout}
+        icon="logout"
+        title="¿Cerrar sesión?"
+        message="Vas a salir de tu cuenta. Podrás volver a ingresar cuando quieras."
+        confirmLabel="Cerrar sesión"
+        cancelLabel="Cancelar"
+        onConfirm={() => { setConfirmLogout(false); onLogout() }}
+        onCancel={() => setConfirmLogout(false)}
+      />
 
       <Suspense fallback={null}>
         {showPlans && <PlansModal onClose={() => setShowPlans(false)} />}

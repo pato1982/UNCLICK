@@ -85,7 +85,7 @@ export function StoreFooter({ store }) {
                   {horarios.map((h) => (
                     <div key={h.dia} className="flex gap-1">
                       <span className="font-medium text-white/40 w-6">{h.dia.slice(0, 3)}</span>
-                      {h.activo ? <span className="text-white/60">{h.apertura}-{h.cierre}</span> : <span className="text-white/30 italic">Cerrado</span>}
+                      {h.activo ? <span className="text-white/60">{h.apertura}-{h.cierre}{h.dosTramos && h.apertura2 && h.cierre2 ? ` · ${h.apertura2}-${h.cierre2}` : ''}</span> : <span className="text-white/30 italic">Cerrado</span>}
                     </div>
                   ))}
                 </div>
@@ -162,7 +162,7 @@ export function StoreFooter({ store }) {
                 {horarios.map((h) => (
                   <div key={h.dia} className="flex gap-1">
                     <span className="font-medium text-white/40 w-7">{h.dia.slice(0, 3)}</span>
-                    {h.activo ? <span className="text-white/60">{h.apertura}-{h.cierre}</span> : <span className="text-white/30 italic">Cerrado</span>}
+                    {h.activo ? <span className="text-white/60">{h.apertura}-{h.cierre}{h.dosTramos && h.apertura2 && h.cierre2 ? ` · ${h.apertura2}-${h.cierre2}` : ''}</span> : <span className="text-white/30 italic">Cerrado</span>}
                   </div>
                 ))}
               </div>

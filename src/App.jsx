@@ -37,13 +37,12 @@ const SECTION_TITLES = {
   ofertas: 'Productos en Ofertas',
   novedades: 'Novedades',
   liquidacion: 'Productos en Liquidación',
-  tecnologia: 'Tecnología',
   servicios: 'Servicios',
   arriendos: 'Arriendos',
-  tendencia: 'Tendencia',
 }
 
-const SECTION_ORDER = ['destacados', 'ofertas', 'arriendos', 'novedades', 'servicios', 'liquidacion', 'tendencia', 'tecnologia']
+// Tabs "Tendencia" y "Tecnología" retiradas del módulo de producto (MOD-010)
+const SECTION_ORDER = ['destacados', 'ofertas', 'arriendos', 'novedades', 'servicios', 'liquidacion']
 
 function mapListingToProduct(l) {
   return {

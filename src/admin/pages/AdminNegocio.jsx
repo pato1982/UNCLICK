@@ -8,7 +8,29 @@ const defaultHorarios = DIAS.map((dia) => ({
   activo: dia !== 'Domingo',
   apertura: '09:00',
   cierre: '18:00',
+  // Segundo tramo opcional (cierre por almuerzo). Retrocompatible: si falta, no se muestra.
+  dosTramos: false,
+  apertura2: '15:00',
+  cierre2: '19:00',
 }))
+
+// Valida un día de horario. Devuelve un mensaje de error o null si está OK.
+// Las horas son strings "HH:MM" (24h, con cero a la izquierda) → comparación textual válida.
+function validarHorario(h) {
+  if (!h.activo) return null
+  if (h.apertura && h.cierre && h.apertura >= h.cierre) {
+    return 'La hora de cierre debe ser posterior a la de apertura.'
+  }
+  if (h.dosTramos) {
+    if (h.apertura2 && h.cierre2 && h.apertura2 >= h.cierre2) {
+      return 'En el segundo tramo, el cierre debe ser posterior a la apertura.'
+    }
+    if (h.cierre && h.apertura2 && h.apertura2 < h.cierre) {
+      return 'El segundo tramo debe empezar después de que cierra el primero (no pueden superponerse).'
+    }
+  }
+  return null
+}
 
 const MAX_SLOGAN_WORDS = 10
 
@@ -86,13 +108,31 @@ export default function AdminNegocio() {
     setSaved(false)
   }
 
+  // Activar/desactivar el 2º tramo. Al activarlo, inicializa apertura2/cierre2 en
+  // el estado (no solo en el value del input) para no persistir un tramo sin horas
+  // en registros viejos que no traen esos campos.
+  const toggleSegundoTramo = (index, on) => {
+    const newHorarios = [...form.horarios]
+    const h = newHorarios[index]
+    newHorarios[index] = on
+      ? { ...h, dosTramos: true, apertura2: h.apertura2 || '15:00', cierre2: h.cierre2 || '19:00' }
+      : { ...h, dosTramos: false }
+    setForm({ ...form, horarios: newHorarios })
+    setSaved(false)
+  }
+
   const fbValid = !form.facebook || /^https?:\/\/(www\.)?(facebook\.com|fb\.com)\//i.test(form.facebook)
   const igValid = !form.instagram || /^https?:\/\/(www\.)?instagram\.com\//i.test(form.instagram) || /^@[\w.]+$/.test(form.instagram)
+
+  // Errores de horario por día (alineados por índice con form.horarios)
+  const horarioErrores = form.horarios.map(validarHorario)
+  const horariosValidos = horarioErrores.every((msg) => !msg)
 
   const handleSave = async (e) => {
     e.preventDefault()
     if (!fbValid) { setError('La URL de Facebook debe ser un enlace válido de facebook.com'); return }
     if (!igValid) { setError('Instagram debe ser una URL de instagram.com o un @usuario'); return }
+    if (!horariosValidos) { setError('Revisa los horarios: hay tramos que se superponen o con la hora de cierre antes de la apertura.'); return }
     setSaving(true)
     setError('')
     try {
@@ -317,20 +357,69 @@ export default function AdminNegocio() {
                   </button>
 
                   {h.activo ? (
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="time"
-                        value={h.apertura}
-                        onChange={(e) => updateHorario(i, 'apertura', e.target.value)}
-                        className="border border-gray-300 rounded-lg px-2 py-1.5 text-xs focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
-                      />
-                      <span className="text-xs text-gray-400">a</span>
-                      <input
-                        type="time"
-                        value={h.cierre}
-                        onChange={(e) => updateHorario(i, 'cierre', e.target.value)}
-                        className="border border-gray-300 rounded-lg px-2 py-1.5 text-xs focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
-                      />
+                    <div className="flex flex-col gap-1.5">
+                      {/* Tramo 1 */}
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="time"
+                          value={h.apertura}
+                          onChange={(e) => updateHorario(i, 'apertura', e.target.value)}
+                          className="border border-gray-300 rounded-lg px-2 py-1.5 text-xs focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
+                        />
+                        <span className="text-xs text-gray-400">a</span>
+                        <input
+                          type="time"
+                          value={h.cierre}
+                          onChange={(e) => updateHorario(i, 'cierre', e.target.value)}
+                          className="border border-gray-300 rounded-lg px-2 py-1.5 text-xs focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
+                        />
+                        {!h.dosTramos && (
+                          <button
+                            type="button"
+                            onClick={() => toggleSegundoTramo(i, true)}
+                            className="text-[11px] font-semibold text-primary hover:text-accent flex items-center gap-0.5 transition-colors"
+                            title="Agregar un segundo tramo (cierre por almuerzo)"
+                          >
+                            <span className="material-symbols-outlined text-sm">add</span>
+                            Tramo
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Tramo 2 (opcional) */}
+                      {h.dosTramos && (
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="time"
+                            value={h.apertura2 || '15:00'}
+                            onChange={(e) => updateHorario(i, 'apertura2', e.target.value)}
+                            className="border border-gray-300 rounded-lg px-2 py-1.5 text-xs focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
+                          />
+                          <span className="text-xs text-gray-400">a</span>
+                          <input
+                            type="time"
+                            value={h.cierre2 || '19:00'}
+                            onChange={(e) => updateHorario(i, 'cierre2', e.target.value)}
+                            className="border border-gray-300 rounded-lg px-2 py-1.5 text-xs focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => toggleSegundoTramo(i, false)}
+                            className="text-gray-400 hover:text-red-500 transition-colors"
+                            title="Quitar el segundo tramo"
+                          >
+                            <span className="material-symbols-outlined text-base">close</span>
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Aviso de validación del horario del día */}
+                      {horarioErrores[i] && (
+                        <span className="text-[11px] text-red-500 flex items-start gap-1 max-w-[260px] leading-snug">
+                          <span className="material-symbols-outlined text-sm shrink-0">warning</span>
+                          {horarioErrores[i]}
+                        </span>
+                      )}
                     </div>
                   ) : (
                     <span className="text-xs text-gray-400 italic">Cerrado</span>
