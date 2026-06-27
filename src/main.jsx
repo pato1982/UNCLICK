@@ -10,7 +10,6 @@ const AdminLayout = lazy(() => import('./admin/AdminLayout'))
 const AdminProductos = lazy(() => import('./admin/pages/AdminProductos'))
 const AdminNegocio = lazy(() => import('./admin/pages/AdminNegocio'))
 const AdminBanner = lazy(() => import('./admin/pages/AdminBanner'))
-const AdminApariencia = lazy(() => import('./admin/pages/AdminApariencia'))
 const AdminEstadisticas = lazy(() => import('./admin/pages/AdminEstadisticas'))
 const AdminTour = lazy(() => import('./admin/pages/AdminTour'))
 const AdminPortada = lazy(() => import('./admin/pages/AdminPortada'))
@@ -73,7 +72,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             <Route index element={<AdminIndex />} />
             <Route path="negocio" element={<AdminNegocio />} />
             <Route path="banner" element={<AdminBanner />} />
-            <Route path="apariencia" element={<AdminApariencia />} />
             <Route path="estadisticas" element={<AdminEstadisticas />} />
             <Route path="portada" element={<AdminPortada />} />
             <Route path="tour" element={<AdminTour />} />

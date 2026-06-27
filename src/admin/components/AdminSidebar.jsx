@@ -8,7 +8,6 @@ const menuGeneral = [
   { label: 'Mi Negocio', icon: 'storefront', path: '/admin/negocio' },
   { label: 'Productos', icon: 'inventory_2', path: '/admin' },
   { label: 'Banner', icon: 'photo_library', path: '/admin/banner', minPlan: 3 },
-  { label: 'Apariencia', icon: 'palette', path: '/admin/apariencia', minPlan: 3 },
   { label: 'Estadísticas', icon: 'bar_chart', path: '/admin/estadisticas', minPlan: 3 },
   { label: 'Facturación', icon: 'receipt_long', path: '/admin/facturacion' },
 ]
