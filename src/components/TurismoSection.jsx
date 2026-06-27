@@ -119,7 +119,7 @@ function TourModal({ tour, onClose, onOpenTour }) {
           <div className="flex items-center justify-between w-full pt-1">
             <div>
               {tour.precio_antes && (
-                <span className="text-xs text-slate-400 line-through block">
+                <span className="text-xs text-slate-500 line-through block">
                   ${Number(tour.precio_antes).toLocaleString('es-CL', { maximumFractionDigits: 0 })}
                 </span>
               )}
@@ -173,7 +173,7 @@ function TourCard({ tour, onClick, onOpenTour, fading }) {
         <div className="mt-auto flex items-center justify-between w-full pt-1">
           <div>
             {tour.precio_antes && (
-              <p className="text-[9px] text-slate-400 line-through leading-none">
+              <p className="text-[9px] text-slate-500 line-through leading-none">
                 ${Number(tour.precio_antes).toLocaleString('es-CL', { maximumFractionDigits: 0 })}
               </p>
             )}

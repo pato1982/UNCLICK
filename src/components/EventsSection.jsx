@@ -106,6 +106,10 @@ export default function EventsSection({ onViewAll }) {
           src={event.image}
           alt={event.title}
           className="w-full h-full object-contain"
+          width={300}
+          height={300}
+          loading="lazy"
+          decoding="async"
         />
         <span className={`absolute top-1 left-1 sm:top-1.5 sm:left-1.5 ${event.badgeColor} px-1 sm:px-1.5 py-0.5 rounded-full text-[6px] sm:text-[7px] font-black uppercase tracking-wider shadow`}>
           {event.badge}

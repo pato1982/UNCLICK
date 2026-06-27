@@ -27,7 +27,7 @@ export default function ImageGallery({ images = [], alt = '', height = 'h-52 sm:
 
   if (count === 1) return (
     <div className={`w-full ${height} overflow-hidden bg-slate-100`}>
-      <img src={imgs[0]} alt={alt} className="w-full h-full object-cover" />
+      <img src={imgs[0]} alt={alt} className="w-full h-full object-cover" loading="lazy" decoding="async" />
     </div>
   )
 
@@ -55,6 +55,8 @@ export default function ImageGallery({ images = [], alt = '', height = 'h-52 sm:
           key={src + i}
           src={src}
           alt={`${alt} ${i + 1}`}
+          loading="lazy"
+          decoding="async"
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${i === current ? 'opacity-100' : 'opacity-0'}`}
         />
       ))}
@@ -62,15 +64,17 @@ export default function ImageGallery({ images = [], alt = '', height = 'h-52 sm:
       {/* Flechas — solo desktop */}
       <button
         onClick={prev}
+        aria-label="Imagen anterior"
         className="hidden sm:flex absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/80 backdrop-blur items-center justify-center hover:bg-white transition-colors shadow z-10"
       >
-        <span className="material-symbols-outlined text-slate-700 text-base leading-none">chevron_left</span>
+        <span className="material-symbols-outlined text-slate-700 text-base leading-none" aria-hidden="true">chevron_left</span>
       </button>
       <button
         onClick={next}
+        aria-label="Imagen siguiente"
         className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/80 backdrop-blur items-center justify-center hover:bg-white transition-colors shadow z-10"
       >
-        <span className="material-symbols-outlined text-slate-700 text-base leading-none">chevron_right</span>
+        <span className="material-symbols-outlined text-slate-700 text-base leading-none" aria-hidden="true">chevron_right</span>
       </button>
 
       {/* Dots */}
@@ -79,8 +83,12 @@ export default function ImageGallery({ images = [], alt = '', height = 'h-52 sm:
           <button
             key={i}
             onClick={() => setCurrent(i)}
-            className={`rounded-full transition-all duration-300 shadow-md ${i === current ? 'w-6 h-3 bg-accent' : 'w-3 h-3 bg-white/70'}`}
-          />
+            aria-label={`Ir a la imagen ${i + 1}`}
+            aria-current={i === current}
+            className="flex items-center justify-center p-2 -m-2"
+          >
+            <span className={`block rounded-full transition-all duration-300 shadow-md ${i === current ? 'w-6 h-3 bg-accent' : 'w-3 h-3 bg-white/70'}`} />
+          </button>
         ))}
       </div>
     </div>
