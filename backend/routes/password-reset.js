@@ -6,7 +6,6 @@ import { logSeguridad }           from '../lib/securityLog.js'
 
 const router     = Router()
 const SALT_ROUNDS = 12
-const TOKEN_TTL_MS = 60 * 60 * 1000 // 1 hora
 
 // ── POST /api/v1/password-reset/request ──────────────────────────────────────
 // Genera token, lo guarda en BD y envía email con el enlace de reset.
@@ -30,13 +29,11 @@ router.post('/request', async (req, res) => {
         [usuario.id]
       )
 
-      const token     = randomBytes(32).toString('hex')
-      const expiresAt = new Date(Date.now() + TOKEN_TTL_MS)
-        .toISOString().slice(0, 19).replace('T', ' ')
+      const token = randomBytes(32).toString('hex')
 
       await req.pool.query(
-        'INSERT INTO tb_password_reset_tokens (usuario_id, token, expires_at) VALUES (?, ?, ?)',
-        [usuario.id, token, expiresAt]
+        'INSERT INTO tb_password_reset_tokens (usuario_id, token, expires_at) VALUES (?, ?, DATE_ADD(UTC_TIMESTAMP(), INTERVAL 1 HOUR))',
+        [usuario.id, token]
       )
 
       // Registrar solicitud de reset
@@ -66,14 +63,15 @@ router.post('/reset', async (req, res) => {
 
   try {
     const [[row]] = await req.pool.query(
-      `SELECT t.id, t.usuario_id, t.expires_at
+      `SELECT t.id, t.usuario_id,
+              (t.expires_at < UTC_TIMESTAMP()) AS expired
        FROM tb_password_reset_tokens t
        WHERE t.token = ?`,
       [token]
     )
 
-    if (!row)                              return res.status(400).json({ error: 'Token inválido o ya utilizado' })
-    if (new Date(row.expires_at) < new Date()) return res.status(400).json({ error: 'El enlace ha expirado. Solicita uno nuevo.' })
+    if (!row)       return res.status(400).json({ error: 'Token inválido o ya utilizado' })
+    if (row.expired) return res.status(400).json({ error: 'El enlace ha expirado. Solicita uno nuevo.' })
 
     const hash = await bcrypt.hash(password, SALT_ROUNDS)
 

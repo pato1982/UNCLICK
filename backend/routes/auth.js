@@ -118,13 +118,11 @@ router.post('/register', async (req, res) => {
     await req.pool.query('INSERT IGNORE INTO negocios (usuario_id) VALUES (?)', [usuario_id])
 
     // Crear sesión automáticamente tras el registro
-    const token     = randomBytes(32).toString('hex')
-    const expiresAt = new Date(Date.now() + SESSION_DAYS * 86400 * 1000)
-      .toISOString().slice(0, 19).replace('T', ' ')
+    const token = randomBytes(32).toString('hex')
 
     await req.pool.query(
-      'INSERT INTO sesiones (usuario_id, token, expires_at) VALUES (?, ?, ?)',
-      [usuario_id, token, expiresAt]
+      'INSERT INTO sesiones (usuario_id, token, expires_at) VALUES (?, ?, DATE_ADD(UTC_TIMESTAMP(), INTERVAL ? DAY))',
+      [usuario_id, token, SESSION_DAYS]
     )
 
     registrarActividad(req.pool, usuario_id, 'registro', 'sesion', null, req.ip)
@@ -174,8 +172,8 @@ router.post('/login', async (req, res) => {
     }
 
     // Verificar bloqueo por intentos fallidos
-    if (usuario.login_bloqueado_hasta && new Date(usuario.login_bloqueado_hasta) > new Date()) {
-      const segundosRestantes = Math.ceil((new Date(usuario.login_bloqueado_hasta) - new Date()) / 1000)
+    if (usuario.login_bloqueado_hasta && new Date(String(usuario.login_bloqueado_hasta).replace(' ', 'T') + 'Z') > new Date()) {
+      const segundosRestantes = Math.ceil((new Date(String(usuario.login_bloqueado_hasta).replace(' ', 'T') + 'Z') - new Date()) / 1000)
       const minutosRestantes = Math.ceil(segundosRestantes / 60)
       logSeguridad(req.pool, { usuario_id: usuario.id, accion: 'login_bloqueado', ip })
       return res.status(429).json({
@@ -189,7 +187,7 @@ router.post('/login', async (req, res) => {
     if (!usuario.activo) {
       // Cuenta con eliminación programada: verificar si está dentro del período de gracia
       if (usuario.eliminacion_programada_at) {
-        const deletionDate = new Date(usuario.eliminacion_programada_at)
+        const deletionDate = new Date(String(usuario.eliminacion_programada_at).replace(' ', 'T') + 'Z')
         const now = new Date()
 
         if (deletionDate > now) {
@@ -220,16 +218,12 @@ router.post('/login', async (req, res) => {
       const AVISO_DESDE = 5
       const nuevosIntentos = (usuario.login_intentos || 0) + 1
       const bloqueado = nuevosIntentos >= MAX_INTENTOS
-      const bloqueadoHasta = bloqueado
-        ? new Date(Date.now() + 15 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
-        : null
-
       await req.pool.query(
         `UPDATE usuarios SET
            login_intentos = ?,
-           login_bloqueado_hasta = ?
+           login_bloqueado_hasta = IF(?, DATE_ADD(UTC_TIMESTAMP(), INTERVAL 15 MINUTE), NULL)
          WHERE id = ?`,
-        [bloqueado ? 0 : nuevosIntentos, bloqueadoHasta, usuario.id]
+        [bloqueado ? 0 : nuevosIntentos, bloqueado, usuario.id]
       )
 
       logSeguridad(req.pool, { usuario_id: usuario.id, accion: 'login_fallido', detalle: 'contraseña incorrecta', ip })
@@ -258,13 +252,11 @@ router.post('/login', async (req, res) => {
     )
 
     // Crear sesión
-    const token     = randomBytes(32).toString('hex')
-    const expiresAt = new Date(Date.now() + SESSION_DAYS * 86400 * 1000)
-      .toISOString().slice(0, 19).replace('T', ' ')
+    const token = randomBytes(32).toString('hex')
 
     await req.pool.query(
-      'INSERT INTO sesiones (usuario_id, token, expires_at) VALUES (?, ?, ?)',
-      [usuario.id, token, expiresAt]
+      'INSERT INTO sesiones (usuario_id, token, expires_at) VALUES (?, ?, DATE_ADD(UTC_TIMESTAMP(), INTERVAL ? DAY))',
+      [usuario.id, token, SESSION_DAYS]
     )
 
     registrarActividad(req.pool, usuario.id, 'login', 'sesion', null, req.ip)
@@ -293,7 +285,7 @@ router.get('/me', async (req, res) => {
               u.dni, u.telefono, u.direccion, u.comuna, u.created_at
        FROM sesiones s
        JOIN usuarios u ON u.id = s.usuario_id
-       WHERE s.token = ? AND s.expires_at > NOW() AND u.activo = 1`,
+       WHERE s.token = ? AND s.expires_at > UTC_TIMESTAMP() AND u.activo = 1`,
       [token]
     )
 
@@ -312,7 +304,7 @@ router.get('/profile/counts', async (req, res) => {
   if (!token) return res.status(401).json({ error: 'No autenticado' })
   try {
     const [[sesion]] = await req.pool.query(
-      'SELECT usuario_id FROM sesiones WHERE token = ? AND expires_at > NOW()', [token]
+      'SELECT usuario_id FROM sesiones WHERE token = ? AND expires_at > UTC_TIMESTAMP()', [token]
     )
     if (!sesion) return res.status(401).json({ error: 'Sesión inválida' })
     const uid = sesion.usuario_id
@@ -345,7 +337,7 @@ router.get('/profile/history', async (req, res) => {
   if (!token) return res.status(401).json({ error: 'No autenticado' })
   try {
     const [[sesion]] = await req.pool.query(
-      'SELECT usuario_id FROM sesiones WHERE token = ? AND expires_at > NOW()', [token]
+      'SELECT usuario_id FROM sesiones WHERE token = ? AND expires_at > UTC_TIMESTAMP()', [token]
     )
     if (!sesion) return res.status(401).json({ error: 'Sesión inválida' })
 
@@ -370,7 +362,7 @@ router.put('/profile', async (req, res) => {
   if (!token) return res.status(401).json({ error: 'No autenticado' })
   try {
     const [[sesion]] = await req.pool.query(
-      'SELECT usuario_id FROM sesiones WHERE token = ? AND expires_at > NOW()', [token]
+      'SELECT usuario_id FROM sesiones WHERE token = ? AND expires_at > UTC_TIMESTAMP()', [token]
     )
     if (!sesion) return res.status(401).json({ error: 'Sesión inválida' })
     const uid = sesion.usuario_id
@@ -476,7 +468,7 @@ router.put('/password', async (req, res) => {
 
   try {
     const [[sesion]] = await req.pool.query(
-      'SELECT usuario_id FROM sesiones WHERE token = ? AND expires_at > NOW()',
+      'SELECT usuario_id FROM sesiones WHERE token = ? AND expires_at > UTC_TIMESTAMP()',
       [token]
     )
     if (!sesion) return res.status(401).json({ error: 'Sesión inválida' })
@@ -510,7 +502,7 @@ router.delete('/account', async (req, res) => {
 
   try {
     const [[sesion]] = await req.pool.query(
-      'SELECT usuario_id FROM sesiones WHERE token = ? AND expires_at > NOW()', [token]
+      'SELECT usuario_id FROM sesiones WHERE token = ? AND expires_at > UTC_TIMESTAMP()', [token]
     )
     if (!sesion) return res.status(401).json({ error: 'Sesión inválida' })
 
@@ -573,13 +565,11 @@ router.post('/account/recover', async (req, res) => {
     )
 
     // Crear nueva sesión
-    const token     = randomBytes(32).toString('hex')
-    const expiresAt = new Date(Date.now() + SESSION_DAYS * 86400 * 1000)
-      .toISOString().slice(0, 19).replace('T', ' ')
+    const token = randomBytes(32).toString('hex')
 
     await req.pool.query(
-      'INSERT INTO sesiones (usuario_id, token, expires_at) VALUES (?, ?, ?)',
-      [usuario.id, token, expiresAt]
+      'INSERT INTO sesiones (usuario_id, token, expires_at) VALUES (?, ?, DATE_ADD(UTC_TIMESTAMP(), INTERVAL ? DAY))',
+      [usuario.id, token, SESSION_DAYS]
     )
 
     await req.pool.query(
