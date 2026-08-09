@@ -1,0 +1,39 @@
+# MySQL local para desarrollo de UNCLICK.
+#
+# Puerto 3309 para coexistir con otros proyectos en la misma máquina
+# (appfonoaudi-mysql :3306, gestar-mysql :3307, XAMPP :3308).
+#
+# ⚠️ UTC a propósito, no es un descuido: producción corre en un VPS con hora
+# de Alemania (Europe/Berlin) mientras los usuarios están en Chile. Fijar el
+# contenedor en UTC deja el entorno local en una zona distinta a la del
+# navegador, que es justo la condición que hace aparecer los bugs de fecha.
+# Si se pone en America/Santiago, esos bugs dejan de reproducirse localmente.
+
+services:
+  mysql:
+    image: mysql:8.0.46
+    container_name: unclick-mysql
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3309:3306"   # solo loopback: no se expone a la red
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS:-root}
+      MYSQL_DATABASE: ${DB_NAME:-unclik}
+      MYSQL_USER: ${DB_USER:-unclick_user}
+      MYSQL_PASSWORD: ${DB_PASS:-unclick_local}
+      TZ: UTC
+    command:
+      - --default-time-zone=+00:00
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - unclick_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+volumes:
+  unclick_mysql_data:

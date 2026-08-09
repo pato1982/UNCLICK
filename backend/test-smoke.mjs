@@ -1,5 +1,5 @@
 import 'dotenv/config'
-const B = 'http://localhost:3001/api/v1'
+const B = `http://localhost:${process.env.PORT || 3001}/api/v1`
 const ts = Date.now()
 let p=0, f=0
 const ok = l => { console.log('  OK  ', l); p++ }
@@ -76,9 +76,11 @@ for (const [label, url] of [
 }
 
 // track sin sesion
+// usuario_id tiene FK a usuarios: se usa el id del usuario recién registrado,
+// no un id fijo (antes era 1, que solo existía si la BD venía de un dump viejo).
 const rTrack = await fetch(B+'/analytics/track', {
   method: 'POST', headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ user_id: 1, event_type: 'page_view' })
+  body: JSON.stringify({ user_id: dMe.usuario?.id, event_type: 'page_view' })
 })
 if (rTrack.status === 200) ok('POST /analytics/track -> 200 (publico OK)')
 else er('analytics track publico', rTrack.status)

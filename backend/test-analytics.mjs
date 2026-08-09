@@ -1,6 +1,6 @@
 import 'dotenv/config'
 
-const BASE = 'http://localhost:3001/api/v1'
+const BASE = `http://localhost:${process.env.PORT || 3001}/api/v1`
 let pass = 0, fail = 0
 const ok  = label => { console.log('  OK  ', label); pass++ }
 const err = (label, msg) => { console.log('  FAIL', label, '-', String(msg).slice(0, 150)); fail++ }

@@ -2,7 +2,7 @@
  * Test completo de todos los endpoints del backend.
  * Ejecutar con el servidor corriendo: node test-api.js
  */
-const BASE = 'http://localhost:3001/api/v1'
+const BASE = `http://localhost:${process.env.PORT || 3001}/api/v1`
 let passed = 0, failed = 0
 
 function ok(label, condition, detail = '') {

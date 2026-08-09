@@ -80,7 +80,7 @@ router.post('/register', async (req, res) => {
   if (!email?.trim())     return res.status(400).json({ error: 'El email es requerido' })
   if (!password || password.length < 6)
     return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' })
-  if (!['general', 'turismo'].includes(tipo_cuenta))
+  if (!['general', 'turismo', 'local', 'evento'].includes(tipo_cuenta))
     return res.status(400).json({ error: 'Tipo de cuenta inválido' })
 
   try {

@@ -6,7 +6,7 @@
  * Uso: node backend/test-apariencia-publica.mjs
  */
 
-const BASE = 'http://localhost:3001'
+const BASE = `http://localhost:${process.env.PORT || 3001}`
 
 const APARIENCIA_CAMPOS = [
   'header_preset',
@@ -47,7 +47,7 @@ section('1. Health check')
 {
   const { status, body } = await get('/api/v1/health')
   status === 200 && body.ok
-    ? ok('Backend responde en localhost:3001')
+    ? ok(`Backend responde en ${BASE}`)
     : fail('Backend no responde', `status ${status}`)
 }
 
@@ -138,7 +138,7 @@ section('4. Usuario QA con apariencia completa')
   }
   if (!encontrado) {
     fail('Ningún usuario QA tiene al menos 5 campos de apariencia configurados',
-      'Ejecutar seed-qa.mjs para poblar datos')
+      'Ejecutar `npm run db:setup` para poblar datos')
   }
 }
 

@@ -1,66 +1,129 @@
 # Levantar UNCLICK en local
 
-Stack real: **React 18 + Vite** (frontend) · **Express 5 + mysql2** (backend) · **MariaDB** (datos).
-> Nota: el `README.md` dice "solo frontend" pero está **desactualizado** — el repo trae el stack completo.
+Stack: **React 18 + Vite 6** (frontend) · **Express 5 + mysql2** (backend, sin ORM) · **MySQL 8 en Docker**.
+
+> El `README.md` dice "solo frontend" — está desactualizado, el repo trae el stack completo.
 
 ## Requisitos
-- Node 20+ (probado con v22)
-- **XAMPP MariaDB** corriendo en `127.0.0.1:3308`, usuario `root` **sin contraseña**
-  (misma instancia desde la que se generó `unclik_dump.sql`)
 
-## Puertos (local)
-| Servicio | Puerto | Notas |
+- Node 20+
+- Docker (para MySQL)
+
+## Puertos
+
+| Servicio | Puerto | Nota |
 |---|---|---|
-| Frontend (Vite) | **5174** | 5173 suele estar ocupado por otro proyecto |
-| Backend (Express) | **3002** | 3001 lo ocupa `wa-sender` (PM2) — por eso UNCLICK usa 3002 |
-| MariaDB (XAMPP) | 3308 | BD `unclik` |
+| Frontend (Vite) | **5173** | proxea `/api` y `/uploads` al backend |
+| Backend (Express) | **3002** | 3001 lo ocupa wa-sender en algunas máquinas |
+| MySQL (Docker) | **3309** | coexiste con otros proyectos (3306/3307/3308) |
 
 ## Primera vez
 
 ```bash
-# 1. Base de datos — importar el dump (viene en UTF-16, hay que convertirlo)
-#    En PowerShell:
-$in="unclik_dump.sql"; $out="$env:TEMP\unclik_utf8.sql"
-$t=[IO.File]::ReadAllText($in,[Text.Encoding]::Unicode)
-[IO.File]::WriteAllText($out,$t,(New-Object Text.UTF8Encoding($false)))
-& "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root -h 127.0.0.1 -P 3308 -e "source $out"
-#    (el dump incluye CREATE DATABASE unclik + datos: 16 tablas, ~153 listings)
+# 1. Base de datos
+docker compose up -d
 
-# 2. Dependencias
+# 2. Configuración del backend
+cp backend/.env.example backend/.env
+
+# 3. Dependencias
 npm install                 # frontend (raíz)
 cd backend && npm install   # backend
+
+# 4. Esquema + migraciones + datos de prueba
+npm run db:setup            # desde backend/
 ```
 
-El archivo `backend/.env` ya está configurado (gitignored):
-```
-DB_HOST=127.0.0.1
-DB_PORT=3308
-DB_USER=root
-DB_PASS=
-DB_NAME=unclik
-PORT=3002
-APP_URL=http://localhost:5173
-EMAIL_USER=   # opcional (solo recuperación de contraseña)
-EMAIL_PASS=
-```
+`db:setup` es idempotente: se puede correr las veces que sea. Deja ~36
+categorías, 227 subcategorías, 33 usuarios de prueba, ~198 publicaciones, 40
+tours, 12 locales y 12 eventos. **No necesita internet**: todas las imágenes
+son locales.
 
 ## Cada arranque
 
 ```bash
-# Terminal 1 — backend
-cd backend && npm run dev     # node --watch server.js  → http://localhost:3002
+# Terminal 1 — backend (¡desde backend/, dotenv resuelve el .env por CWD!)
+cd backend && npm run dev     # → http://localhost:3002
 
 # Terminal 2 — frontend
-npm run dev                   # vite → http://localhost:5174 (proxy /api → :3002)
+npm run dev                   # → http://localhost:5173
+```
+
+## Cuentas de prueba
+
+Password para todas: **`Dev1234!`**
+
+En el modal de login (solo en dev) hay un desplegable **"DEV · Acceso rápido"**
+con todas ellas. Las principales:
+
+| Cuenta | Rol / tipo | Plan | Para probar |
+|---|---|---|---|
+| `admin@qa.dev` | programador | 4 | Panel programador, monitor, estadísticas de servidor |
+| `gen_p1_p@qa.dev` … `gen_p3_psa@qa.dev` | general | 1-3 | 7 combinaciones de productos/servicios/arriendos × 3 planes |
+| `gen_p4@qa.dev` | general | 4 | Premium Plus |
+| `tur_p1@qa.dev` | turismo | 1 | Turismo sin features premium |
+| `tur_p3@qa.dev` | turismo | 5 | Portada, tours y página propia |
+| `local_p1@qa.dev` | local | 1 | `/admin/mi-local` |
+| `evento_p1@qa.dev` | evento | 1 | `/admin/mis-eventos` |
+
+Plan 3+ desbloquea Banner, Apariencia y Estadísticas. Plan 5 (turismo)
+desbloquea Página propia y Tours.
+
+## Comandos útiles
+
+```bash
+# desde backend/
+npm run db:setup     # aplica esquema + migraciones + seeds (idempotente)
+npm run db:reset     # borra la BD entera y la reconstruye
+npm test             # smoke test (backend arriba)
+
+# desde la raíz
+docker compose logs -f mysql
+docker compose down          # detiene MySQL, conserva los datos
+docker compose down -v       # ⚠️ borra también el volumen
 ```
 
 ## Verificar que todo conecta
+
 ```bash
 curl http://localhost:3002/api/v1/health        # {"ok":true}
-curl http://localhost:5174/api/v1/categorias    # 109 categorías (proxy → backend → BD)
+curl http://localhost:5173/api/v1/categorias    # 36 categorías vía proxy
 ```
 
+## Notas
+
+**MySQL corre en UTC a propósito.** Producción está en un VPS con hora de
+Alemania mientras los usuarios están en Chile; tener el contenedor en una zona
+distinta a la del navegador es lo que permite reproducir localmente los bugs de
+fecha. Si se cambia a `America/Santiago`, esos bugs dejan de aparecer.
+
+**Recuperación de contraseña sin SMTP:** `EMAIL_USER`/`EMAIL_PASS` vienen
+vacíos, así que el correo no se envía (la API responde 200 igual, por
+anti-enumeración). Para probar el flujo, sacar el token de la BD y abrirlo a
+mano:
+
+```bash
+docker compose exec mysql mysql -uunclick_user -punclick_local unclik \
+  -e "SELECT token FROM tb_password_reset_tokens ORDER BY id DESC LIMIT 1;"
+# luego: http://localhost:5173/?reset=<token>
+```
+
+**Rate limiting:** el `.env.example` trae límites holgados para desarrollo. En
+producción esas variables se omiten y aplican los defaults estrictos del código
+(20 intentos / 15 min en `/api/v1/auth`).
+
 ## Troubleshooting
-- **404 en /api/v1/health** → otro proceso ocupa el puerto del backend (revisar `pm2 list` y `Get-NetTCPConnection -LocalPort 3002`).
-- **MySQL no conecta** → confirmar que XAMPP está en 3308 (no el servicio `MySQL80` de Windows, que usa 3306 y tiene contraseña).
-- **Dump falla al importar** (`ASCII '\0'` / `Unknown command '\U'`) → el `.sql` está en UTF-16; convertir a UTF-8 (paso 1).
+
+| Síntoma | Causa |
+|---|---|
+| Backend sale con `Faltan variables de BD` | Se arrancó desde la raíz. `dotenv` resuelve por CWD: `cd backend` primero. |
+| `ECONNREFUSED` al puerto 3309 | El contenedor no está arriba: `docker compose up -d` y esperar el healthcheck. |
+| Dropdowns de categoría vacíos en el admin | Falta correr `npm run db:setup`. |
+| 429 en todo | Se está corriendo con los límites de producción; revisar las `RATE_LIMIT_*` del `.env`. |
+| Un evento no aparece en el sitio público | `tb_eventos.fecha` debe ser ISO `YYYY-MM-DD`. Es un `VARCHAR` de texto libre, pero se compara con `CURDATE()`; cualquier otro formato lo deja invisible. |
+
+## Scripts legacy
+
+`backend/_legacy/` tiene los scripts que construían el esquema antes de que
+existieran `schema.sql` + `migrations/`. **No ejecutarlos** — algunos crean
+tablas duplicadas o borran datos. Ver `backend/_legacy/README.md`.

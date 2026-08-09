@@ -26,7 +26,8 @@ const menuProgramador = [
   { label: 'Próximos Eventos', icon: 'event', path: '/admin/programador/eventos' },
   { label: 'Estadísticas', icon: 'bar_chart', path: '/admin/programador/estadisticas' },
   { label: 'Servidor', icon: 'dns', path: '/admin/programador/servidor' },
-  { label: 'Monitor', icon: 'monitor_heart', path: '/admin/programador/monitor' },
+  // La ruta se registra como /admin/monitor en main.jsx, no bajo programador/.
+  { label: 'Monitor', icon: 'monitor_heart', path: '/admin/monitor' },
   { label: 'Roadmap', icon: 'map', path: '/admin/programador/roadmap' },
 ]
 

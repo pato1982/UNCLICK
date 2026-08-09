@@ -6,6 +6,8 @@ import * as dotenv from 'dotenv'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 dotenv.config({ path: path.join(__dirname, '.env') })
 
+const BASE = `http://localhost:${process.env.PORT || 3001}`
+
 const db = await mysql.createConnection({
   host: process.env.DB_HOST || '127.0.0.1',
   port: parseInt(process.env.DB_PORT) || 3306,
@@ -30,7 +32,7 @@ rows.forEach(r => {
 })
 
 // Verificar API
-const res = await fetch(`http://localhost:3001/api/v1/public/business/${rows[0]?.id}`)
+const res = await fetch(`${BASE}/api/v1/public/business/${rows[0]?.id}`)
 const data = await res.json()
 console.log(`\nAPI /public/business/${rows[0]?.id}:`)
 console.log('  plan_id:', data.business?.plan_id)

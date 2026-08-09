@@ -14,7 +14,7 @@
  * Uso: node backend/test-visualizacion-publica.mjs
  */
 
-const BASE = 'http://localhost:3001'
+const BASE = `http://localhost:${process.env.PORT || 3001}`
 const QA_PASSWORD = 'Dev1234!'
 const TUR_PREMIUM = 'tur_p3@qa.dev'
 
@@ -56,7 +56,7 @@ section('0. Health check')
 {
   const { status, body } = await get('/api/v1/health')
   status === 200 && body.ok
-    ? ok('Backend activo en localhost:3001')
+    ? ok(`Backend activo en ${BASE}`)
     : fail('Backend no responde', `status ${status}`)
 }
 

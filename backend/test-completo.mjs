@@ -6,7 +6,7 @@
  * Uso: node backend/test-completo.mjs
  */
 
-const BASE = 'http://localhost:3001'
+const BASE = `http://localhost:${process.env.PORT || 3001}`
 const QA_PASSWORD = 'Dev1234!'
 const APARIENCIA_CAMPOS = [
   'header_preset','header_color','header_height','header_bar',
@@ -51,7 +51,7 @@ function extractCookie(sc) {
 section('1. Health check')
 {
   const { status, body } = await get('/api/v1/health')
-  status === 200 && body.ok ? ok('Backend activo en localhost:3001') : fail('Backend no responde', `status ${status}`)
+  status === 200 && body.ok ? ok(`Backend activo en ${BASE}`) : fail('Backend no responde', `status ${status}`)
 }
 
 // ─── 2. Endpoints públicos ────────────────────────────────────────────────────

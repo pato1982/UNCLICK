@@ -31,7 +31,8 @@ function WelcomeView({ nombre, onContinue }) {
 }
 
 // ── DEV ONLY · acceso rápido a usuarios de prueba ────────────────────────────
-// Coincide con los usuarios sembrados por backend/seed-qa.mjs (+ admin de db-setup.mjs).
+// Debe coincidir con QA_USERS de backend/db/seeds/02_usuarios.mjs, que es lo
+// que crea `npm run db:setup`. Si se agrega una cuenta allá, agregarla acá.
 // Todo este bloque se usa solo bajo import.meta.env.DEV; Vite lo elimina del build de prod.
 const QA_PASSWORD = 'Dev1234!'
 const DEV_USERS = (() => {
@@ -41,6 +42,7 @@ const DEV_USERS = (() => {
   return [
     { group: 'Admin', users: [{ email: 'admin@qa.dev', label: 'Admin (programador)' }] },
     gen(1), gen(2), gen(3),
+    { group: 'General P4 (Premium Plus)', users: [{ email: 'gen_p4@qa.dev', label: 'Todos' }] },
     { group: 'Turismo', users: [
       { email: 'tur_p1@qa.dev', label: 'Gratis' },
       { email: 'tur_p1_b@qa.dev', label: 'Gratis 2' },

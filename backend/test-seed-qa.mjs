@@ -5,7 +5,7 @@
  * Uso: node backend/test-seed-qa.mjs
  */
 
-const BASE = 'http://localhost:3001'
+const BASE = `http://localhost:${process.env.PORT || 3001}`
 const QA_PASSWORD = 'Dev1234!'
 
 let passed = 0

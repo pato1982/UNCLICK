@@ -43,7 +43,7 @@ app.use(cookieParser())
 // Auth: anti-fuerza-bruta (login/register)
 const limiterAuth = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 20,
+  max: Number(process.env.RATE_LIMIT_AUTH_MAX) || 20,
   message: { error: 'Demasiados intentos, esperÃ¡ 15 minutos e intentÃ¡ de nuevo.' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -51,7 +51,7 @@ const limiterAuth = rateLimit({
 // Upload: evita flooding de imÃ¡genes
 const limiterUpload = rateLimit({
   windowMs: 60 * 1000, // 1 minuto
-  max: 30,
+  max: Number(process.env.RATE_LIMIT_UPLOAD_MAX) || 30,
   message: { error: 'Demasiadas imÃ¡genes subidas seguidas, esperÃ¡ un momento.' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -59,7 +59,7 @@ const limiterUpload = rateLimit({
 // PÃºblico: track de analytics y visitas al sitio
 const limiterPublico = rateLimit({
   windowMs: 60 * 1000,
-  max: 120,
+  max: Number(process.env.RATE_LIMIT_PUBLICO_MAX) || 120,
   message: { error: 'Demasiadas peticiones.' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -67,7 +67,7 @@ const limiterPublico = rateLimit({
 // General: todas las demÃ¡s rutas autenticadas
 const limiterGeneral = rateLimit({
   windowMs: 60 * 1000,
-  max: 300,
+  max: Number(process.env.RATE_LIMIT_GENERAL_MAX) || 300,
   message: { error: 'Demasiadas peticiones, esperÃ¡ un momento.' },
   standardHeaders: true,
   legacyHeaders: false,
