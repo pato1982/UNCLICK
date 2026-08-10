@@ -41,12 +41,15 @@ app.use(cookieParser())
 
 // â”€â”€ Rate limiting â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Auth: anti-fuerza-bruta (login/register)
+// En local con AUTH_LOCKOUT_DISABLED=true se omite por completo (QA sin fricción).
+// Por defecto activo → prod/stage protegidos.
 const limiterAuth = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
   max: 20,
   message: { error: 'Demasiados intentos, esperÃ¡ 15 minutos e intentÃ¡ de nuevo.' },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: () => process.env.AUTH_LOCKOUT_DISABLED === 'true',
 })
 // Upload: evita flooding de imÃ¡genes
 const limiterUpload = rateLimit({

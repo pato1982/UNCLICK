@@ -9,7 +9,7 @@ import { dirname, join } from 'path'
 import { config } from 'dotenv'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-config({ path: join(__dirname, '..', '.env') })
+config({ path: join(__dirname, '.env') })  // backend/.env (funciona desde cualquier cwd)
 
 const db = await mysql.createConnection({
   host:     process.env.DB_HOST || '127.0.0.1',

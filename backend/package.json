@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "node --watch server.js",
     "start": "node server.js",
+    "db:setup": "node db-setup.mjs",
     "test": "node test-smoke.mjs",
     "test:completo": "node test-completo.mjs"
   },

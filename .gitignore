@@ -25,3 +25,10 @@ backend/backups/
 
 # Memoria local de Claude (no versionar)
 memory/
+
+# Docker Compose local: credenciales y puerto son específicos de cada máquina.
+# Cada dev arma el suyo siguiendo LEVANTAR-LOCAL.md (no se versiona).
+docker-compose.yml
+
+# Reportes de Unlighthouse (auditoría web): artefactos generados, no se versionan.
+.unlighthouse/

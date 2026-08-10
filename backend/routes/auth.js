@@ -171,8 +171,12 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Email o contraseña incorrectos' })
     }
 
+    // Bloqueo por intentos fallidos. Se puede desactivar SOLO en local para QA con
+    // AUTH_LOCKOUT_DISABLED=true en backend/.env (por defecto activo → prod/stage protegidos).
+    const lockoutOff = process.env.AUTH_LOCKOUT_DISABLED === 'true'
+
     // Verificar bloqueo por intentos fallidos
-    if (usuario.login_bloqueado_hasta && new Date(String(usuario.login_bloqueado_hasta).replace(' ', 'T') + 'Z') > new Date()) {
+    if (!lockoutOff && usuario.login_bloqueado_hasta && new Date(String(usuario.login_bloqueado_hasta).replace(' ', 'T') + 'Z') > new Date()) {
       const segundosRestantes = Math.ceil((new Date(String(usuario.login_bloqueado_hasta).replace(' ', 'T') + 'Z') - new Date()) / 1000)
       const minutosRestantes = Math.ceil(segundosRestantes / 60)
       logSeguridad(req.pool, { usuario_id: usuario.id, accion: 'login_bloqueado', ip })
@@ -214,6 +218,11 @@ router.post('/login', async (req, res) => {
 
     const valido = await bcrypt.compare(password, usuario.password_hash)
     if (!valido) {
+      // En local con lockout desactivado: no contar intentos ni bloquear (QA sin fricción).
+      if (lockoutOff) {
+        logSeguridad(req.pool, { usuario_id: usuario.id, accion: 'login_fallido', detalle: 'contraseña incorrecta (lockout off)', ip })
+        return res.status(401).json({ error: 'Email o contraseña incorrectos' })
+      }
       const MAX_INTENTOS = 8
       const AVISO_DESDE = 5
       const nuevosIntentos = (usuario.login_intentos || 0) + 1

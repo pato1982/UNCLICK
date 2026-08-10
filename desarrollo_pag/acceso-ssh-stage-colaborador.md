@@ -1,5 +1,13 @@
 # Acceso SSH al servidor STAGE — Guía para colaborador
 
+> ## ⛔ OBSOLETO desde 2026-08-10
+> Este documento describe el stage viejo, alojado en el mismo servidor que producción
+> (`Villarrica`, 158.220.123.58). Ese stage fue **dado de baja por completo** el 2026-08-10
+> (proceso PM2, sitio nginx, certificado SSL, base de datos y archivos eliminados, con backup
+> previo). El stage actual corre en un **VPS dedicado separado** desde el 2026-08-05 — ver
+> `_Mapa de Infraestructura` en el vault del proyecto para los datos vigentes de acceso.
+> Se conserva este archivo solo como referencia histórica de cómo estaba montado.
+
 > **Objetivo:** darte acceso SSH al entorno **stage** de UNCLICK de forma segura, con tu propia
 > llave y un usuario limitado que **no toca producción**.
 >

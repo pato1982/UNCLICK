@@ -147,8 +147,6 @@ const LOCAL_DATA = {
   descripcion: 'Almacén de barrio con todos los productos de primera necesidad. Atendemos de lunes a sábado con la mejor atención y precios convenientes.',
   horario:     'Lunes a Viernes 09:00 - 20:00, Sábado 09:00 - 14:00',
   categoria_id: 1,
-  lat:          -39.5371,
-  lng:          -72.2253,
   imgs: [
     'photo-1555396273-367ea4eb4db5',
     'photo-1528698827591-e19ccd7bc23d',
@@ -318,8 +316,8 @@ async function main() {
       await pool.query(
         `INSERT INTO tb_locales
            (usuario_id, nombre, descripcion, direccion, horario, telefono, whatsapp,
-            facebook, instagram, correo, imagen, imagen_2, imagen_3, categoria_barrio_id, lat, lng)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            facebook, instagram, correo, imagen, imagen_2, imagen_3, categoria_barrio_id)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           uid,
           LOCAL_DATA.nombre,
@@ -335,8 +333,6 @@ async function main() {
           UNSPLASH(LOCAL_DATA.imgs[1]),
           UNSPLASH(LOCAL_DATA.imgs[2]),
           LOCAL_DATA.categoria_id,
-          LOCAL_DATA.lat,
-          LOCAL_DATA.lng,
         ]
       )
     }
